@@ -16,4 +16,4 @@ storage = "sqlite"
 
 [[services]]
 binding = "PUSH_SERVICE"
-service = "ct-campeador-push-v1"
+service = "campeador-push-test"
