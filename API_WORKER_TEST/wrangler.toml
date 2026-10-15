@@ -1,10 +1,10 @@
-name = "ct-campeador-api"
+name = "ct-campeador-api-test"
 main = "src/index.js"
 compatibility_date = "2026-10-11"
 
 [[kv_namespaces]]
 binding = "DATA"
-id = "cd8d040962b7432180e0bb3141fed1f5"
+id = "a2f070ff119f45028d759f8aea51c7bd"
 
 [[durable_objects.bindings]]
 name = "BOOKINGS"
