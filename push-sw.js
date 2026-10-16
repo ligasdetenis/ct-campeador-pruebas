@@ -16,7 +16,7 @@ self.addEventListener("push", event => {
     tag: data.tag || "ct-campeador",
     renotify: true,
     data: {
-      url: data.url || "https://ligasdetenis.github.io/ct-campeador-liga/"
+      url: data.url || "https://ligasdetenis.github.io/ct-campeador-pruebas/"
     }
   };
 
@@ -25,11 +25,11 @@ self.addEventListener("push", event => {
 
 self.addEventListener("notificationclick", event => {
   event.notification.close();
-  const appBase = "https://ligasdetenis.github.io/ct-campeador-liga/";
+  const appBase = "https://ligasdetenis.github.io/ct-campeador-pruebas/";
   let target = event.notification?.data?.url || appBase;
   try {
     const u = new URL(target, appBase);
-    if (u.origin !== new URL(appBase).origin || !u.pathname.startsWith("/ct-campeador-liga/")) target = appBase;
+    if (u.origin !== new URL(appBase).origin || !u.pathname.startsWith("/ct-campeador-pruebas/")) target = appBase;
     else target = u.toString();
   } catch (_) {
     target = appBase;

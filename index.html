@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,maximum-scale=1" name="viewport"/>
 <meta content="#b40012" name="theme-color"/>
-<title>CT Campeador</title>
+<title>CT Campeador · TEST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2986,8 +2986,13 @@ body.resultModalOpen{overflow:hidden}
 }
 
 </style>
+
+<style id="test-env-banner-style">
+#testEnvBanner{position:sticky;top:0;z-index:99999;background:#ffcc00;color:#1d1d1d;text-align:center;font-weight:1000;letter-spacing:.4px;padding:7px 12px;border-bottom:2px solid #111;font-size:13px}
+</style>
 </head>
 <body>
+<div id="testEnvBanner">🧪 ENTORNO DE PRUEBAS · NO ES PRODUCCIÓN</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -3571,13 +3576,13 @@ Pablo Ruiz"></textarea>
 </div></div></div>
 <script>
 const CATEGORIES=["Benjamín","Alevín","Infantil","Cadete","Junior","Absoluto"];
-const STORAGE_KEY="ctcampeador_reservas_v3_cloudflare_cache";
-const TOKEN_KEY="ctcampeador_api_token";
-const API_URL="https://ct-campeador-api.ligasdetenis.workers.dev/";
-const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
+const STORAGE_KEY="ctcampeador_test_reservas_v3_cloudflare_cache";
+const TOKEN_KEY="ctcampeador_test_api_token";
+const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
+const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
-const PUSH_SW_URL="/ct-campeador-liga/push-sw.js";
-const APP_BUILD="20261015-push-dot-after-name-1";
+const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
+const APP_BUILD="20261016-test-isolated-1";
 const weeks=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -3634,7 +3639,7 @@ let cloudMessagesLoaded=false;
 // V3.16.1 · consumo optimizado
 const AUTO_REFRESH_MS=5*60*1000;       // 5 min con la app visible
 const MIN_VISIBLE_REFRESH_MS=2*60*1000; // al volver a la app, mínimo 2 min desde la última lectura
-const PUSH_SYNC_CACHE_KEY='ctcampeador_push_sync_v3161';
+const PUSH_SYNC_CACHE_KEY='ctcampeador_test_push_sync_v3161';
 const PUSH_RESYNC_MS=7*24*60*60*1000;  // revalidación push como máximo una vez por semana
 let lastRefreshAt=0;
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
@@ -4474,7 +4479,7 @@ function getPushDeviceId(){
 }
 async function pushRegistration(){
   if(!('serviceWorker' in navigator))throw new Error('Este navegador no soporta Service Worker.');
-  await navigator.serviceWorker.register(PUSH_SW_URL,{scope:'/ct-campeador-liga/'});
+  await navigator.serviceWorker.register(PUSH_SW_URL,{scope:'/ct-campeador-pruebas/'});
   return navigator.serviceWorker.ready;
 }
 async function currentPushSubscription(){
@@ -4527,7 +4532,7 @@ async function checkInstalledAppVersion(){
   try{
     const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
     if(!standalone)return;
-    const r = await fetch(`/ct-campeador-liga/app-version.json?t=${Date.now()}`,{cache:'no-store'});
+    const r = await fetch(`/ct-campeador-pruebas/app-version.json?t=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return;
     const j = await r.json();
     const remote = String(j?.build||'').trim();
@@ -4704,7 +4709,7 @@ async function sendAvailabilityPush(force=false){
       weekId:weekKey(),
       weekLabel:w?.label||weekKey(),
       url:(()=>{
-        const u=new URL('https://ligasdetenis.github.io/ct-campeador-liga/');
+        const u=new URL('https://ligasdetenis.github.io/ct-campeador-pruebas/');
         u.searchParams.set('open','courts');
         u.searchParams.set('week',weekKey());
         u.searchParams.set('category',state.category);
@@ -4719,7 +4724,7 @@ async function sendAvailabilityPush(force=false){
   return j;
 }
 
-function renderIdentity(){const sel=$('#playerIdentity');const ps=visibleIdentitiesForCategory();sel.innerHTML='<option value="">Selecciona tu nombre</option>'+ps.map(p=>`<option value="${p.replace(/"/g,'&quot;')}">${p}${roleOf(p)==='admin'?' · ADMIN':''}</option>`).join('');if(state.player&&!allIdentities().includes(state.player)){state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_auth_player')}sel.value=state.player;sel.disabled=state.authenticated;$('#playerPin').disabled=state.authenticated;$('#loginBtn').disabled=state.authenticated;const info=$('#identityInfo');if(!state.authenticated){info.innerHTML='<span class="identityWarn">Sin identificar.</span> Solo aparecen jugadores de '+state.category+' '+state.gender+' y administradores.'}else{const own=allWeekFixtures().filter(m=>m.a===state.player||m.b===state.player);info.innerHTML=`<span class="identityOk">✓ ${state.player}</span> · ${isAdmin()?'ADMIN':'jugador'} · sesión iniciada · ${own.length} partido${own.length===1?'':'s'} esta semana`}}
+function renderIdentity(){const sel=$('#playerIdentity');const ps=visibleIdentitiesForCategory();sel.innerHTML='<option value="">Selecciona tu nombre</option>'+ps.map(p=>`<option value="${p.replace(/"/g,'&quot;')}">${p}${roleOf(p)==='admin'?' · ADMIN':''}</option>`).join('');if(state.player&&!allIdentities().includes(state.player)){state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_test_auth_player')}sel.value=state.player;sel.disabled=state.authenticated;$('#playerPin').disabled=state.authenticated;$('#loginBtn').disabled=state.authenticated;const info=$('#identityInfo');if(!state.authenticated){info.innerHTML='<span class="identityWarn">Sin identificar.</span> Solo aparecen jugadores de '+state.category+' '+state.gender+' y administradores.'}else{const own=allWeekFixtures().filter(m=>m.a===state.player||m.b===state.player);info.innerHTML=`<span class="identityOk">✓ ${state.player}</span> · ${isAdmin()?'ADMIN':'jugador'} · sesión iniciada · ${own.length} partido${own.length===1?'':'s'} esta semana`}}
 function initDemo(){ /* Sin datos ficticios en la versión online */ }
 function renderTabs(){
  $('#catTabs').innerHTML=CATEGORIES.map(c=>`<button class="tab ${c===state.category?'active':''}" data-cat="${c}">${c}</button>`).join("");
@@ -5200,7 +5205,7 @@ const ADMIN_DEFAULT_ORDER=[
 
 function adminOrderStorageKey(){
   if(!state.player)return '';
-  return 'ctcampeador_admin_block_order_'+normalizeName(state.player);
+  return 'ctcampeador_test_admin_block_order_'+normalizeName(state.player);
 }
 let adminCloudOrderLoadedFor='';
 let adminOrderSaveTimer=null;
@@ -5894,7 +5899,7 @@ async function copyTextRobust(text){
 async function copyPinMessage(player){
   const pin=data.pins[player];
   if(!pin){alert('Ese jugador todavía no tiene PIN.');return}
-  const msg=`Hola ${player}. Tu PIN para reservar pistas en la Liga CT Campeador es ${pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-liga/`;
+  const msg=`Hola ${player}. Tu PIN para reservar pistas en la Liga CT Campeador es ${pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
   const ok=await copyTextRobust(msg);
   if(ok){alert('📋 Mensaje copiado. Ya puedes pegarlo en WhatsApp.');return}
 
@@ -5908,7 +5913,7 @@ async function regeneratePinFor(player){
     data.pins[player]=String(r.pin||'');
     localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderPins();
-    const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-liga/`;
+    const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
     const copied=await copyTextRobust(msg);
     alert(`✅ PIN regenerado.\n\n${player}\nNuevo PIN: ${r.pin}`+(copied?'\n\n📋 Mensaje copiado al portapapeles.':''));
   }catch(e){
@@ -6076,7 +6081,7 @@ async function sendAdminMessage(){
       recipients,
       title,
       message:body,
-      url:'https://ligasdetenis.github.io/ct-campeador-liga/'
+      url:'https://ligasdetenis.github.io/ct-campeador-pruebas/'
     });
     await loadCloudMessages({silent:false});
     renderMessageHistory();
@@ -6579,7 +6584,7 @@ const MAPP_ICONS={
 function mappIcon(name){return MAPP_ICONS[name]||''}
 function mappEsc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function mappInitials(name){const p=String(name||'?').trim().split(/\s+/);return (p[0]?.[0]||'')+(p.length>1?p[p.length-1][0]:'')}
-function mappPhotoKey(name){return 'ctcampeador_profile_photo_'+normalizeName(name)}
+function mappPhotoKey(name){return 'ctcampeador_test_profile_photo_'+normalizeName(name)}
 function mappLocalPhoto(name){try{return localStorage.getItem(mappPhotoKey(name))||''}catch(_){return ''}}
 function mappPhoto(name){
  const cloud=data.profiles?.[name]?.photoDataUrl;
@@ -7761,7 +7766,7 @@ if('serviceWorker' in navigator){
     if(!url)return;
     try{
       const u=new URL(url,location.origin);
-      if(u.origin!==location.origin||!u.pathname.startsWith('/ct-campeador-liga/'))return;
+      if(u.origin!==location.origin||!u.pathname.startsWith('/ct-campeador-pruebas/'))return;
       // Conservamos el destino en memoria antes de tocar la URL para evitar
       // que iOS/PWA lo pierda durante focus/navigation.
       pendingPushDeepLink={
