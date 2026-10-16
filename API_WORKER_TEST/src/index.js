@@ -375,7 +375,7 @@ var index_default = {
         });
         if (!rr.ok) return json({ ok: false, error: rr.error || "No se pudieron restaurar las reservas TEST." }, 500, corsHeaders);
 
-        await realtimeBroadcast(env, { type: "stateChanged", at: new Date().toISOString(), source: "testRestore" }).catch(() => {});
+        await broadcastRealtime(env, { type: "stateChanged", at: new Date().toISOString(), source: "testRestore" }).catch(() => {});
         return json({
           ok: true,
           restored: {
