@@ -6,23 +6,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: API_WORKER_TEST
-
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
-
       - name: Preparar Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-
       - name: Instalar dependencias
         run: npm install
-
       - name: Desplegar API TEST
         run: npx wrangler deploy --config ./wrangler.toml
         env:
