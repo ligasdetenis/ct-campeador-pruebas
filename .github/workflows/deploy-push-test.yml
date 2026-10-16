@@ -6,9 +6,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: PUSH_WORKER_TEST
+
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
@@ -16,7 +18,7 @@ jobs:
       - name: Preparar Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Instalar dependencias
         run: npm install
