@@ -2,6 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/index.js
+// TEST HOTFIX 2026-10-16: llamadas Push directas al Worker TEST.
 import { DurableObject } from "cloudflare:workers";
 var STATE_KEY = "ct-campeador:state";
 var USERS_KEY = "ct-campeador:users";
@@ -602,7 +603,7 @@ var index_default = {
         const auth = await requireUser(request, body, env);
         if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
         if (!env.PUSH_SERVICE) return json({ ok: false, error: "El servicio Push no est\xE1 configurado." }, 500, corsHeaders);
-        const r = await env.PUSH_SERVICE.fetch("https://push.internal/health", { method: "GET" });
+        const r = await fetch("https://campeador-push-test.ligasdetenis.workers.dev/health", { method: "GET" });
         const txt = await r.text();
         let j = {};
         try {
@@ -615,14 +616,14 @@ var index_default = {
       if (action === "subscribePush") {
         const auth = await requireUser(request, body, env);
         if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
-        if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
+        if (!env.PUSH_SERVICE_TOKEN) {
           return json({ ok: false, error: "El servicio Push no est\xE1 configurado." }, 500, corsHeaders);
         }
         const subscription = body.subscription || {};
         if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
           return json({ ok: false, error: "Suscripci\xF3n Push incompleta." }, 400, corsHeaders);
         }
-        const r = await env.PUSH_SERVICE.fetch("https://push.internal/subscribe", {
+        const r = await fetch("https://campeador-push-test.ligasdetenis.workers.dev/subscribe", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -652,10 +653,7 @@ var index_default = {
         }
         const weekLabel = String(body.weekLabel || body.weekId || "esta semana");
         const launchUrl = makeAppDeepLink({ open: "courts", week: String(body.weekId || "") });
-        if (!env.PUSH_SERVICE) {
-          return json({ ok: false, error: "Falta el Service Binding PUSH_SERVICE." }, 500, corsHeaders);
-        }
-        const pushResponse = await env.PUSH_SERVICE.fetch("https://push.internal/send", {
+                const pushResponse = await fetch("https://campeador-push-test.ligasdetenis.workers.dev/send", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1059,11 +1057,11 @@ var index_default = {
         // 3) Push de fondo. Ya no bloquea la aparición del mensaje en la app.
         let pushResult = { ok: true, sent: 0, matchedUsers: 0, total: 0, removed: 0, failed: [] };
         let pushWarning = "";
-        if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
+        if (!env.PUSH_SERVICE_TOKEN) {
           pushWarning = "El mensaje se ha guardado y entregado en tiempo real, pero el servicio Push no está configurado.";
         } else {
           try {
-            const r = await env.PUSH_SERVICE.fetch("https://push.internal/admin/send", {
+            const r = await fetch("https://campeador-push-test.ligasdetenis.workers.dev/admin/send", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -1112,10 +1110,10 @@ var index_default = {
       if (action === "listPushDevices") {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
-        if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
+        if (!env.PUSH_SERVICE_TOKEN) {
           return json({ ok: false, error: "El servicio Push no est\xE1 configurado." }, 500, corsHeaders);
         }
-        const r = await env.PUSH_SERVICE.fetch("https://push.internal/admin/devices", {
+        const r = await fetch("https://campeador-push-test.ligasdetenis.workers.dev/admin/devices", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1137,12 +1135,12 @@ var index_default = {
       if (action === "removePushDevices") {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
-        if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
+        if (!env.PUSH_SERVICE_TOKEN) {
           return json({ ok: false, error: "El servicio Push no est\xE1 configurado." }, 500, corsHeaders);
         }
         const userName = String(body.userName || "").trim();
         if (!userName) return json({ ok: false, error: "Falta el jugador." }, 400, corsHeaders);
-        const r = await env.PUSH_SERVICE.fetch("https://push.internal/admin/remove-user", {
+        const r = await fetch("https://campeador-push-test.ligasdetenis.workers.dev/admin/remove-user", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1442,11 +1440,11 @@ function makeAppDeepLink(params = {}) {
 __name(makeAppDeepLink, "makeAppDeepLink");
 
 async function sendTargetedPush(env, recipients, title, body, deepLink = {}) {
-  if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) return;
+  if (!env.PUSH_SERVICE_TOKEN) return;
   const safeRecipients = [...new Set((recipients || []).map((x) => String(x || "").trim()).filter(Boolean))];
   if (!safeRecipients.length) return;
   try {
-    await env.PUSH_SERVICE.fetch("https://push.internal/admin/send", {
+    await fetch("https://campeador-push-test.ligasdetenis.workers.dev/admin/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
