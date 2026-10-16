@@ -206,6 +206,26 @@ var BookingCoordinator = class extends DurableObject {
       this.sql.exec("DELETE FROM reservations WHERE match_id = ?", matchId);
       return doJson({ ok: true });
     }
+    if (action === "replaceAllForTestRestore") {
+      const reservations = body.reservations && typeof body.reservations === "object" ? body.reservations : {};
+      let restored = 0;
+      this.ctx.storage.transactionSync(() => {
+        this.sql.exec("DELETE FROM reservations");
+        for (const [matchId, reservation] of Object.entries(reservations)) {
+          const slotId = String(reservation?.slotId || reservation?.slot?.id || "").trim();
+          if (!matchId || !slotId) continue;
+          this.sql.exec(
+            `INSERT INTO reservations (match_id, slot_id, payload, updated_at) VALUES (?, ?, ?, ?)`,
+            String(matchId),
+            slotId,
+            JSON.stringify(reservation),
+            String(reservation?.updatedAt || new Date().toISOString())
+          );
+          restored++;
+        }
+      });
+      return doJson({ ok: true, restored });
+    }
     return doJson({ ok: false, error: `Acci\xF3n DO desconocida: ${action}` }, 400);
   }
 
@@ -303,7 +323,7 @@ var index_default = {
           worker: "online",
           kv,
           durableObject,
-          version: "2.6.9-backup-export",
+          version: "2.6.10-test-restore",
           error
         }, kv === "online" && durableObject === "online" ? 200 : 500, corsHeaders);
       }
@@ -314,7 +334,60 @@ var index_default = {
       const action = String(body.action || "").trim();
       if (action === "ping") {
         const ping = await bookingCall(env, { action: "ping" });
-        return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.9-backup-export" }, 200, corsHeaders);
+        return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.10-test-restore" }, 200, corsHeaders);
+      }
+      if (action === "restoreBackupTest") {
+        const authorization = request.headers.get("Authorization") || "";
+        const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : String(body.restoreToken || "").trim();
+        if (!env.RESTORE_TOKEN || !supplied || supplied !== env.RESTORE_TOKEN) {
+          return json({ ok: false, error: "Token de restauración TEST no válido." }, 401, corsHeaders);
+        }
+        const backup = body.backup;
+        if (!backup || backup.format !== "ct-campeador-backup" || Number(backup.schemaVersion) !== 1 || !backup.contents) {
+          return json({ ok: false, error: "La copia no tiene un formato CT Campeador válido." }, 400, corsHeaders);
+        }
+        const c = backup.contents;
+        if (!c.state || typeof c.state !== "object" || !Array.isArray(c.users)) {
+          return json({ ok: false, error: "La copia no contiene state/users válidos." }, 400, corsHeaders);
+        }
+
+        await Promise.all([
+          env.DATA.put(STATE_KEY, JSON.stringify(c.state)),
+          env.DATA.put(USERS_KEY, JSON.stringify(c.users)),
+          env.DATA.put(PROFILES_KEY, JSON.stringify(c.profiles && typeof c.profiles === "object" ? c.profiles : {})),
+          env.DATA.put(MESSAGES_KEY, JSON.stringify(Array.isArray(c.messages) ? c.messages : [])),
+          env.DATA.put(ADMIN_PREFS_KEY, JSON.stringify(c.adminPreferences && typeof c.adminPreferences === "object" ? c.adminPreferences : {}))
+        ]);
+
+        // Borra únicamente sesiones antiguas del entorno TEST. No afecta a producción.
+        for (const prefix of ["session:", "sessionsByUser:"]) {
+          let cursor;
+          do {
+            const page = await env.DATA.list({ prefix, cursor, limit: 1000 });
+            await Promise.all((page.keys || []).map((k) => env.DATA.delete(k.name)));
+            cursor = page.list_complete ? undefined : page.cursor;
+          } while (cursor);
+        }
+
+        const rr = await bookingCall(env, {
+          action: "replaceAllForTestRestore",
+          reservations: c.reservations && typeof c.reservations === "object" ? c.reservations : {}
+        });
+        if (!rr.ok) return json({ ok: false, error: rr.error || "No se pudieron restaurar las reservas TEST." }, 500, corsHeaders);
+
+        await realtimeBroadcast(env, { type: "stateChanged", at: new Date().toISOString(), source: "testRestore" }).catch(() => {});
+        return json({
+          ok: true,
+          restored: {
+            tournamentName: String(c.state?.tournamentName || backup.tournamentName || "CT Campeador"),
+            users: c.users.length,
+            profiles: Object.keys(c.profiles || {}).length,
+            messages: Array.isArray(c.messages) ? c.messages.length : 0,
+            adminPreferences: Object.keys(c.adminPreferences || {}).length,
+            reservations: Number(rr.restored || 0)
+          },
+          note: "Restauración realizada únicamente en el entorno TEST."
+        }, 200, corsHeaders);
       }
       if (action === "login") {
         const gateKey = loginGuardKey(request);
@@ -1357,7 +1430,7 @@ async function broadcastRealtime(env, event, options = {}) {
 }
 __name(broadcastRealtime, "broadcastRealtime");
 
-const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-liga/";
+const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-pruebas/";
 function makeAppDeepLink(params = {}) {
   const u = new URL(APP_BASE_URL);
   for (const [key, value] of Object.entries(params || {})) {
