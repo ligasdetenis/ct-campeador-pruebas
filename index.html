@@ -2988,7 +2988,11 @@ body.resultModalOpen{overflow:hidden}
 </style>
 
 <style id="test-env-banner-style">
-#testEnvBanner{position:sticky;top:0;z-index:99999;background:#ffcc00;color:#1d1d1d;text-align:center;font-weight:1000;letter-spacing:.4px;padding:7px 12px;border-bottom:2px solid #111;font-size:13px}
+#testEnvBanner{position:fixed;top:0;left:0;right:0;z-index:99999;background:#ffcc00;color:#1d1d1d;text-align:center;font-weight:1000;letter-spacing:.4px;padding:7px 12px;border-bottom:2px solid #111;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.22);min-height:32px;box-sizing:border-box}
+body{padding-top:32px}
+header{top:32px}
+body.modern-admin .mapp-admin-head{top:32px!important}
+body.modern-admin .adminQuickNav{top:163px!important}
 </style>
 </head>
 <body>
