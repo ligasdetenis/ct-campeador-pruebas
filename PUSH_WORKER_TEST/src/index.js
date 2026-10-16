@@ -104,7 +104,7 @@ export default {
       });
     }
 
-    if (request.method === "POST" && url.pathname === "/subscribe") {
+    if (request.method === "POST" && ["/subscribe","/api/subscribe"].includes(url.pathname)) {
       if (!authorized(request, env)) return json({ ok: false, error: "No autorizado." }, 401);
       const body = await request.json().catch(() => ({}));
       const subscription = body.subscription || body;
@@ -120,7 +120,7 @@ export default {
       return json({ ok: true, created: !previous, updated: !!previous && !unchanged, unchanged });
     }
 
-    if (request.method === "POST" && url.pathname === "/send") {
+    if (request.method === "POST" && ["/send","/notify","/api/send","/api/notify","/"].includes(url.pathname)) {
       if (!authorized(request, env)) return json({ ok: false, error: "No autorizado." }, 401);
       const incoming = await request.json().catch(() => ({}));
       const rows = await allSubscriptions(env);
@@ -128,7 +128,7 @@ export default {
       return json({ ...result, total: rows.length, matchedUsers: new Set(rows.map(r => normalizeName(r.userName)).filter(Boolean)).size });
     }
 
-    if (request.method === "POST" && url.pathname === "/admin/send") {
+    if (request.method === "POST" && ["/admin/send","/admin/notify","/api/admin/send"].includes(url.pathname)) {
       if (!authorized(request, env)) return json({ ok: false, error: "No autorizado." }, 401);
       const incoming = await request.json().catch(() => ({}));
       const recipients = new Set((incoming.recipients || []).map(normalizeName).filter(Boolean));
@@ -138,7 +138,7 @@ export default {
       return json({ ...result, total: rows.length, matchedUsers: new Set(rows.map(r => normalizeName(r.userName)).filter(Boolean)).size });
     }
 
-    if (request.method === "POST" && url.pathname === "/admin/devices") {
+    if (request.method === "POST" && ["/admin/devices","/api/admin/devices"].includes(url.pathname)) {
       if (!authorized(request, env)) return json({ ok: false, error: "No autorizado." }, 401);
       const rows = await allSubscriptions(env);
       const grouped = new Map();
@@ -154,7 +154,7 @@ export default {
       return json({ ok: true, total: rows.length, users });
     }
 
-    if (request.method === "POST" && url.pathname === "/admin/remove-user") {
+    if (request.method === "POST" && ["/admin/remove-user","/api/admin/remove-user"].includes(url.pathname)) {
       if (!authorized(request, env)) return json({ ok: false, error: "No autorizado." }, 401);
       const body = await request.json().catch(() => ({}));
       const target = normalizeName(body.userName);
@@ -170,6 +170,6 @@ export default {
       return json({ ok: true, removed });
     }
 
-    return json({ ok: false, error: "Ruta no encontrada." }, 404);
+    return json({ ok: false, error: "Ruta no encontrada.", method: request.method, path: url.pathname, environment: "test" }, 404);
   },
 };
