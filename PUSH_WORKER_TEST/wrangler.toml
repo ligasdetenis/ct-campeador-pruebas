@@ -1,0 +1,7 @@
+name = "campeador-push-test"
+main = "src/index.js"
+compatibility_date = "2026-10-11"
+
+[[kv_namespaces]]
+binding = "PUSH_DATA"
+id = "f459c930898542ba90465fb64d6547eb"
