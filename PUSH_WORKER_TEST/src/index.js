@@ -1,3 +1,4 @@
+// TEST FIX 1042: robust routes + Service Binding compatibility.
 import { buildPushPayload } from "@block65/webcrypto-web-push";
 
 const cors = {
@@ -168,6 +169,37 @@ export default {
         }
       }
       return json({ ok: true, removed });
+    }
+
+    // TEST compatibility fallback for unexpected POST paths through Service Binding.
+    if (request.method === "POST") {
+      if (!authorized(request, env)) return json({ ok: false, error: "No autorizado." }, 401);
+      const incoming = await request.json().catch(() => ({}));
+
+      const subscription = incoming.subscription || (incoming?.endpoint && incoming?.keys ? incoming : null);
+      if (subscription?.endpoint && subscription?.keys?.p256dh && subscription?.keys?.auth) {
+        const userName = String(incoming.userName || "").trim();
+        const key = await subscriptionKey(subscription.endpoint);
+        const previous = await env.PUSH_DATA.get(key, "json");
+        const record = { subscription, userName, updatedAt: new Date().toISOString() };
+        await env.PUSH_DATA.put(key, JSON.stringify(record));
+        const unchanged = !!previous && previous.userName === userName && JSON.stringify(previous.subscription) === JSON.stringify(subscription);
+        return json({ ok: true, created: !previous, updated: !!previous && !unchanged, unchanged, compatibilityFallback: true, receivedPath: url.pathname });
+      }
+
+      if (Array.isArray(incoming.recipients)) {
+        const recipients = new Set(incoming.recipients.map(normalizeName).filter(Boolean));
+        const all = await allSubscriptions(env);
+        const rows = recipients.size ? all.filter(r => recipients.has(normalizeName(r.userName))) : [];
+        const result = await sendRows(rows, env, incoming);
+        return json({ ...result, total: rows.length, matchedUsers: new Set(rows.map(r => normalizeName(r.userName)).filter(Boolean)).size, compatibilityFallback: true, receivedPath: url.pathname });
+      }
+
+      if (incoming.title || incoming.body || incoming.url || incoming.tag) {
+        const rows = await allSubscriptions(env);
+        const result = await sendRows(rows, env, incoming);
+        return json({ ...result, total: rows.length, matchedUsers: new Set(rows.map(r => normalizeName(r.userName)).filter(Boolean)).size, compatibilityFallback: true, receivedPath: url.pathname });
+      }
     }
 
     return json({ ok: false, error: "Ruta no encontrada.", method: request.method, path: url.pathname, environment: "test" }, 404);
