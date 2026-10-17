@@ -4690,7 +4690,7 @@ const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
 const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
-const APP_BUILD="20261017-test-pistas-pro-v1";
+const APP_BUILD="20261017-test-pistas-pro-v6-push-pwa-fix";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -8919,15 +8919,16 @@ $('#publishSlots').onclick=async()=>{
     await saveStateOnline();
     setOnline(true,'☁️ Publicado');
     let pushMsg='';
-    if(prevPublished!==true){
-      try{
-        const p=await sendAvailabilityPush(true);
-        pushMsg=p.sent>0?`\n\n🔔 Aviso enviado a ${p.sent} dispositivo${p.sent===1?'':'s'}.`:'\n\n🔔 No hay dispositivos suscritos todavía.';
-      }catch(pushErr){
-        pushMsg='\n\n⚠️ La disponibilidad se ha publicado, pero el aviso Push no se pudo enviar: '+pushErr.message;
-      }
+    try{
+      const p=await sendAvailabilityPush(true);
+      const sent=Number(p?.sent||0);
+      pushMsg=sent>0
+        ? `\n\n🔔 Aviso Push enviado a ${sent} dispositivo${sent===1?'':'s'}.`
+        : '\n\n🔔 Disponibilidad publicada, pero no hay dispositivos suscritos al Push.';
+    }catch(pushErr){
+      pushMsg='\n\n⚠️ La disponibilidad se ha publicado, pero el aviso Push no se pudo enviar: '+(pushErr?.message||pushErr);
     }
-    if(status)status.textContent='✅ Disponibilidad publicada. Reservas abiertas.'+(pushMsg?' Aviso procesado.':'');
+    if(status)status.textContent='✅ Disponibilidad publicada. Reservas abiertas. Aviso Push procesado.';
     alert('✅ Disponibilidad publicada online. Reservas abiertas.'+pushMsg);
   }catch(e){
     if(prevSlots===undefined)delete data.slots[weekKey()];else data.slots[weekKey()]=prevSlots;
