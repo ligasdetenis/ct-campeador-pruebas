@@ -1829,8 +1829,7 @@ body.modern-admin #adminView>.head{display:none!important}
 
 
 /* =========================================================
-   TEST · banner fijo + JORNADA PRO V2
-   Una sola pantalla, navegación compacta y sin duplicidades
+   TEST · banner fijo + gestor unificado de jornadas
    ========================================================= */
 .testEnvBanner{
   position:fixed;top:0;left:0;right:0;z-index:20000;
@@ -1843,139 +1842,72 @@ body{padding-top:32px}
 .pinWelcome{top:32px}
 .mapp-nav{z-index:3000}
 
-/* Contención: ningún control de Jornada puede salirse del panel. */
-.journeyManager,
-.journeyManager > *,
-.journeySaveBar,
-.journeyNavigatorSection{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
-.journeyManager{display:grid!important;gap:12px!important;width:100%!important;overflow:hidden!important}
-
-/* Cabecera: jornada seleccionada + anterior/siguiente. */
-.journeyManagerTop{
-  display:grid!important;
-  grid-template-columns:46px minmax(0,1fr) auto!important;
-  gap:12px!important;align-items:center!important;
-  width:100%!important;padding:14px 15px!important;
-  border:1px solid #e1e4e8!important;border-radius:16px!important;
-  background:#fff!important;box-shadow:0 2px 10px rgba(20,25,35,.035)!important
-}
-.journeyManagerTitle{min-width:0!important}
-.journeyEyebrow{font-size:9px!important;font-weight:950!important;letter-spacing:.085em!important;color:#8a8f97!important}
-.journeyName{font-size:22px!important;font-weight:950!important;color:#1d2025!important;line-height:1.1!important;margin-top:3px!important}
-.journeyDates{font-size:10px!important;color:#767b83!important;margin-top:5px!important;white-space:normal!important}
-.journeyTopRight{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important}
-.journeyNavBtn{
-  width:46px!important;height:46px!important;min-width:46px!important;padding:0!important;
-  border-radius:13px!important;border:1px solid #dfe3e7!important;background:#fff!important;
-  color:#555b64!important;font-size:27px!important;line-height:1!important;display:grid!important;place-items:center!important
-}
-.journeyNavBtn:disabled{opacity:.28!important}
-.journeyVisibilityBadge{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  min-height:27px!important;padding:0 10px!important;border-radius:999px!important;
-  font-size:8px!important;font-weight:950!important;letter-spacing:.04em!important;white-space:nowrap!important;
-  background:#eef0f2!important;color:#676c74!important
-}
-.journeyVisibilityBadge.live{background:#e7f6ec!important;color:#227046!important}
-.journeyVisibilityBadge.locked{background:#f1f2f4!important;color:#747982!important}
-
-/* Mensaje de estado: una sola explicación, justo debajo de la cabecera. */
+/* Jornada · una única pantalla para actual, pasada y futura */
+.journeyManagerTop{position:relative}
+.journeyManagerTitle{min-width:0}
+.journeyEyebrow{color:#8d929a!important}
 .journeyStatusInfo{
-  display:flex!important;align-items:center!important;gap:10px!important;min-height:48px!important;
-  padding:11px 13px!important;border:1px solid #e3e6ea!important;border-radius:13px!important;
-  background:#fafbfc!important;color:#62676f!important;font-size:10px!important;line-height:1.4!important
+  display:flex;align-items:center;gap:9px;min-height:42px;
+  padding:10px 12px;border:1px solid #e3e6ea;border-radius:12px;
+  background:#fafbfc;color:#62676f;font-size:10px;line-height:1.35
 }
 .journeyStatusInfo .journeyStatusIcon{
-  width:30px!important;height:30px!important;flex:0 0 30px!important;padding:0!important;
-  border-radius:9px!important;display:grid!important;place-items:center!important;background:#f0f2f4!important;font-size:13px!important
+  width:28px;height:28px;flex:0 0 28px;border-radius:9px;
+  display:grid;place-items:center;background:#f0f2f4;font-size:13px
 }
-.journeyStatusInfo strong{color:#25292f!important}
-.journeyStatusInfo.live{border-color:#d5eadc!important;background:#f5fbf7!important;color:#376c4c!important}
-.journeyStatusInfo.live .journeyStatusIcon{background:#e5f6eb!important}
-.journeyStatusInfo.future{border-color:#eadfbf!important;background:#fffaf0!important;color:#756846!important}
-.journeyStatusInfo.future .journeyStatusIcon{background:#fff0bd!important}
-.journeyStatusInfo.past{background:#f6f7f8!important;color:#747982!important}
-.journeyStatusInfo.current{border-color:#e8d9a9!important;background:#fffaf0!important;color:#755f2b!important}
+.journeyStatusInfo strong{color:#25292f}
+.journeyStatusInfo.live{border-color:#d5eadc;background:#f5fbf7;color:#376c4c}
+.journeyStatusInfo.live .journeyStatusIcon{background:#e5f6eb}
+.journeyStatusInfo.future{border-color:#e5e1d3;background:#fffdf5;color:#756846}
+.journeyStatusInfo.future .journeyStatusIcon{background:#fff2c8}
+.journeyStatusInfo.past{background:#f6f7f8;color:#747982}
 
-/* Acciones principales: solo las cuatro de trabajo real. */
-.journeyPrimaryActions{display:flex!important;gap:8px!important;flex-wrap:wrap!important;width:100%!important}
-.journeyPrimaryActions .btn{min-height:42px!important;max-width:100%!important}
-.journeyInlinePanel{width:100%!important;min-width:0!important}
-.journeySettingsGrid{min-width:0!important}
-
-/* Lista de partidos. */
-.journeyMatchesHeader{min-width:0!important}
-.journeyFixtureList{width:100%!important;min-width:0!important;max-width:100%!important;overflow-x:hidden!important}
-.fixtureListHead,.fixtureItem.fixtureItemColumns{min-width:0!important}
-.fixturePlayerCell{min-width:0!important}
-
-/* Guardado: bloque contenido, sin botones cortados. */
-.journeySaveBar{
-  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;
-  gap:12px!important;width:100%!important;padding:11px 12px!important;
-  border:1px solid #e1e4e8!important;border-radius:13px!important;background:#fafbfc!important;overflow:hidden!important
-}
-.journeySaveState{min-width:0!important;font-size:9px!important;color:#777c84!important;font-weight:850!important;overflow-wrap:anywhere!important}
-.journeySaveState.dirty{color:#a56b00!important}.journeySaveState.ok{color:#227046!important}
-.journeySaveBtn{width:auto!important;min-width:154px!important;max-width:210px!important;justify-self:end!important;margin:0!important;box-sizing:border-box!important}
-
-/* Navegador único: pestañas compactas, no tarjetas. */
 .journeyNavigatorSection{
-  width:100%!important;border-top:1px solid #e8eaed!important;padding-top:12px!important;margin-top:1px!important;overflow:hidden!important
+  border-top:1px solid #e8eaed;padding-top:13px;margin-top:2px
 }
-.journeyNavigatorHead{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-bottom:8px!important}
-.journeyNavigatorTitle{font-size:9px!important;font-weight:950!important;letter-spacing:.075em!important;color:#6f747c!important}
-.journeyNavigatorHint{font-size:8px!important;color:#9599a0!important;text-align:right!important}
+.journeyNavigatorHead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:9px
+}
+.journeyNavigatorTitle{font-size:9px;font-weight:950;letter-spacing:.075em;color:#6f747c}
+.journeyNavigatorHint{font-size:8px;color:#9599a0;text-align:right}
 .journeyNavigator{
-  display:flex!important;gap:6px!important;width:100%!important;max-width:100%!important;
-  overflow-x:auto!important;overflow-y:hidden!important;padding:2px 1px 5px!important;
-  scrollbar-width:thin!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important
+  display:flex;gap:8px;overflow-x:auto;padding:2px 1px 7px;
+  scrollbar-width:thin;overscroll-behavior-x:contain
 }
 .journeyJump{
-  flex:0 0 auto!important;display:grid!important;grid-template-columns:auto 8px!important;grid-template-rows:auto auto!important;
-  column-gap:8px!important;row-gap:2px!important;align-items:center!important;
-  min-width:88px!important;min-height:48px!important;padding:7px 9px!important;
-  border:1px solid #dfe3e7!important;border-radius:10px!important;background:#fff!important;color:#2b2f35!important;
-  text-align:left!important;box-shadow:none!important;cursor:pointer!important
+  flex:0 0 auto;min-width:116px;min-height:58px;padding:8px 10px;
+  border:1px solid #dfe3e7;border-radius:12px;background:#fff;color:#2b2f35;
+  text-align:left;box-shadow:none;cursor:pointer
 }
-.journeyJump:hover{border-color:#c9ced5!important;background:#fcfcfd!important}
-.journeyJump.active{border-color:#720010!important;background:#fff7f8!important;box-shadow:0 0 0 2px rgba(114,0,16,.05)!important}
-.journeyJumpName{grid-column:1!important;grid-row:1!important;font-size:10px!important;font-weight:950!important;white-space:nowrap!important}
-.journeyJumpDot{
-  grid-column:2!important;grid-row:1!important;width:7px!important;height:7px!important;min-width:7px!important;min-height:7px!important;
-  padding:0!important;margin:0!important;border:0!important;border-radius:50%!important;display:block!important;background:#b9bec5!important;flex:none!important
+.journeyJump:hover{border-color:#c9ced5;background:#fcfcfd}
+.journeyJump.active{
+  border-color:#720010;background:#fff7f8;box-shadow:0 0 0 2px rgba(114,0,16,.06)
 }
-.journeyJumpDot.status-live{background:#1c9b58!important}
-.journeyJumpDot.status-ready{background:#d59c00!important}
-.journeyJumpDot.status-empty{background:#b9bec5!important}
-.journeyJumpMeta{grid-column:1/3!important;grid-row:2!important;margin:0!important;font-size:8px!important;color:#898e96!important;white-space:nowrap!important}
-.journeyJump.active .journeyJumpName{color:#720010!important}
+.journeyJumpTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.journeyJumpName{font-size:11px;font-weight:950;white-space:nowrap}
+.journeyJumpDot{width:7px;height:7px;border-radius:50%;background:#b5bac1;flex:0 0 7px}
+.journeyJumpDot.live{background:#1c9b58}
+.journeyJumpDot.ready{background:#d59c00}
+.journeyJumpDot.empty{background:#b9bec5}
+.journeyJumpMeta{margin-top:4px;font-size:8px;color:#898e96;white-space:nowrap}
+.journeyJump.active .journeyJumpName{color:#720010}
 
-/* El editor antiguo de próximas jornadas queda totalmente fuera de uso. */
+/* Ya no existe un segundo gestor/modal de próximas jornadas. */
 .futureFixturesModal{display:none!important}
 
-@media(max-width:700px){
-  .journeySettingsGrid{grid-template-columns:1fr!important}
-}
 @media(max-width:560px){
   .testEnvBanner{font-size:10px}
-  .journeyManagerTop{grid-template-columns:42px minmax(0,1fr) 42px!important;gap:8px!important;padding:12px!important}
-  .journeyManagerTop .journeyNavBtn{width:42px!important;height:42px!important;min-width:42px!important}
-  .journeyTopRight{display:contents!important}
-  .journeyVisibilityBadge{grid-column:2!important;grid-row:2!important;justify-self:start!important;margin-top:-2px!important;max-width:100%!important}
-  #journeyNextBtn{grid-column:3!important;grid-row:1/3!important}
-  .journeyManagerTitle{grid-column:2!important;grid-row:1!important}
-  #journeyPrevBtn{grid-column:1!important;grid-row:1/3!important}
-  .journeyName{font-size:19px!important}
-  .journeyDates{font-size:9px!important}
-  .journeyPrimaryActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
-  .journeyPrimaryActions .btn{width:100%!important;min-width:0!important;white-space:normal!important}
-  .journeySaveBar{grid-template-columns:1fr!important;gap:8px!important;padding:10px!important}
-  .journeySaveBtn{width:100%!important;max-width:none!important;min-width:0!important;justify-self:stretch!important}
-  .journeyNavigatorHead{align-items:flex-start!important;flex-direction:column!important;gap:3px!important}
-  .journeyNavigatorHint{text-align:left!important}
-  .journeyJump{min-width:82px!important}
+  .journeyManagerTop{grid-template-columns:42px minmax(0,1fr) 82px!important;gap:7px!important}
+  .journeyManagerTop .journeyTopRight{gap:4px}
+  .journeyManagerTop .journeyNavBtn{width:40px;height:40px}
+  .journeyVisibilityBadge{display:inline-flex!important;max-width:76px;overflow:hidden;text-overflow:ellipsis}
+  .journeyPrimaryActions{grid-template-columns:1fr 1fr!important}
+  .journeyPrimaryActions .btn{min-height:44px}
+  .journeyNavigatorHead{align-items:flex-start;flex-direction:column}
+  .journeyNavigatorHint{text-align:left}
+  .journeyJump{min-width:108px}
 }
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -3187,6 +3119,54 @@ body.resultModalOpen{overflow:hidden}
   min-width:9px;
 }
 
+
+
+/* =========================================================
+   TEST · JORNADAS FLEXIBLES V3
+   - Alta de nuevas jornadas
+   - Nombre global editable
+   - Enfrentamientos más compactos
+   ========================================================= */
+.journeyNavigatorHead{
+  align-items:center!important;
+}
+.journeyNavigatorActions{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;
+}
+.journeyAddBtn{
+  min-height:34px!important;padding:0 11px!important;white-space:nowrap!important;
+  border-radius:9px!important;font-size:10px!important;
+}
+.journeyNavigator{
+  gap:6px!important;padding-bottom:4px!important;
+}
+.journeyJump{
+  min-width:100px!important;min-height:48px!important;padding:6px 8px!important;border-radius:10px!important;
+}
+.journeyJumpName{font-size:10px!important;max-width:135px;overflow:hidden;text-overflow:ellipsis;display:block}
+.journeyJumpMeta{font-size:7.5px!important;margin-top:2px!important}
+
+/* Lista de cruces más densa y legible */
+.journeyFixtureList{max-height:430px!important}
+.journeyFixtureList .fixtureListHead{
+  padding:5px 8px!important;font-size:8px!important;min-height:28px!important;
+}
+.journeyFixtureList .fixtureItem.fixtureItemColumns{
+  padding:5px 8px!important;gap:7px!important;min-height:38px!important;font-size:11px!important;line-height:1.18!important;
+}
+.journeyFixtureList .fixtureItem.fixtureItemColumns .btn{
+  min-height:28px!important;padding:5px 7px!important;font-size:9px!important;border-radius:7px!important;
+}
+.journeyFixtureList .fixturePlayerCell{line-height:1.18!important}
+
+@media(max-width:560px){
+  .journeyNavigatorHead{align-items:flex-start!important;gap:7px!important}
+  .journeyNavigatorActions{width:100%;justify-content:space-between}
+  .journeyNavigatorHint{flex:1;text-align:left!important}
+  .journeyAddBtn{flex:0 0 auto}
+  .journeyJump{min-width:92px!important;min-height:46px!important}
+  .journeyFixtureList .fixtureItem.fixtureItemColumns{padding:5px 6px!important;font-size:10.5px!important}
+}
 </style>
 </head>
 <body>
@@ -3490,7 +3470,7 @@ body.resultModalOpen{overflow:hidden}
       <div class="journeyInlinePanel hidden" id="journeySettingsPanel">
         <div class="journeyInlinePanelTitle">Datos de la jornada</div>
         <div class="roundBox journeySettingsGrid">
-          <div class="field"><label>Jornada oficial</label><input id="externalRound" placeholder="Ej. Jornada 4" type="text"/></div>
+          <div class="field"><label>Nombre de la jornada</label><input id="externalRound" placeholder="Ej. Jornada 4 · Cuartos de final" type="text"/></div>
           <div class="field"><label>Inicio</label><div class="datePickerWrap"><input id="weekStartDate" type="date"/><button class="calendarBtn" id="openWeekStartCal" type="button" aria-label="Abrir calendario">📅</button></div></div>
           <div class="field"><label>Fin</label><div class="datePickerWrap"><input id="weekEndDate" type="date"/><button class="calendarBtn" id="openWeekEndCal" type="button" aria-label="Abrir calendario">📅</button></div></div>
         </div>
@@ -3517,8 +3497,13 @@ body.resultModalOpen{overflow:hidden}
       </div>
       <div class="journeyNavigatorSection">
         <div class="journeyNavigatorHead">
-          <div class="journeyNavigatorTitle">TODAS LAS JORNADAS</div>
-          <div class="journeyNavigatorHint">Toca una jornada para editarla sin salir de esta pantalla.</div>
+          <div>
+            <div class="journeyNavigatorTitle">TODAS LAS JORNADAS</div>
+          </div>
+          <div class="journeyNavigatorActions">
+            <div class="journeyNavigatorHint">Toca una jornada para editarla.</div>
+            <button class="btn secondary journeyAddBtn" id="addJourneyBtn" type="button">＋ Nueva jornada</button>
+          </div>
         </div>
         <div class="journeyNavigator" id="journeyNavigator"></div>
       </div>
@@ -3782,7 +3767,7 @@ const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
 const APP_BUILD="20261017-test-jornada-unificada-1";
-const weeks=[
+const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
  {id:"W3",label:"Semana 3 · 2–8 noviembre",start:"2026-11-02",end:"2026-11-08"},
@@ -3793,9 +3778,28 @@ const weeks=[
  {id:"W8",label:"Semana 8 · 7–13 diciembre",start:"2026-12-07",end:"2026-12-13"},
  {id:"W9",label:"Semana 9 · 14–20 diciembre",start:"2026-12-14",end:"2026-12-20"}
 ];
+let weeks=DEFAULT_WEEKS.map(w=>({...w}));
+function weekNumber(id){return Number(String(id||'').replace(/\D/g,''))||0}
+function isoAddDays(iso,days){const d=new Date(String(iso)+'T12:00:00');d.setDate(d.getDate()+Number(days||0));return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function hydrateWeeksFromState(sourceWeeks,ranges){
+  const src=(sourceWeeks&&typeof sourceWeeks==='object')?sourceWeeks:{};
+  const map=new Map(DEFAULT_WEEKS.map(w=>[w.id,{...w}]));
+  for(const [id,w] of Object.entries(src)){
+    if(!/^W\d+$/.test(id)||!w||typeof w!=='object')continue;
+    const base=map.get(id)||{id,label:'',start:'',end:''};
+    map.set(id,{...base,...w,id});
+  }
+  for(const [id,r] of Object.entries(ranges||{})){
+    if(!/^W\d+$/.test(id)||!r||!r.start||!r.end)continue;
+    const base=map.get(id)||{id,label:'',start:r.start,end:r.end};
+    map.set(id,{...base,start:r.start,end:r.end});
+  }
+  const arr=[...map.values()].filter(w=>w.start&&w.end).sort((a,b)=>weekNumber(a.id)-weekNumber(b.id));
+  weeks.splice(0,weeks.length,...arr);
+}
 function shortDateES(dateStr){const d=new Date(dateStr+'T12:00:00');return d.toLocaleDateString('es-ES',{day:'numeric',month:'short'}).replace(/\./g,'')}
 function makeWeekLabel(w){const n=Number(String(w.id).replace(/\D/g,''))||'';return `Jornada ${n} · ${shortDateES(w.start)}–${shortDateES(w.end)}`}
-function applyWeekRanges(){for(const w of weeks){const r=data?.weekRanges?.[w.id];if(r&&/^\d{4}-\d{2}-\d{2}$/.test(r.start||'')&&/^\d{4}-\d{2}-\d{2}$/.test(r.end||'')&&r.start<=r.end){w.start=r.start;w.end=r.end}w.label=makeWeekLabel(w)}}
+function applyWeekRanges(){for(const w of weeks){const r=data?.weekRanges?.[w.id];if(r&&/^\d{4}-\d{2}-\d{2}$/.test(r.start||'')&&/^\d{4}-\d{2}-\d{2}$/.test(r.end||'')&&r.start<=r.end){w.start=r.start;w.end=r.end}w.label=makeWeekLabel(w)}if(typeof data!=='undefined')syncWeeksIntoData()}
 function setWeekRangeLocal(start,end){
   if(!start||!end)return false;
   if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return false}
@@ -3816,8 +3820,8 @@ function setWeekRangeLocal(start,end){
   return true
 }
 
-function fresh(){return {tournamentName:'II Liga Federada',playerLists:{},fixtures:{},fixtureRounds:{},slots:{},drafts:{},published:{},bookings:{},results:{},profiles:{},pins:{},roles:{},staff:{},weekRanges:{},postponed:{}}}
-function normalizeData(x){const d=x&&typeof x==='object'?x:{};const wr={...(d.weekRanges||{})};if(d.weeks&&typeof d.weeks==='object'){for(const [id,w] of Object.entries(d.weeks)){if(w&&w.start&&w.end&&!wr[id])wr[id]={start:w.start,end:w.end}}}return {tournamentName:String(d.tournamentName||'II Liga Federada').trim().slice(0,60)||'II Liga Federada',playerLists:d.playerLists||{},fixtures:d.fixtures||{},fixtureRounds:d.fixtureRounds||{},slots:d.slots||{},drafts:d.drafts||{},published:d.published||{},bookings:d.reservations||d.bookings||{},results:d.results||{},profiles:d.profiles||{},pins:d.pins||{},roles:{...(d.roles||{}),...(d.adminRoles||{})},staff:d.staff||{},accessExcluded:Array.isArray(d.accessExcluded)?d.accessExcluded:[],messageHistory:Array.isArray(d.messageHistory)?d.messageHistory:[],weekRanges:wr,postponed:d.postponed||{}}}
+function fresh(){return {tournamentName:'II Liga Federada',playerLists:{},fixtures:{},fixtureRounds:{},slots:{},drafts:{},published:{},bookings:{},results:{},profiles:{},pins:{},roles:{},staff:{},weekRanges:{},postponed:{},weeks:Object.fromEntries(weeks.map(w=>[w.id,{...w}]))}}
+function normalizeData(x){const d=x&&typeof x==='object'?x:{};const wr={...(d.weekRanges||{})};if(d.weeks&&typeof d.weeks==='object'){for(const [id,w] of Object.entries(d.weeks)){if(w&&w.start&&w.end&&!wr[id])wr[id]={start:w.start,end:w.end}}}hydrateWeeksFromState(d.weeks,wr);return {tournamentName:String(d.tournamentName||'II Liga Federada').trim().slice(0,60)||'II Liga Federada',playerLists:d.playerLists||{},fixtures:d.fixtures||{},fixtureRounds:d.fixtureRounds||{},slots:d.slots||{},drafts:d.drafts||{},published:d.published||{},bookings:d.reservations||d.bookings||{},results:d.results||{},profiles:d.profiles||{},pins:d.pins||{},roles:{...(d.roles||{}),...(d.adminRoles||{})},staff:d.staff||{},accessExcluded:Array.isArray(d.accessExcluded)?d.accessExcluded:[],messageHistory:Array.isArray(d.messageHistory)?d.messageHistory:[],weekRanges:wr,postponed:d.postponed||{},weeks:Object.fromEntries(weeks.map(w=>[w.id,{...w}]))}}
 let data=normalizeData(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")||fresh());
 applyWeekRanges();
 if(!data.staff["Adrián Prádanos"])data.staff["Adrián Prádanos"]={name:"Adrián Prádanos"};
@@ -4066,7 +4070,26 @@ async function loadAdminUsers(){
 function fixtureKey(){return `${state.week}|${state.category}|${state.gender}`}
 function playerListKey(){return `${state.category}|${state.gender}`}
 function categoryPlayers(){return data.playerLists[playerListKey()]||[]}
-function fixtureRound(){return data.fixtureRounds?.[fixtureKey()]||''}
+function journeyNameKey(weekId){return `__journey_name__|${weekId}`}
+function journeyStoredName(weekId){return String(data.fixtureRounds?.[journeyNameKey(weekId)]||'').trim()}
+function journeyDisplayName(weekId,specificKey=''){
+  const specific=specificKey?String(data.fixtureRounds?.[specificKey]||'').trim():'';
+  const global=journeyStoredName(weekId);
+  const idx=weeks.findIndex(w=>w.id===weekId);
+  return specific||global||`Jornada ${idx>=0?idx+1:weekNumber(weekId)}`;
+}
+function setJourneyName(weekId,name){
+  data.fixtureRounds=data.fixtureRounds||{};
+  const clean=String(name||'').trim().slice(0,80);
+  if(clean)data.fixtureRounds[journeyNameKey(weekId)]=clean;
+  else delete data.fixtureRounds[journeyNameKey(weekId)];
+  // Mantener compatibilidad con las etiquetas por categoría/género ya existentes.
+  for(const key of Object.keys(data.fixtureRounds)){
+    if(key.startsWith(`${weekId}|`) && clean)data.fixtureRounds[key]=clean;
+  }
+}
+function syncWeeksIntoData(){data.weeks=Object.fromEntries(weeks.map(w=>[w.id,{...w}]))}
+function fixtureRound(){return journeyDisplayName(state.week,fixtureKey())}
 function normalizeName(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').replace(/\s+/g,' ').trim()}
 function canonicalPlayer(name){const n=normalizeName(name);return categoryPlayers().find(p=>normalizeName(p)===n)||String(name||'').trim()}
 function canonicalIdentity(name){
@@ -4187,20 +4210,17 @@ function renderJourneyNavigator(){
     const arr=data.fixtures?.[fixtureKeyForWeek(w.id)]||[];
     const visible=journeyFixturesArePublic(w.id);
     const active=w.id===state.week;
-    const statusClass=visible?'status-live':arr.length?'status-ready':'status-empty';
+    const status=visible?'live':arr.length?'ready':'empty';
     const meta=visible?'Publicada':arr.length?`${arr.length} partido${arr.length===1?'':'s'}`:'Sin preparar';
-    return `<button class="journeyJump ${active?'active':''}" type="button" data-journey-jump="${mappEsc(w.id)}" aria-current="${active?'page':'false'}" title="Editar Jornada ${i+1}">
-      <span class="journeyJumpName">J${i+1}</span>
-      <span class="journeyJumpDot ${statusClass}" aria-hidden="true"></span>
+    const displayName=journeyDisplayName(w.id);
+    return `<button class="journeyJump ${active?'active':''}" type="button" data-journey-jump="${mappEsc(w.id)}" aria-current="${active?'page':'false'}" title="${mappEsc(displayName)}">
+      <span class="journeyJumpTop"><span class="journeyJumpName">${mappEsc(displayName)}</span><span class="journeyJumpDot ${status}"></span></span>
       <span class="journeyJumpMeta">${mappEsc(meta)}</span>
     </button>`;
   }).join('');
   box.querySelectorAll('[data-journey-jump]').forEach(btn=>btn.onclick=()=>goToJourney(btn.dataset.journeyJump));
   const active=box.querySelector('.journeyJump.active');
-  if(active){
-    const left=active.offsetLeft-(box.clientWidth-active.offsetWidth)/2;
-    box.scrollTo({left:Math.max(0,left),behavior:'auto'});
-  }
+  if(active)active.scrollIntoView({behavior:'auto',block:'nearest',inline:'center'});
 }
 
 function renderFutureJourneysPreview(){
@@ -4418,7 +4438,7 @@ function renderFixtureEditor(){
     const icon=visible?'✅':temporal==='past'?'✓':'🔒';
     let msg='';
     if(visible) msg=`<strong>Jornada publicada.</strong> Los jugadores pueden ver sus enfrentamientos.`;
-    else if(temporal==='future') msg=previous?`<strong>Jornada oculta.</strong> Se publicará automáticamente al finalizar ${mappEsc(makeWeekLabel(previous))}.`:`<strong>Jornada oculta.</strong> Guarda aquí los cruces antes de publicarla.`;
+    else if(temporal==='future') msg=previous?`<strong>Jornada oculta.</strong> Se publicará automáticamente al finalizar ${mappEsc(journeyDisplayName(previous.id))}.`:`<strong>Jornada oculta.</strong> Guarda aquí los cruces antes de publicarla.`;
     else if(temporal==='past') msg=`<strong>Jornada finalizada.</strong> Puedes consultar o corregir sus cruces desde esta misma pantalla.`;
     else msg=`<strong>Jornada actual todavía oculta.</strong> Los jugadores no verán estos cruces hasta su publicación.`;
     statusInfo.innerHTML=`<span class="journeyStatusIcon">${icon}</span><span>${msg}</span>`;
@@ -4965,7 +4985,7 @@ function renderTabs(){
  $$('#catTabs .tab').forEach(b=>b.onclick=()=>{state.category=b.dataset.cat;renderAll()});
  $$('.gender').forEach(b=>b.classList.toggle('active',b.dataset.gender===state.gender));
 }
-function renderWeeks(){const s=$('#weekSelect'); s.innerHTML=weeks.map(w=>`<option value="${w.id}">${w.label}</option>`).join('');s.value=state.week;$('#weekLabel').textContent=weeks.find(w=>w.id===state.week).label}
+function renderWeeks(){if(!weeks.some(w=>w.id===state.week)&&weeks.length)state.week=weeks[0].id;const s=$('#weekSelect'); s.innerHTML=weeks.map(w=>`<option value="${w.id}">${journeyDisplayName(w.id)} · ${shortDateES(w.start)}–${shortDateES(w.end)}</option>`).join('');s.value=state.week;const current=weeks.find(w=>w.id===state.week);$('#weekLabel').textContent=current?`${journeyDisplayName(current.id)} · ${shortDateES(current.start)}–${shortDateES(current.end)}`:'—'}
 function renderState(){const open=isOpen(), b=$('#reserveState');const wasPublished=!!(data.slots&&data.slots[weekKey()]&&data.slots[weekKey()].length);b.className='stateBanner '+(open?'open':'closed');b.innerHTML=open?`<div class="stateIcon">🟢</div><div><b>Reservas abiertas</b><span>El club ya ha publicado la disponibilidad de pistas de esta semana.</span></div>`:`<div class="stateIcon">🔒</div><div><b>${wasPublished?'Disponibilidad despublicada · Reservas cerradas':'Reservas todavía cerradas'}</b><span>${wasPublished?'El borrador y las reservas existentes se conservan. No se admiten nuevas reservas hasta volver a publicar.':'Los enfrentamientos ya son visibles, pero no se podrá reservar hasta que el club publique las pistas disponibles.'}</span></div>`;$('#headerState').textContent=open?'🟢 Reservas abiertas':'🔒 Reservas cerradas'}
 function resultLabel(r){
  if(!r)return '';
@@ -7640,7 +7660,7 @@ $('#openWeekEndCal').onclick=()=>openNativeDatePicker('#weekEndDate');
 $('#weekStartDate').addEventListener('click',()=>{try{if(typeof $('#weekStartDate').showPicker==='function')$('#weekStartDate').showPicker()}catch(e){}});
 $('#weekEndDate').addEventListener('click',()=>{try{if(typeof $('#weekEndDate').showPicker==='function')$('#weekEndDate').showPicker()}catch(e){}});
 
-$('#externalRound').addEventListener('input',e=>{if(!requireAdmin())return;const round=e.target.value;data.fixtureRounds=data.fixtureRounds||{};if(round.trim())data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();});
+$('#externalRound').addEventListener('input',e=>{if(!requireAdmin())return;const round=e.target.value;setJourneyName(state.week,round);if(round.trim())data.fixtureRounds[fixtureKey()]=round.trim();else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderJourneyNavigator();});
 ['#weekStartDate','#weekEndDate'].forEach(id=>$(id).addEventListener('change',()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(start&&end&&start<=end){setWeekRangeLocal(start,end);const h=$('#weekRangeHint');if(h)h.textContent=`Rango sin guardar: ${dayDateES(start)} → ${dayDateES(end)}. Pulsa “Guardar jornada” para publicarlo.`}else if(start&&end){alert('La fecha de inicio no puede ser posterior a la fecha final.')}}));
 $('#prevWeek').onclick=()=>{let i=weeks.findIndex(w=>w.id===state.week);if(i>0){state.week=weeks[i-1].id;renderAll()}};
 $('#nextWeek').onclick=()=>{let i=weeks.findIndex(w=>w.id===state.week);if(i<weeks.length-1){state.week=weeks[i+1].id;renderAll()}};
@@ -7760,16 +7780,49 @@ function navigateJourney(delta){
   if(!next)return;
   goToJourney(next.id);
 }
+function addJourney(){
+  if(!requireAdmin())return;
+  if(fixtureEditorDirty){
+    alert('Guarda primero los cambios de la jornada actual antes de crear una nueva.');
+    return;
+  }
+  const maxN=Math.max(0,...weeks.map(w=>weekNumber(w.id)));
+  const n=maxN+1;
+  const id=`W${n}`;
+  const last=weeks.slice().sort((a,b)=>weekNumber(a.id)-weekNumber(b.id)).at(-1);
+  const start=last?.end?isoAddDays(last.end,1):isoAddDays(new Date().toISOString().slice(0,10),1);
+  const end=isoAddDays(start,6);
+  const w={id,start,end,label:''};
+  w.label=makeWeekLabel(w);
+  weeks.push(w);
+  weeks.sort((a,b)=>weekNumber(a.id)-weekNumber(b.id));
+  data.weekRanges=data.weekRanges||{};
+  data.weekRanges[id]={start,end};
+  setJourneyName(id,`Jornada ${n}`);
+  syncWeeksIntoData();
+  state.week=id;
+  fixtureEditorDirty=true;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  renderAll();
+  renderModernAdminContext();
+  $('#journeySettingsPanel')?.classList.remove('hidden');
+  requestAnimationFrame(()=>{
+    const input=$('#externalRound');
+    if(input){input.focus();input.select()}
+    document.querySelector('.journeyManagerTop')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+}
 $('#toggleQuickFixture').onclick=()=>toggleJourneyPanel('#quickFixturePanel');
 $('#togglePasteFixtures').onclick=()=>toggleJourneyPanel('#pasteFixturePanel');
 $('#toggleJourneySettings').onclick=()=>toggleJourneyPanel('#journeySettingsPanel');
 $('#journeyMoreBtn').onclick=()=>$('#journeyDangerMenu').classList.toggle('hidden');
 $('#journeyPrevBtn').onclick=()=>navigateJourney(-1);
 $('#journeyNextBtn').onclick=()=>navigateJourney(1);
+if($('#addJourneyBtn'))$('#addJourneyBtn').onclick=addJourney;
 
 if($('#futureFixturesBtn'))$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
 $('#importFixtures').onclick=()=>{if(!requireAdmin())return;const {pairs,unknown}=parseFixtureText($('#fixturePaste').value);if(!pairs.length){alert('No he encontrado enfrentamientos válidos en el texto.');return}let added=0;for(const [a,b] of pairs)if(addFixturePair(a,b,{silent:true}))added++;renderFixtureEditor();renderMatches();$('#fixtureImportStatus').textContent=`${added} partido${added===1?'':'s'} añadido${added===1?'':'s'}.`+(unknown.length?` ⚠ Nombres no encontrados exactamente en la lista: ${unknown.join(', ')}`:' Todos los nombres coinciden con la categoría.');};
-$('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(!start||!end){alert('Indica el inicio y el fin de la semana.');return}if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return}data.weekRanges=data.weekRanges||{};data.weekRanges[state.week]={start,end};applyWeekRanges();trimDraftToCurrentWeek({persist:false});trimStoredAvailabilityToCurrentWeek();persistDraft();const round=$('#externalRound').value.trim();if(round)data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];ensurePins();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));const btn=$('#saveFixtures'),oldTxt=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{await saveStateOnline();await saveUsersOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado');await refreshOnline({silent:true,force:true});const js=$('#journeySaveState');if(js){js.textContent='✓ Jornada sincronizada';js.classList.remove('dirty');js.classList.add('ok')}alert(`✅ Jornada guardada.\n\n${round||weeks.find(w=>w.id===state.week).label}\n${fixtures().length} partido${fixtures().length===1?'':'s'}.`)}catch(e){fixtureEditorDirty=true;setOnline(true,'✏️ Sin guardar');alert('No se ha podido guardar la jornada online.\n\n'+e.message)}finally{btn.disabled=false;btn.textContent=oldTxt}};
+$('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(!start||!end){alert('Indica el inicio y el fin de la semana.');return}if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return}data.weekRanges=data.weekRanges||{};data.weekRanges[state.week]={start,end};applyWeekRanges();trimDraftToCurrentWeek({persist:false});trimStoredAvailabilityToCurrentWeek();persistDraft();const round=$('#externalRound').value.trim();setJourneyName(state.week,round);if(round)data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();ensurePins();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));const btn=$('#saveFixtures'),oldTxt=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{await saveStateOnline();await saveUsersOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado');await refreshOnline({silent:true,force:true});const js=$('#journeySaveState');if(js){js.textContent='✓ Jornada sincronizada';js.classList.remove('dirty');js.classList.add('ok')}alert(`✅ Jornada guardada.\n\n${round||weeks.find(w=>w.id===state.week).label}\n${fixtures().length} partido${fixtures().length===1?'':'s'}.`)}catch(e){fixtureEditorDirty=true;setOnline(true,'✏️ Sin guardar');alert('No se ha podido guardar la jornada online.\n\n'+e.message)}finally{btn.disabled=false;btn.textContent=oldTxt}};
 $('#clearFixtures').onclick=async()=>{if(!requireAdmin())return;if(confirm('¿Vaciar todos los enfrentamientos de esta categoría y jornada?')){delete data.fixtures[fixtureKey()];delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderAll();try{await saveStateOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado')}catch(e){alert(e.message)}}};
 $('#copyPrevFixtures').onclick=()=>{if(!requireAdmin())return;const i=weeks.findIndex(w=>w.id===state.week);if(i<=0){alert('No hay una semana anterior para copiar.');return}const prevKey=`${weeks[i-1].id}|${state.category}|${state.gender}`;const prev=data.fixtures[prevKey]||[];if(!prev.length){alert('La semana anterior no tiene enfrentamientos en esta categoría.');return}if(fixtures().length&&!confirm('Ya hay enfrentamientos en esta jornada. ¿Sustituirlos por los de la semana anterior?'))return;data.fixtures[fixtureKey()]=prev.map(m=>makeFixture(m.a,m.b));data.fixtureRounds[fixtureKey()]=data.fixtureRounds?.[prevKey]||'';localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderFixtureEditor();renderMatches()};
 $('#draftHabitual').onclick=()=>{if(!requireAdmin())return;draftSlots=buildDefaultWeekSlots();persistDraft();renderDraftBoard()};
