@@ -1826,6 +1826,88 @@ body.modern-admin #adminView>.head{display:none!important}
   .adminPrimary>.adminAccordionBody{padding:12px!important}
 }
 
+
+
+/* =========================================================
+   TEST · banner fijo + gestor unificado de jornadas
+   ========================================================= */
+.testEnvBanner{
+  position:fixed;top:0;left:0;right:0;z-index:20000;
+  min-height:32px;display:flex;align-items:center;justify-content:center;
+  padding:6px 12px;background:#ffd326;color:#302400;
+  border-bottom:1px solid rgba(0,0,0,.15);font-size:11px;font-weight:950;
+  letter-spacing:.04em;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.09)
+}
+body{padding-top:32px}
+.pinWelcome{top:32px}
+.mapp-nav{z-index:3000}
+
+/* Jornada · una única pantalla para actual, pasada y futura */
+.journeyManagerTop{position:relative}
+.journeyManagerTitle{min-width:0}
+.journeyEyebrow{color:#8d929a!important}
+.journeyStatusInfo{
+  display:flex;align-items:center;gap:9px;min-height:42px;
+  padding:10px 12px;border:1px solid #e3e6ea;border-radius:12px;
+  background:#fafbfc;color:#62676f;font-size:10px;line-height:1.35
+}
+.journeyStatusInfo .journeyStatusIcon{
+  width:28px;height:28px;flex:0 0 28px;border-radius:9px;
+  display:grid;place-items:center;background:#f0f2f4;font-size:13px
+}
+.journeyStatusInfo strong{color:#25292f}
+.journeyStatusInfo.live{border-color:#d5eadc;background:#f5fbf7;color:#376c4c}
+.journeyStatusInfo.live .journeyStatusIcon{background:#e5f6eb}
+.journeyStatusInfo.future{border-color:#e5e1d3;background:#fffdf5;color:#756846}
+.journeyStatusInfo.future .journeyStatusIcon{background:#fff2c8}
+.journeyStatusInfo.past{background:#f6f7f8;color:#747982}
+
+.journeyNavigatorSection{
+  border-top:1px solid #e8eaed;padding-top:13px;margin-top:2px
+}
+.journeyNavigatorHead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:9px
+}
+.journeyNavigatorTitle{font-size:9px;font-weight:950;letter-spacing:.075em;color:#6f747c}
+.journeyNavigatorHint{font-size:8px;color:#9599a0;text-align:right}
+.journeyNavigator{
+  display:flex;gap:8px;overflow-x:auto;padding:2px 1px 7px;
+  scrollbar-width:thin;overscroll-behavior-x:contain
+}
+.journeyJump{
+  flex:0 0 auto;min-width:116px;min-height:58px;padding:8px 10px;
+  border:1px solid #dfe3e7;border-radius:12px;background:#fff;color:#2b2f35;
+  text-align:left;box-shadow:none;cursor:pointer
+}
+.journeyJump:hover{border-color:#c9ced5;background:#fcfcfd}
+.journeyJump.active{
+  border-color:#720010;background:#fff7f8;box-shadow:0 0 0 2px rgba(114,0,16,.06)
+}
+.journeyJumpTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.journeyJumpName{font-size:11px;font-weight:950;white-space:nowrap}
+.journeyJumpDot{width:7px;height:7px;border-radius:50%;background:#b5bac1;flex:0 0 7px}
+.journeyJumpDot.live{background:#1c9b58}
+.journeyJumpDot.ready{background:#d59c00}
+.journeyJumpDot.empty{background:#b9bec5}
+.journeyJumpMeta{margin-top:4px;font-size:8px;color:#898e96;white-space:nowrap}
+.journeyJump.active .journeyJumpName{color:#720010}
+
+/* Ya no existe un segundo gestor/modal de próximas jornadas. */
+.futureFixturesModal{display:none!important}
+
+@media(max-width:560px){
+  .testEnvBanner{font-size:10px}
+  .journeyManagerTop{grid-template-columns:42px minmax(0,1fr) 82px!important;gap:7px!important}
+  .journeyManagerTop .journeyTopRight{gap:4px}
+  .journeyManagerTop .journeyNavBtn{width:40px;height:40px}
+  .journeyVisibilityBadge{display:inline-flex!important;max-width:76px;overflow:hidden;text-overflow:ellipsis}
+  .journeyPrimaryActions{grid-template-columns:1fr 1fr!important}
+  .journeyPrimaryActions .btn{min-height:44px}
+  .journeyNavigatorHead{align-items:flex-start;flex-direction:column}
+  .journeyNavigatorHint{text-align:left}
+  .journeyJump{min-width:108px}
+}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -2373,7 +2455,7 @@ body.resultModalOpen{overflow:hidden}
     overscroll-behavior:contain;
     touch-action:pan-y;
     -webkit-overflow-scrolling:touch;
-    padding:12px 14px calc(104px + env(safe-area-inset-bottom));
+    padding:12px 14px calc(96px + env(safe-area-inset-bottom));
     display:block;
   }
   #resultModal .sheetBody>*{margin-bottom:12px}
@@ -2383,7 +2465,7 @@ body.resultModalOpen{overflow:hidden}
     position:sticky;
     bottom:0;
     z-index:30;
-    margin:14px -14px calc(-104px - env(safe-area-inset-bottom));
+    margin:14px -14px calc(-96px - env(safe-area-inset-bottom));
     padding:12px 14px calc(12px + env(safe-area-inset-bottom));
     background:#f8f9fb;
     border-top:1px solid #e1e4e8;
@@ -2391,8 +2473,6 @@ body.resultModalOpen{overflow:hidden}
   }
   #resultModal .resultActions .btn{min-height:54px}
 }
-
-
 
 
 /* =========================================================
@@ -3040,17 +3120,9 @@ body.resultModalOpen{overflow:hidden}
 }
 
 </style>
-
-<style id="test-env-banner-style">
-#testEnvBanner{position:fixed;top:0;left:0;right:0;z-index:99999;background:#ffcc00;color:#1d1d1d;text-align:center;font-weight:1000;letter-spacing:.4px;padding:7px 12px;border-bottom:2px solid #111;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.22);min-height:32px;box-sizing:border-box}
-body{padding-top:32px}
-header{top:32px}
-body.modern-admin .mapp-admin-head{top:32px!important}
-body.modern-admin .adminQuickNav{top:163px!important}
-</style>
 </head>
 <body>
-<div id="testEnvBanner">🧪 ENTORNO DE PRUEBAS · NO ES PRODUCCIÓN</div>
+<div class="testEnvBanner">🧪 ENTORNO DE PRUEBAS · Los cambios de esta web no afectan a la liga oficial</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -3318,6 +3390,11 @@ body.modern-admin .adminQuickNav{top:163px!important}
         </div>
       </div>
 
+      <div class="journeyStatusInfo" id="journeyStatusInfo">
+        <span class="journeyStatusIcon">ℹ️</span>
+        <span>Selecciona una jornada para gestionar sus enfrentamientos.</span>
+      </div>
+
       <div class="journeyPrimaryActions">
         <button class="btn gold" id="toggleQuickFixture" type="button">＋ Añadir enfrentamiento</button>
         <button class="btn secondary" id="togglePasteFixtures" type="button">📋 Pegar lista</button>
@@ -3370,16 +3447,12 @@ body.modern-admin .adminQuickNav{top:163px!important}
         <div class="journeySaveState" id="journeySaveState">Sin cambios pendientes</div>
         <button class="btn gold journeySaveBtn" id="saveFixtures" type="button">Guardar cambios</button>
       </div>
-
-      <div class="futureJourneysSection">
-        <div class="futureJourneysHead">
-          <div>
-            <div class="futureJourneysTitle">PRÓXIMAS JORNADAS</div>
-            <div class="futureJourneysSub">Prepara únicamente los cruces. Permanecen ocultos hasta que termine la jornada anterior.</div>
-          </div>
-          <button class="btn secondary" id="futureFixturesBtn" type="button">Ver todas</button>
+      <div class="journeyNavigatorSection">
+        <div class="journeyNavigatorHead">
+          <div class="journeyNavigatorTitle">TODAS LAS JORNADAS</div>
+          <div class="journeyNavigatorHint">Toca una jornada para editarla sin salir de esta pantalla.</div>
         </div>
-        <div class="futureJourneysPreview" id="futureJourneysPreview"></div>
+        <div class="journeyNavigator" id="journeyNavigator"></div>
       </div>
     </div>
   </div>
@@ -3634,13 +3707,13 @@ Pablo Ruiz"></textarea>
 </div></div></div>
 <script>
 const CATEGORIES=["Benjamín","Alevín","Infantil","Cadete","Junior","Absoluto"];
-const STORAGE_KEY="ctcampeador_test_reservas_v3_cloudflare_cache";
-const TOKEN_KEY="ctcampeador_test_api_token";
+const STORAGE_KEY="ctcampeador_reservas_v3_cloudflare_cache";
+const TOKEN_KEY="ctcampeador_api_token";
 const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
-const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
+const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
-const APP_BUILD="20261017-test-push-resultado-fresco-1";
+const APP_BUILD="20261017-test-jornada-unificada-1";
 const weeks=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -3697,7 +3770,7 @@ let cloudMessagesLoaded=false;
 // V3.16.1 · consumo optimizado
 const AUTO_REFRESH_MS=5*60*1000;       // 5 min con la app visible
 const MIN_VISIBLE_REFRESH_MS=2*60*1000; // al volver a la app, mínimo 2 min desde la última lectura
-const PUSH_SYNC_CACHE_KEY='ctcampeador_test_push_sync_v3161';
+const PUSH_SYNC_CACHE_KEY='ctcampeador_push_sync_v3161';
 const PUSH_RESYNC_MS=7*24*60*60*1000;  // revalidación push como máximo una vez por semana
 let lastRefreshAt=0;
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
@@ -4014,34 +4087,54 @@ function makeFutureFixture(weekId,a,b){
   return {id:`${weekId}|${state.category}|${state.gender}|${slug(a)}|${slug(b)}`,a,b};
 }
 
-function renderFutureJourneysPreview(){
-  const box=$('#futureJourneysPreview');
-  if(!box)return;
-  const currentIdx=journeyIndex(state.week);
-  const rows=weeks.filter((w,i)=>i>currentIdx).slice(0,3);
-  if(!rows.length){
-    box.innerHTML='<div class="tiny">No hay jornadas posteriores.</div>';
-    return;
+function journeyTemporalState(w){
+  if(!w)return 'future';
+  const today=new Date();
+  const y=today.getFullYear(),m=String(today.getMonth()+1).padStart(2,'0'),d=String(today.getDate()).padStart(2,'0');
+  const iso=`${y}-${m}-${d}`;
+  if(iso<w.start)return 'future';
+  if(iso>w.end)return 'past';
+  return 'current';
+}
+
+function goToJourney(weekId){
+  if(!weekId||weekId===state.week)return;
+  if(fixtureEditorDirty){
+    const ok=confirm('Tienes cambios sin guardar en esta jornada. ¿Cambiar de jornada y perder esos cambios?');
+    if(!ok)return;
+    fixtureEditorDirty=false;
   }
-  box.innerHTML=rows.map(w=>{
+  if(!weeks.some(w=>w.id===weekId))return;
+  state.week=weekId;
+  ['#quickFixturePanel','#pasteFixturePanel','#journeySettingsPanel'].forEach(sel=>$(sel)?.classList.add('hidden'));
+  renderAll();
+  renderModernAdminContext();
+  requestAnimationFrame(()=>document.querySelector('.journeyManagerTop')?.scrollIntoView({behavior:'smooth',block:'nearest'}));
+}
+
+function renderJourneyNavigator(){
+  const box=$('#journeyNavigator');
+  if(!box)return;
+  box.innerHTML=weeks.map((w,i)=>{
     const arr=data.fixtures?.[fixtureKeyForWeek(w.id)]||[];
     const visible=journeyFixturesArePublic(w.id);
-    return `<div class="futureJourneyPreviewRow">
-      <div>
-        <div class="futureJourneyPreviewName">${mappEsc(makeWeekLabel(w))}</div>
-        <div class="futureJourneyPreviewMeta">${arr.length?`${arr.length} partido${arr.length===1?'':'s'} preparado${arr.length===1?'':'s'}`:'Sin configurar'} · ${visible?'visible':'oculta'}</div>
-      </div>
-      <button class="futureJourneyEditBtn" type="button" data-future-preview-edit="${mappEsc(w.id)}">Editar</button>
-      ${!visible&&arr.length?`<button class="futureJourneyPublishBtn" type="button" data-future-preview-publish="${mappEsc(w.id)}">Publicar ahora</button>`:''}
-    </div>`;
+    const active=w.id===state.week;
+    const status=visible?'live':arr.length?'ready':'empty';
+    const meta=visible?'Publicada':arr.length?`${arr.length} partido${arr.length===1?'':'s'}`:'Sin preparar';
+    return `<button class="journeyJump ${active?'active':''}" type="button" data-journey-jump="${mappEsc(w.id)}" aria-current="${active?'page':'false'}">
+      <span class="journeyJumpTop"><span class="journeyJumpName">Jornada ${i+1}</span><span class="journeyJumpDot ${status}"></span></span>
+      <span class="journeyJumpMeta">${mappEsc(meta)}</span>
+    </button>`;
   }).join('');
+  box.querySelectorAll('[data-journey-jump]').forEach(btn=>btn.onclick=()=>goToJourney(btn.dataset.journeyJump));
+  const active=box.querySelector('.journeyJump.active');
+  if(active)active.scrollIntoView({behavior:'auto',block:'nearest',inline:'center'});
+}
 
-  box.querySelectorAll('[data-future-preview-edit]').forEach(btn=>{
-    btn.onclick=()=>openFutureFixturesPlanner(btn.dataset.futurePreviewEdit);
-  });
-  box.querySelectorAll('[data-future-preview-publish]').forEach(btn=>{
-    btn.onclick=()=>publishJourneyFixturesNow(btn.dataset.futurePreviewPublish);
-  });
+function renderFutureJourneysPreview(){
+  // Compatibilidad: el antiguo resumen de próximas jornadas se sustituye por
+  // el navegador único de jornadas. No se abre ningún segundo editor/modal.
+  renderJourneyNavigator();
 }
 
 function futureEditorRowHtml(m,index){
@@ -4233,9 +4326,35 @@ function renderFixtureEditor(){
   if($('#journeyManagerName'))$('#journeyManagerName').textContent=round;
   if($('#journeyManagerDates'))$('#journeyManagerDates').textContent=w?`${dayDateES(w.start)} → ${dayDateES(w.end)}`:'—';
 
+  const temporal=journeyTemporalState(w);
+  const eyebrow=$('.journeyEyebrow');
+  if(eyebrow){
+    const temporalLabel=temporal==='current'?'ACTUAL':temporal==='past'?'FINALIZADA':'FUTURA';
+    eyebrow.textContent=`JORNADA ${idx+1} DE ${weeks.length} · ${temporalLabel}`;
+  }
+
+  const copyBtn=$('#copyPrevFixtures');
+  if(copyBtn){
+    copyBtn.disabled=idx<=0;
+    copyBtn.textContent=idx>0?`⧉ Copiar Jornada ${idx}`:'⧉ Sin jornada anterior';
+  }
+
+  const statusInfo=$('#journeyStatusInfo');
+  if(statusInfo){
+    statusInfo.className=`journeyStatusInfo ${visible?'live':temporal}`;
+    const previous=idx>0?weeks[idx-1]:null;
+    const icon=visible?'✅':temporal==='past'?'✓':'🔒';
+    let msg='';
+    if(visible) msg=`<strong>Jornada publicada.</strong> Los jugadores pueden ver sus enfrentamientos.`;
+    else if(temporal==='future') msg=previous?`<strong>Jornada oculta.</strong> Se publicará automáticamente al finalizar ${mappEsc(makeWeekLabel(previous))}.`:`<strong>Jornada oculta.</strong> Guarda aquí los cruces antes de publicarla.`;
+    else if(temporal==='past') msg=`<strong>Jornada finalizada.</strong> Puedes consultar o corregir sus cruces desde esta misma pantalla.`;
+    else msg=`<strong>Jornada actual todavía oculta.</strong> Los jugadores no verán estos cruces hasta su publicación.`;
+    statusInfo.innerHTML=`<span class="journeyStatusIcon">${icon}</span><span>${msg}</span>`;
+  }
+
   const badge=$('#journeyVisibilityBadge');
   if(badge){
-    badge.textContent=visible?'● PUBLICADA':'🔒 PREPARADA';
+    badge.textContent=visible?'● PUBLICADA':'🔒 OCULTA';
     badge.classList.toggle('live',visible);
     badge.classList.toggle('locked',!visible);
   }
@@ -4359,13 +4478,12 @@ function viewFixtures(){
   return [...official,...carried];
 }
 function effectiveWeekFor(mid){const rec=fixtureRecord(mid);const p=postponedInfo(mid);return p?.targetWeek||rec?.week||state.week}
-function isReservableInCurrentWeek(mid){return effectiveWeekFor(mid)===state.week}
+function isReservableInCurrentWeek(mid){const r=resultFor(mid);return effectiveWeekFor(mid)===state.week&&r?.status!=='confirmed'}
 function slots(){return data.slots[weekKey()]||[]}
 function isOpen(){return !!data.published[weekKey()]}
+function bookingFor(mid){return data.bookings[mid]||null}
 function resultFor(mid){return data.results[mid]||null}
-function matchIsFinished(mid){return resultFor(mid)?.status==='confirmed'}
-function bookingFor(mid){return matchIsFinished(mid)?null:(data.bookings[mid]||null)}
-function slotBooking(slotId){return Object.entries(data.bookings).find(([mid,b])=>!matchIsFinished(mid)&&b.week===state.week&&b.slotId===slotId)?.[1]||null}
+function slotBooking(slotId){return Object.entries(data.bookings).find(([,b])=>b.week===state.week&&b.slotId===slotId)?.[1]||null}
 function allWeekFixtures(){
   const officialPrefix=state.week+"|";
   const raw=Object.entries(data.fixtures).filter(([k])=>k.startsWith(officialPrefix)).flatMap(([k,arr])=>arr.map(x=>({...x,key:k,_originalWeek:state.week,_carried:false})));
@@ -4522,9 +4640,10 @@ function base64UrlToUint8Array(base64String){
 }
 async function getPushPublicKey(){
   if(PUSH_VAPID_PUBLIC_KEY)return PUSH_VAPID_PUBLIC_KEY;
-  const j=await apiRequest({action:'getPushConfig'});
-  if(!j.vapidPublicKey)throw new Error('No se ha podido obtener la clave Push.');
-  PUSH_VAPID_PUBLIC_KEY=String(j.vapidPublicKey);
+  const r=await fetch(PUSH_URL+'/public-key',{cache:'no-store'});
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok||j.ok===false||!j.publicKey)throw new Error(j.error||'No se ha podido obtener la clave Push.');
+  PUSH_VAPID_PUBLIC_KEY=String(j.publicKey);
   return PUSH_VAPID_PUBLIC_KEY;
 }
 function getPushDeviceId(){
@@ -4561,11 +4680,20 @@ async function syncPushSubscription(sub,{force=false}={}){
       if(cached?.fingerprint===fp && Date.now()-Number(cached.syncedAt||0)<PUSH_RESYNC_MS)return true;
     }catch(_){}
   }
-  const j=await apiRequest({
-    action:'subscribePush',
-    deviceId:getPushDeviceId(),
-    subscription:sub.toJSON?sub.toJSON():sub
+  const r=await fetch(PUSH_URL+'/subscribe',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+apiToken
+    },
+    body:JSON.stringify({
+      deviceId:getPushDeviceId(),
+      subscription:sub.toJSON?sub.toJSON():sub,
+      userName:state.player
+    })
   });
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));
   if(fp){try{localStorage.setItem(PUSH_SYNC_CACHE_KEY,JSON.stringify({fingerprint:fp,syncedAt:Date.now()}))}catch(_){}}
   return true;
 }
@@ -4752,11 +4880,13 @@ async function sendAvailabilityPush(force=false){
     action:'sendAvailabilityPush',
     weekId:weekKey(),
     weekLabel:w?.label||weekKey(),
+    category:state.category,
+    gender:state.gender,
     force:!!force
   });
 }
 
-function renderIdentity(){const sel=$('#playerIdentity');const ps=visibleIdentitiesForCategory();sel.innerHTML='<option value="">Selecciona tu nombre</option>'+ps.map(p=>`<option value="${p.replace(/"/g,'&quot;')}">${p}${roleOf(p)==='admin'?' · ADMIN':''}</option>`).join('');if(state.player&&!allIdentities().includes(state.player)){state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_test_auth_player')}sel.value=state.player;sel.disabled=state.authenticated;$('#playerPin').disabled=state.authenticated;$('#loginBtn').disabled=state.authenticated;const info=$('#identityInfo');if(!state.authenticated){info.innerHTML='<span class="identityWarn">Sin identificar.</span> Solo aparecen jugadores de '+state.category+' '+state.gender+' y administradores.'}else{const own=allWeekFixtures().filter(m=>m.a===state.player||m.b===state.player);info.innerHTML=`<span class="identityOk">✓ ${state.player}</span> · ${isAdmin()?'ADMIN':'jugador'} · sesión iniciada · ${own.length} partido${own.length===1?'':'s'} esta semana`}}
+function renderIdentity(){const sel=$('#playerIdentity');const ps=visibleIdentitiesForCategory();sel.innerHTML='<option value="">Selecciona tu nombre</option>'+ps.map(p=>`<option value="${p.replace(/"/g,'&quot;')}">${p}${roleOf(p)==='admin'?' · ADMIN':''}</option>`).join('');if(state.player&&!allIdentities().includes(state.player)){state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_auth_player')}sel.value=state.player;sel.disabled=state.authenticated;$('#playerPin').disabled=state.authenticated;$('#loginBtn').disabled=state.authenticated;const info=$('#identityInfo');if(!state.authenticated){info.innerHTML='<span class="identityWarn">Sin identificar.</span> Solo aparecen jugadores de '+state.category+' '+state.gender+' y administradores.'}else{const own=allWeekFixtures().filter(m=>m.a===state.player||m.b===state.player);info.innerHTML=`<span class="identityOk">✓ ${state.player}</span> · ${isAdmin()?'ADMIN':'jugador'} · sesión iniciada · ${own.length} partido${own.length===1?'':'s'} esta semana`}}
 function initDemo(){ /* Sin datos ficticios en la versión online */ }
 function renderTabs(){
  $('#catTabs').innerHTML=CATEGORIES.map(c=>`<button class="tab ${c===state.category?'active':''}" data-cat="${c}">${c}</button>`).join("");
@@ -4890,8 +5020,8 @@ function showResultModalUI(){
   $('#resultModal').classList.add('show');
 }
 function openResultModal(mid){state.resultMatchId=mid;const m=findFixtureById(mid);if(!m)return;if(!isAdmin()&&!canPlayerReserve(m)){alert('Solo los jugadores del partido o un administrador pueden gestionar el resultado.');return}const r=resultFor(mid);$('#resultModalMatch').textContent=`${m.a} vs ${m.b}`;const rec=fixtureRecord(mid);$('#resultModalCat').textContent=rec?`${rec.category} · ${rec.gender} · ${weeks.find(w=>w.id===rec.week)?.label||rec.week}`:`${state.category} · ${state.gender}`;$('#resultWinner').innerHTML=`<option value="">Selecciona ganador</option><option value="${m.a.replace(/"/g,'&quot;')}">${m.a}</option><option value="${m.b.replace(/"/g,'&quot;')}">${m.b}</option>`;$('#resultType').value=r?.type||'normal';const sets=r?.sets||[];[['#rS1A','#rS1B'],['#rS2A','#rS2B'],['#rS3A','#rS3B']].forEach((ids,i)=>{$(ids[0]).value=sets[i]?.a??'';$(ids[1]).value=sets[i]?.b??''});$('#resultWinner').value=r?.winner||'';$('#resultModalMode').textContent=r?'EDITAR RESULTADO':'SUBIR RESULTADO';$('#resultExisting').classList.toggle('hidden',!r);if(r)$('#resultExisting').innerHTML=`<b>Estado actual:</b> ${resultLabel(r)} · ${r.status==='confirmed'?'Confirmado':(r.revisedFrom?`Modificado por ${mappEsc(r.submittedBy)} · pendiente de ${mappEsc(r.revisedFrom)}`:'Pendiente de confirmar')}`;const canConfirm=!!r&&r.status==='pending'&&!isAdmin()&&r.submittedBy!==state.player&&canPlayerReserve(m);$('#confirmResultBtn').classList.toggle('hidden',!canConfirm);$('#saveResultBtn').classList.toggle('hidden',(!isAdmin()&&r?.status==='confirmed'));$('#saveResultBtn').textContent=isAdmin()?(r?'💾 Guardar corrección':'✅ Guardar resultado'):(canConfirm?'✏️ Editar y pedir nueva confirmación':(r?'📤 Actualizar resultado':'📤 Enviar resultado'));$('#deleteResultBtn').classList.toggle('hidden',!(isAdmin()&&r));syncResultType();showResultModalUI();validateNormalResultLive()}
-async function saveResult(){const mid=state.resultMatchId,m=findFixtureById(mid);if(!m)return;try{const type=$('#resultType').value;let sets=[];if(type==='normal'){const check=validateNormalResultLive();if(!check.ok)throw new Error(check.error||'Revisa el resultado.');sets=check.sets}else if(type!=='wo'&&type!=='not_played'){for(const [a,b] of [['#rS1A','#rS1B'],['#rS2A','#rS2B'],['#rS3A','#rS3B']]){const set=readSet(a,b);if(set)sets.push(set)}}const winner=(type==='wo'||type==='retirement')?$('#resultWinner').value:'';if((type==='wo'||type==='retirement')&&!winner)throw new Error('Selecciona el ganador.');const btn=$('#saveResultBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{const j=await apiRequest({action:'submitResult',matchId:mid,result:{type,sets,winner}});data.results[mid]=j.result;if(j.result.status==='confirmed'&&data.bookings){delete data.bookings[mid]}localStorage.setItem(STORAGE_KEY,JSON.stringify(data));closeResultModalUI();renderAll();alert(j.result.status==='confirmed'?'✅ Resultado guardado y confirmado.':(j.result.revisedFrom?'✏️ Resultado modificado. Ahora debe confirmarlo de nuevo tu rival.':'✅ Resultado enviado. Queda pendiente de confirmación del rival.'))}finally{btn.disabled=false;btn.textContent=old}}catch(e){alert(e.message)}}
-async function confirmResult(mid){const m=findFixtureById(mid),r=resultFor(mid);if(!m||!r)return;const ok=confirm(`¿Confirmas este resultado?\n\n${m.a} vs ${m.b}\n${resultLabel(r)}\n\nUna vez confirmado, solo un administrador podrá corregirlo.`);if(!ok)return;try{const j=await apiRequest({action:'confirmResult',matchId:mid});data.results[mid]=j.result;if(data.bookings){delete data.bookings[mid]}localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();alert('✅ Resultado confirmado. La pista ha quedado libre.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
+async function saveResult(){const mid=state.resultMatchId,m=findFixtureById(mid);if(!m)return;try{const type=$('#resultType').value;let sets=[];if(type==='normal'){const check=validateNormalResultLive();if(!check.ok)throw new Error(check.error||'Revisa el resultado.');sets=check.sets}else if(type!=='wo'&&type!=='not_played'){for(const [a,b] of [['#rS1A','#rS1B'],['#rS2A','#rS2B'],['#rS3A','#rS3B']]){const set=readSet(a,b);if(set)sets.push(set)}}const winner=(type==='wo'||type==='retirement')?$('#resultWinner').value:'';if((type==='wo'||type==='retirement')&&!winner)throw new Error('Selecciona el ganador.');const btn=$('#saveResultBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{const j=await apiRequest({action:'submitResult',matchId:mid,result:{type,sets,winner}});data.results[mid]=j.result;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));closeResultModalUI();renderAll();alert(j.result.status==='confirmed'?'✅ Resultado guardado y confirmado.':(j.result.revisedFrom?'✏️ Resultado modificado. Ahora debe confirmarlo de nuevo tu rival.':'✅ Resultado enviado. Queda pendiente de confirmación del rival.'))}finally{btn.disabled=false;btn.textContent=old}}catch(e){alert(e.message)}}
+async function confirmResult(mid){const m=findFixtureById(mid),r=resultFor(mid);if(!m||!r)return;const ok=confirm(`¿Confirmas este resultado?\n\n${m.a} vs ${m.b}\n${resultLabel(r)}\n\nUna vez confirmado, solo un administrador podrá corregirlo.`);if(!ok)return;try{const j=await apiRequest({action:'confirmResult',matchId:mid});data.results[mid]=j.result;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();alert('✅ Resultado confirmado.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
 async function deleteResult(mid){if(!isAdmin())return;const m=findFixtureById(mid);if(!m)return;if(!confirm(`¿Borrar el resultado de ${m.a} vs ${m.b}?`))return;try{await apiRequest({action:'deleteResult',matchId:mid});delete data.results[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));closeResultModalUI();renderAll();alert('🗑️ Resultado borrado.')}catch(e){alert(e.message)}}
 function renderKpis(){
  const all=allWeekFixtures();
@@ -5013,6 +5143,7 @@ function fillReserveCourts(mid,preferredCourt=''){
 }
 function openReserve(mid,preferredSlotId=''){
  state.reserveMatchId=mid;const m=findFixtureById(mid);if(!m)return;
+ if(resultFor(mid)?.status==='confirmed'){alert("Este partido ya está finalizado y no puede reservar pista.");return;}
  if(!canPlayerReserve(m)&&!isAdmin()){alert("Solo uno de los dos jugadores de este enfrentamiento o un administrador puede reservarlo.");return;}if(!isReservableInCurrentWeek(mid)){alert("Este partido está asignado a otra semana. Gestiona primero su retraso/reprogramación.");return;}
  $('#modalMatch').textContent=`${m.a} vs ${m.b}`;
  $('#modalCat').textContent=`${state.category} · ${state.gender} · ${weeks.find(w=>w.id===state.week).label}`;
@@ -5038,6 +5169,7 @@ function openReserve(mid,preferredSlotId=''){
 async function book(mid,sid){
  if(reservationPending)return;
  const m=findFixtureById(mid),s=slots().find(x=>x.id===sid);if(!m||!s)return;
+ if(resultFor(mid)?.status==='confirmed'){alert("Este partido ya está finalizado y no puede reservar pista.");return;}
  if(!canPlayerReserve(m)&&!isAdmin()){alert("No puedes reservar un partido en el que no participas.");return;}if(!isReservableInCurrentWeek(mid)){alert("Este partido está asignado a otra semana.");return;}
  const btn=$('#confirmReserve');
  const oldText=btn.textContent;
@@ -5239,7 +5371,7 @@ const ADMIN_DEFAULT_ORDER=[
 
 function adminOrderStorageKey(){
   if(!state.player)return '';
-  return 'ctcampeador_test_admin_block_order_'+normalizeName(state.player);
+  return 'ctcampeador_admin_block_order_'+normalizeName(state.player);
 }
 let adminCloudOrderLoadedFor='';
 let adminOrderSaveTimer=null;
@@ -6135,7 +6267,16 @@ async function loadPushDevices(){
   const tb=$('#pushDevicesTable');
   if(tb)tb.innerHTML='<tr><td colspan="4">⏳ Cargando dispositivos…</td></tr>';
   try{
-    const r=await apiRequest({action:'listPushDevices'});
+    const rr=await fetch(PUSH_URL+'/admin/devices',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+apiToken
+      },
+      body:'{}'
+    });
+    let r={};try{r=await rr.json()}catch(e){}
+    if(!rr.ok||r.ok===false)throw new Error(r.error||('HTTP '+rr.status));
 
     const groups=Array.isArray(r.users)?r.users:[];
     window.__pushDeviceGroups=groups;
@@ -6167,7 +6308,16 @@ async function removePushDevicesFor(player){
   if(!requireAdmin())return;
   if(!confirm(`¿Dar de baja TODOS los dispositivos de ${player}?\n\nEse jugador dejará de recibir avisos hasta que vuelva a activar las notificaciones.`))return;
   try{
-    const r=await apiRequest({action:'removePushDevices',userName:player});
+    const rr=await fetch(PUSH_URL+'/admin/remove-user',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+apiToken
+      },
+      body:JSON.stringify({userName:player})
+    });
+    let r={};try{r=await rr.json()}catch(e){}
+    if(!rr.ok||r.ok===false)throw new Error(r.error||('HTTP '+rr.status));
     alert(`✅ Dispositivos dados de baja: ${r.removed||0}.`);
     await loadPushDevices();
   }catch(e){
@@ -6600,7 +6750,7 @@ const MAPP_ICONS={
 function mappIcon(name){return MAPP_ICONS[name]||''}
 function mappEsc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function mappInitials(name){const p=String(name||'?').trim().split(/\s+/);return (p[0]?.[0]||'')+(p.length>1?p[p.length-1][0]:'')}
-function mappPhotoKey(name){return 'ctcampeador_test_profile_photo_'+normalizeName(name)}
+function mappPhotoKey(name){return 'ctcampeador_profile_photo_'+normalizeName(name)}
 function mappLocalPhoto(name){try{return localStorage.getItem(mappPhotoKey(name))||''}catch(_){return ''}}
 function mappPhoto(name){
  const cloud=data.profiles?.[name]?.photoDataUrl;
@@ -6633,7 +6783,9 @@ function mappResultPlayer(name){
 }
 function mappOwnMatches(){
  if(!state.authenticated||!state.player)return [];
- return viewFixtures().filter(m=>(m.a===state.player||m.b===state.player)&&!matchIsFinished(m.id))
+ return viewFixtures().filter(m=>
+   (m.a===state.player||m.b===state.player) && resultFor(m.id)?.status!=='confirmed'
+ )
 }
 function mappPrimaryMatch(){return mappOwnMatches()[0]||null}
 function mappOpponent(m){if(!m)return'';return m.a===state.player?m.b:m.a}
@@ -7531,17 +7683,10 @@ function toggleJourneyPanel(id){
   });
 }
 function navigateJourney(delta){
-  if(fixtureEditorDirty){
-    const ok=confirm('Tienes cambios sin guardar en esta jornada. ¿Cambiar de jornada y perder esos cambios?');
-    if(!ok)return;
-    fixtureEditorDirty=false;
-  }
   const idx=journeyIndex(state.week);
   const next=weeks[idx+delta];
   if(!next)return;
-  state.week=next.id;
-  renderAll();
-  renderModernAdminContext();
+  goToJourney(next.id);
 }
 $('#toggleQuickFixture').onclick=()=>toggleJourneyPanel('#quickFixturePanel');
 $('#togglePasteFixtures').onclick=()=>toggleJourneyPanel('#pasteFixturePanel');
@@ -7550,7 +7695,7 @@ $('#journeyMoreBtn').onclick=()=>$('#journeyDangerMenu').classList.toggle('hidde
 $('#journeyPrevBtn').onclick=()=>navigateJourney(-1);
 $('#journeyNextBtn').onclick=()=>navigateJourney(1);
 
-$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
+if($('#futureFixturesBtn'))$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
 $('#importFixtures').onclick=()=>{if(!requireAdmin())return;const {pairs,unknown}=parseFixtureText($('#fixturePaste').value);if(!pairs.length){alert('No he encontrado enfrentamientos válidos en el texto.');return}let added=0;for(const [a,b] of pairs)if(addFixturePair(a,b,{silent:true}))added++;renderFixtureEditor();renderMatches();$('#fixtureImportStatus').textContent=`${added} partido${added===1?'':'s'} añadido${added===1?'':'s'}.`+(unknown.length?` ⚠ Nombres no encontrados exactamente en la lista: ${unknown.join(', ')}`:' Todos los nombres coinciden con la categoría.');};
 $('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(!start||!end){alert('Indica el inicio y el fin de la semana.');return}if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return}data.weekRanges=data.weekRanges||{};data.weekRanges[state.week]={start,end};applyWeekRanges();trimDraftToCurrentWeek({persist:false});trimStoredAvailabilityToCurrentWeek();persistDraft();const round=$('#externalRound').value.trim();if(round)data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];ensurePins();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));const btn=$('#saveFixtures'),oldTxt=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{await saveStateOnline();await saveUsersOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado');await refreshOnline({silent:true,force:true});const js=$('#journeySaveState');if(js){js.textContent='✓ Jornada sincronizada';js.classList.remove('dirty');js.classList.add('ok')}alert(`✅ Jornada guardada.\n\n${round||weeks.find(w=>w.id===state.week).label}\n${fixtures().length} partido${fixtures().length===1?'':'s'}.`)}catch(e){fixtureEditorDirty=true;setOnline(true,'✏️ Sin guardar');alert('No se ha podido guardar la jornada online.\n\n'+e.message)}finally{btn.disabled=false;btn.textContent=oldTxt}};
 $('#clearFixtures').onclick=async()=>{if(!requireAdmin())return;if(confirm('¿Vaciar todos los enfrentamientos de esta categoría y jornada?')){delete data.fixtures[fixtureKey()];delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderAll();try{await saveStateOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado')}catch(e){alert(e.message)}}};
