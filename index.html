@@ -3912,34 +3912,62 @@ body.resultModalOpen{overflow:hidden}
   <div class="adminAccordionBody">
 <div class="adminSubsection">
       <div class="adminSubsectionHead"><span>Disponibilidad de pistas</span><span id="adminMeta_slots_sub">Abrir</span></div>
-      <div class="adminSubsectionBody"><div class="tiny">Cada turno dura <b>1 h 30 min</b>. La mañana usa siempre <b>10:00–11:30 · 11:30–13:00 · 13:00–14:30</b> y la tarde <b>16:00–17:30 · 17:30–19:00 · 19:00–20:30</b>. Prepara el borrador, elimina los tramos que no estén disponibles y publícalo cuando esté listo.</div>
-<div class="draftToolbar">
-<button class="presetBtn" id="draftHabitual">↺ Horario habitual</button>
-<button class="presetBtn" id="draftAllMorning">Todas las mañanas</button>
-<button class="presetBtn" id="draftAllAfternoon">Todas las tardes</button>
-<button class="presetBtn" id="draftFullWeek">Semana completa</button>
-<button class="btn danger" id="clearSlots">Vaciar borrador</button>
-<span class="countBadge" id="slotCount">0 franjas</span>
-</div>
-<div class="customBlock">
-<div class="customBlockTitle">Bloque horario personalizado</div>
-<div class="tiny" style="margin-bottom:9px">Para excepciones: elige un día y cualquier intervalo. La app lo dividirá automáticamente en tramos de <b>1 h 30 min</b>.</div>
-<div class="customBlockGrid">
-<div class="field dateField"><label>Día</label><input id="customDate" type="date"/></div>
-<div class="field"><label>Desde</label><input id="customFrom" step="900" type="time" value="14:30"/></div>
-<div class="field"><label>Hasta</label><input id="customTo" step="900" type="time" value="16:00"/></div>
-<div class="field"><label>Nº pistas</label><input id="customCourts" max="10" min="1" type="number" value="1"/></div>
-<button class="btn gold" id="addCustomBlock">Añadir al borrador</button>
-</div>
-</div>
-<div class="authNote">El horario es solo un <b>borrador privado del administrador</b>. Los jugadores no verán nada hasta que pulses <b>Publicar disponibilidad y abrir reservas</b>.</div>
-<div class="draftBoard" id="draftBoard"></div>
-<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-<button class="btn green" id="publishSlots">Publicar disponibilidad y abrir reservas</button>
-<button class="btn secondary" id="resendPushNotice">Reenviar aviso</button>
-<button class="btn danger" id="closeSlots">Despublicar disponibilidad y cerrar reservas</button>
-<span class="tiny" id="publishActionStatus" style="width:100%;margin-top:4px">Al publicar por primera vez —o volver a publicar tras despublicar— se envía un aviso Push a los dispositivos suscritos.</span>
-</div></div>
+      <div class="adminSubsectionBody">
+        <div class="courtsPro">
+          <div class="courtsProHero">
+            <div><div class="courtsProHeroTitle">Panel de pistas</div><div class="courtsProHeroSub">Prepara, revisa y publica la disponibilidad de la jornada desde un único lugar.</div></div>
+            <div class="courtsProWeek" id="courtsProWeek">Jornada actual</div>
+          </div>
+
+          <div class="courtsProKpis">
+            <div class="courtsProKpi published"><strong id="courtsKpiPublished">0</strong><span>Publicadas</span></div>
+            <div class="courtsProKpi free"><strong id="courtsKpiFree">0</strong><span>Libres</span></div>
+            <div class="courtsProKpi booked"><strong id="courtsKpiBooked">0</strong><span>Reservadas</span></div>
+            <div class="courtsProKpi pending"><strong id="courtsKpiPending">0</strong><span>En borrador</span></div>
+          </div>
+
+          <div class="courtsProDays" id="courtsProDays"></div>
+
+          <div class="courtsProActions">
+            <button class="btn gold" id="courtsAddQuick" type="button">＋ Añadir franja</button>
+            <button class="btn secondary" id="draftHabitual" type="button">↺ Horario habitual</button>
+            <button class="btn secondary" id="draftFullWeek" type="button">Semana completa</button>
+            <button class="btn danger" id="clearSlots" type="button">Vaciar borrador</button>
+          </div>
+
+          <div class="courtsProSecondary">
+            <button class="presetBtn" id="draftAllMorning" type="button">Todas las mañanas</button>
+            <button class="presetBtn" id="draftAllAfternoon" type="button">Todas las tardes</button>
+            <span class="countBadge" id="slotCount">0 franjas</span>
+          </div>
+
+          <div class="courtsProCustom" id="courtsCustomPanel">
+            <div class="courtsProCustomTitle">Añadir bloque personalizado</div>
+            <div class="courtsProCustomSub">Elige día, horario y número de pistas. Se divide automáticamente en tramos de 1 h 30 min.</div>
+            <div class="customBlockGrid">
+              <div class="field dateField"><label>Día</label><input id="customDate" type="date"/></div>
+              <div class="field"><label>Desde</label><input id="customFrom" step="900" type="time" value="14:30"/></div>
+              <div class="field"><label>Hasta</label><input id="customTo" step="900" type="time" value="16:00"/></div>
+              <div class="field"><label>Nº pistas</label><input id="customCourts" max="10" min="1" type="number" value="1"/></div>
+              <button class="btn gold" id="addCustomBlock" type="button">Añadir</button>
+            </div>
+          </div>
+
+          <div class="draftBoard courtsProEditor" id="draftBoard"></div>
+
+          <div class="courtsProPublish">
+            <div>
+              <div class="courtsProPublishTitle">Estado de publicación</div>
+              <div class="courtsProPublishMeta" id="publishActionStatus">El borrador es privado hasta que publiques la disponibilidad.</div>
+            </div>
+            <div class="courtsProPublishActions">
+              <button class="btn green" id="publishSlots">Publicar disponibilidad</button>
+              <button class="btn secondary" id="resendPushNotice">Reenviar aviso</button>
+              <button class="btn danger" id="closeSlots">Cerrar reservas</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </details>
@@ -4159,7 +4187,7 @@ const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
 const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
-const APP_BUILD="20261017-test-jornada-unificada-1";
+const APP_BUILD="20261017-test-pistas-pro-v1";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -6812,6 +6840,7 @@ async function removePushDevicesFor(player){
 }
 
 let draftSlots=[];
+let adminCourtsDay="";
 function persistDraft(){if(!data.drafts)data.drafts={};data.drafts[weekKey()]=draftSlots.map(x=>({...x}));save()}
 
 function currentWeekRange(){
@@ -6878,25 +6907,70 @@ function addDayPart(date,part,courts=1){
 function removeDayPart(date,part){draftSlots=draftSlots.filter(s=>!(s.date===date&&partOfSlot(s)===part));persistDraft();renderDraftBoard()}
 function removeDraftSlot(id){draftSlots=draftSlots.filter(s=>s.id!==id);persistDraft();renderDraftBoard()}
 function renderSlotChips(){renderDraftBoard()}
+function renderCourtsProSummary(){
+  const publishedSlots=slots().slice();
+  const booked=publishedSlots.filter(s=>!!slotBooking(s.id)).length;
+  const free=Math.max(0,publishedSlots.length-booked);
+  const pending=draftSlots.length;
+  const w=weeks.find(x=>x.id===state.week);
+  const p=$('#courtsKpiPublished'),f=$('#courtsKpiFree'),b=$('#courtsKpiBooked'),d=$('#courtsKpiPending');
+  if(p)p.textContent=publishedSlots.length;
+  if(f)f.textContent=free;
+  if(b)b.textContent=booked;
+  if(d)d.textContent=pending;
+  const wk=$('#courtsProWeek'); if(wk&&w)wk.textContent=journeyDisplayName(state.week);
+}
+function renderCourtsDayTabs(days){
+  const wrap=$('#courtsProDays'); if(!wrap)return;
+  if(!days.length){wrap.innerHTML='';return}
+  if(!adminCourtsDay||!days.includes(adminCourtsDay)) adminCourtsDay=days[0];
+  wrap.innerHTML=days.map(date=>{
+    const dt=new Date(date+'T12:00:00');
+    const wd=dt.toLocaleDateString('es-ES',{weekday:'short'}).replace('.','').replace(/^./,c=>c.toUpperCase());
+    const num=dt.getDate();
+    const count=draftSlots.filter(s=>s.date===date).length;
+    return `<button class="courtsProDay ${date===adminCourtsDay?'active':''}" type="button" data-court-day="${date}"><b>${wd} ${num}</b><span>${count} franja${count===1?'':'s'}</span></button>`;
+  }).join('');
+  wrap.querySelectorAll('[data-court-day]').forEach(btn=>btn.onclick=()=>{adminCourtsDay=btn.dataset.courtDay;renderDraftBoard()});
+}
 function renderDraftBoard(){
   normalizeDraft();
-  $('#slotCount').textContent=`${draftSlots.length} ${draftSlots.length===1?'franja':'franjas'}`;
+  const slotCount=$('#slotCount'); if(slotCount)slotCount.textContent=`${draftSlots.length} ${draftSlots.length===1?'franja':'franjas'}`;
   const box=$('#draftBoard');
-  const days=[]; const w=weeks.find(x=>x.id===state.week); if(!w){box.innerHTML='';return}
-  let d=new Date(w.start+'T12:00:00'), end=new Date(w.end+'T12:00:00');
+  const w=weeks.find(x=>x.id===state.week); if(!w){if(box)box.innerHTML='';return}
+  const days=[]; let d=new Date(w.start+'T12:00:00'), end=new Date(w.end+'T12:00:00');
   while(d<=end){days.push(localISO(d));d.setDate(d.getDate()+1)}
-  const partHtml=(date,part,label,icon)=>{
-    const arr=draftSlots.filter(s=>s.date===date&&partOfSlot(s)===part);
-    const cls=part==='morning'?'morning':'afternoon';
-    const action=arr.length?`<span style="display:flex;gap:5px"><button class="miniAdd" data-addcourt="${date}|${part}">＋ pista</button><button class="iconBtn" data-delpart="${date}|${part}" title="Quitar bloque">✕ bloque</button></span>`:`<button class="miniAdd" data-addpart="${date}|${part}">Añadir</button>`;
-    return `<div class="draftPart"><div class="draftPartHead"><div class="draftPartTitle ${cls}">${icon} ${label}</div>${action}</div><div class="draftSlots">${arr.length?arr.map(s=>`<div class="draftSlot"><div><b>${s.time}</b><div class="meta">${s.court}</div></div><button class="iconBtn" data-delslot="${s.id}">✕</button></div>`).join(''):`<div class="draftEmpty">Sin disponibilidad</div>`}</div></div>`;
-  };
-  box.innerHTML=days.map(date=>`<div class="draftDay"><div class="draftDayHead"><b>${dayDateES(date)}</b><span class="tiny">${draftSlots.filter(s=>s.date===date).length} franjas</span></div><div class="draftParts">${partHtml(date,'morning','Mañana','☀️')}${partHtml(date,'afternoon','Tarde','🌇')}</div></div>`).join('');
+  renderCourtsDayTabs(days);
+  renderCourtsProSummary();
+  if(!box)return;
+  const date=adminCourtsDay||days[0];
+  const daySlots=draftSlots.filter(s=>s.date===date);
+  const courts=[...new Set(daySlots.map(s=>s.court))].sort((a,b)=>String(a).localeCompare(String(b),'es',{numeric:true}));
+  if(!courts.length){
+    box.innerHTML=`<div class="courtsProEmpty" style="grid-column:1/-1"><b>${dayDateES(date)}</b><br>Sin disponibilidad preparada para este día.</div>`;
+    return;
+  }
+  box.innerHTML=courts.map(court=>{
+    const arr=daySlots.filter(s=>s.court===court).sort((a,b)=>a.time.localeCompare(b.time));
+    return `<section class="courtsProCard">
+      <div class="courtsProCardHead"><div class="courtsProCardTitle">${mappEsc(court)}</div><div class="courtsProCardCount">${arr.length} franjas</div></div>
+      <div>${arr.map(s=>{
+        const published=slots().some(x=>x.id===s.id);
+        const bk=slotBooking(s.id);
+        const stateClass=bk?'booked':published?'free':'draft';
+        const stateText=bk?'Reservada':published?'Libre':'Preparada';
+        const sub=bk?`${mappEsc(bk.a||'')} vs ${mappEsc(bk.b||'')}`:published?'Visible para jugadores':'Sin publicar';
+        return `<div class="courtsProSlot">
+          <div class="courtsProTime">${mappEsc(s.time)}</div>
+          <div class="courtsProState"><span class="courtsProDot ${stateClass}"></span>${stateText}<span class="sub">${sub}</span></div>
+          <button class="courtsProDelete" type="button" data-delslot="${mappEsc(s.id)}" title="Quitar franja">✕</button>
+        </div>`;
+      }).join('')}</div>
+    </section>`;
+  }).join('');
   box.querySelectorAll('[data-delslot]').forEach(b=>b.onclick=()=>removeDraftSlot(b.dataset.delslot));
-  box.querySelectorAll('[data-delpart]').forEach(b=>b.onclick=()=>{const [date,part]=b.dataset.delpart.split('|');removeDayPart(date,part)});
-  box.querySelectorAll('[data-addpart]').forEach(b=>b.onclick=()=>{const [date,part]=b.dataset.addpart.split('|');addDayPart(date,part,1)});
-  box.querySelectorAll('[data-addcourt]').forEach(b=>b.onclick=()=>{const [date,part]=b.dataset.addcourt.split('|');const partSlots=draftSlots.filter(s=>s.date===date&&partOfSlot(s)===part);const courts=partSlots.map(s=>Number((s.court.match(/\d+/)||['0'])[0]));const next=Math.max(0,...courts)+1;const from=part==='morning'?'10:00':'16:00',to=part==='morning'?'14:30':'20:30';let a=timeToMin(from),z=timeToMin(to);for(let t=a;t+90<=z;t+=90){draftSlots.push({day:dayNameES(date),date,time:`${minToTime(t)} - ${minToTime(t+90)}`,court:`Pista ${next}`})}normalizeDraft();persistDraft();renderDraftBoard()});
 }
+
 function addBlock(date,from,to,courts=1){if(!date||!from||!to)return 0;let a=timeToMin(from),z=timeToMin(to);if(z<=a){alert('La hora final debe ser posterior a la inicial.');return 0}let added=0;for(let t=a;t+90<=z;t+=90){const time=`${minToTime(t)} - ${minToTime(t+90)}`;for(let c=1;c<=courts;c++){draftSlots.push({day:dayNameES(date),date,time,court:`Pista ${c}`});added++}}normalizeDraft();persistDraft();renderDraftBoard();return added}
 function addCustomBlock(){
   if(!requireAdmin())return;
@@ -8219,6 +8293,7 @@ $('#importFixtures').onclick=()=>{if(!requireAdmin())return;const {pairs,unknown
 $('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(!start||!end){alert('Indica el inicio y el fin de la semana.');return}if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return}data.weekRanges=data.weekRanges||{};data.weekRanges[state.week]={start,end};applyWeekRanges();trimDraftToCurrentWeek({persist:false});trimStoredAvailabilityToCurrentWeek();persistDraft();const round=$('#externalRound').value.trim();setJourneyName(state.week,round);if(round)data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();ensurePins();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));const btn=$('#saveFixtures'),oldTxt=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{await saveStateOnline();await saveUsersOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado');await refreshOnline({silent:true,force:true});const js=$('#journeySaveState');if(js){js.textContent='✓ Jornada sincronizada';js.classList.remove('dirty');js.classList.add('ok')}alert(`✅ Jornada guardada.\n\n${round||weeks.find(w=>w.id===state.week).label}\n${fixtures().length} partido${fixtures().length===1?'':'s'}.`)}catch(e){fixtureEditorDirty=true;setOnline(true,'✏️ Sin guardar');alert('No se ha podido guardar la jornada online.\n\n'+e.message)}finally{btn.disabled=false;btn.textContent=oldTxt}};
 $('#clearFixtures').onclick=async()=>{if(!requireAdmin())return;if(confirm('¿Vaciar todos los enfrentamientos de esta categoría y jornada?')){delete data.fixtures[fixtureKey()];delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderAll();try{await saveStateOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado')}catch(e){alert(e.message)}}};
 $('#copyPrevFixtures').onclick=()=>{if(!requireAdmin())return;const i=weeks.findIndex(w=>w.id===state.week);if(i<=0){alert('No hay una semana anterior para copiar.');return}const prevKey=`${weeks[i-1].id}|${state.category}|${state.gender}`;const prev=data.fixtures[prevKey]||[];if(!prev.length){alert('La semana anterior no tiene enfrentamientos en esta categoría.');return}if(fixtures().length&&!confirm('Ya hay enfrentamientos en esta jornada. ¿Sustituirlos por los de la semana anterior?'))return;data.fixtures[fixtureKey()]=prev.map(m=>makeFixture(m.a,m.b));data.fixtureRounds[fixtureKey()]=data.fixtureRounds?.[prevKey]||'';localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderFixtureEditor();renderMatches()};
+if($('#courtsAddQuick'))$('#courtsAddQuick').onclick=()=>{if(!requireAdmin())return;const panel=$('#courtsCustomPanel');if(panel){panel.scrollIntoView({behavior:'smooth',block:'center'});const inp=$('#customDate');if(inp&&adminCourtsDay)inp.value=adminCourtsDay;setTimeout(()=>$('#customFrom')?.focus(),250)}};
 $('#draftHabitual').onclick=()=>{if(!requireAdmin())return;draftSlots=buildDefaultWeekSlots();persistDraft();renderDraftBoard()};
 $('#draftAllMorning').onclick=()=>{if(!requireAdmin())return;draftSlots=buildAllPart('morning');persistDraft();renderDraftBoard()};
 $('#draftAllAfternoon').onclick=()=>{if(!requireAdmin())return;draftSlots=buildAllPart('afternoon');persistDraft();renderDraftBoard()};
