@@ -3640,7 +3640,7 @@ const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
 const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
-const APP_BUILD="20261017-test-finalizado-libera-pista-1";
+const APP_BUILD="20261017-test-push-resultado-fresco-1";
 const weeks=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -6885,6 +6885,15 @@ async function processPushDeepLink({force=false}={}){
     }else if(link.open==='match'){
       mappShow('match');
     }else if(link.open==='result'){
+      // Al abrir desde una notificación Push, la PWA puede llevar minutos suspendida
+      // y conservar en memoria el resultado anterior. Antes de abrir el modal,
+      // forzamos una lectura del estado remoto para que aparezca inmediatamente
+      // el resultado que acaba de subir el rival, sin tener que recargar la app.
+      if(link.matchId){
+        await refreshOnline({silent:true,force:true});
+        routeContextFromMatch(link.matchId);
+        renderAll();
+      }
       if(link.matchId && findFixtureById(link.matchId)){
         mappShow('match');
         setTimeout(()=>openResultModal(link.matchId),120);
