@@ -3969,6 +3969,22 @@ body.modern-admin #publishSlots{
   border-color:#138e51!important;
   color:#fff!important;
 }
+body.modern-admin #saveDraftSlots{
+  background:#fff!important;
+  border:1.5px solid #7b0013!important;
+  color:#7b0013!important;
+}
+body.modern-admin #addCourtBtn{
+  background:#7b0013!important;
+  border-color:#7b0013!important;
+  color:#fff!important;
+}
+body.modern-admin .courtsProEmptyActions{
+  margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap
+}
+body.modern-admin .courtsProEmptyActions .btn{
+  min-height:38px!important;padding:8px 11px!important;font-size:9px!important
+}
 
 @media(max-width:820px){
   body.modern-admin .courtsProKpis{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -4017,6 +4033,7 @@ body.modern-admin #publishSlots{
   }
   body.modern-admin .courtsProPublishActions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
   body.modern-admin .courtsProPublishActions #publishSlots{grid-column:1/-1;min-height:45px!important}
+  body.modern-admin .courtsProPublishActions #saveDraftSlots{grid-column:1/-1;min-height:43px!important}
   body.modern-admin .courtsProPublishActions .btn{width:100%!important}
 }
 </style>
@@ -4388,6 +4405,7 @@ body.modern-admin #publishSlots{
           <div class="courtsProDays" id="courtsProDays"></div>
 
           <div class="courtsProActions">
+            <button class="btn" id="addCourtBtn" type="button">＋ Añadir pista</button>
             <button class="btn gold" id="courtsAddQuick" type="button">＋ Añadir franja</button>
             <button class="btn secondary" id="draftHabitual" type="button">↺ Horario habitual</button>
             <button class="btn secondary" id="draftFullWeek" type="button">Semana completa</button>
@@ -4420,6 +4438,7 @@ body.modern-admin #publishSlots{
               <div class="courtsProPublishMeta" id="publishActionStatus">El borrador es privado hasta que publiques la disponibilidad.</div>
             </div>
             <div class="courtsProPublishActions">
+              <button class="btn secondary" id="saveDraftSlots">Guardar borrador sin publicar</button>
               <button class="btn green" id="publishSlots">Publicar disponibilidad</button>
               <button class="btn secondary" id="resendPushNotice">Reenviar aviso</button>
               <button class="btn danger" id="closeSlots">Cerrar reservas</button>
@@ -7348,10 +7367,11 @@ function normalizeDraft(){
 }
 function renderSlotRows(){
   const saved=slots();
-  const stored=(data.drafts&&data.drafts[weekKey()])||[];
-  // Renderizar el panel NO debe provocar escrituras en Cloudflare.
-  // El borrador solo se persiste cuando el administrador lo modifica realmente.
-  draftSlots=stored.length?stored.map(x=>({...x})):(saved.length?saved.map(x=>({...x})):buildDefaultWeekSlots());
+  const hasStoredDraft=!!(data.drafts&&Object.prototype.hasOwnProperty.call(data.drafts,weekKey()));
+  const stored=hasStoredDraft?(data.drafts[weekKey()]||[]):[];
+  // Un borrador vacío es un estado válido y debe seguir vacío al recargar.
+  // Solo usamos lo ya publicado como punto de partida en ligas antiguas que todavía no tienen clave de borrador.
+  draftSlots=hasStoredDraft?stored.map(x=>({...x})):(saved.length?saved.map(x=>({...x})):[]);
   trimDraftToCurrentWeek({persist:false});
   normalizeDraft();
   renderSlotChips();
@@ -7406,7 +7426,16 @@ function renderDraftBoard(){
   const daySlots=draftSlots.filter(s=>s.date===date);
   const courts=[...new Set(daySlots.map(s=>s.court))].sort((a,b)=>String(a).localeCompare(String(b),'es',{numeric:true}));
   if(!courts.length){
-    box.innerHTML=`<div class="courtsProEmpty" style="grid-column:1/-1"><b>${dayDateES(date)}</b><br>Sin disponibilidad preparada para este día.</div>`;
+    box.innerHTML=`<div class="courtsProEmpty" style="grid-column:1/-1">
+      <b>${dayDateES(date)} · borrador vacío</b><br>
+      Todavía no has preparado ninguna pista para este día.
+      <div class="courtsProEmptyActions">
+        <button class="btn" id="emptyAddCourtBtn" type="button">＋ Añadir pista</button>
+        <button class="btn secondary" id="emptyHabitualBtn" type="button">Usar horario habitual</button>
+      </div>
+    </div>`;
+    $('#emptyAddCourtBtn').onclick=()=>addNextCourtForCurrentDay();
+    $('#emptyHabitualBtn').onclick=()=>{draftSlots=buildDefaultWeekSlots();persistDraft();renderDraftBoard()};
     return;
   }
   box.innerHTML=courts.map(court=>{
@@ -7428,6 +7457,37 @@ function renderDraftBoard(){
     </section>`;
   }).join('');
   box.querySelectorAll('[data-delslot]').forEach(b=>b.onclick=()=>removeDraftSlot(b.dataset.delslot));
+}
+
+function nextCourtNameForDate(date){
+  const nums=draftSlots.filter(s=>s.date===date).map(s=>Number(String(s.court||'').match(/\d+/)?.[0]||0)).filter(Boolean);
+  return `Pista ${nums.length?Math.max(...nums)+1:1}`;
+}
+function addNextCourtForCurrentDay(){
+  if(!requireAdmin())return;
+  const w=weeks.find(x=>x.id===state.week);
+  const date=adminCourtsDay||w?.start;
+  if(!date)return;
+  const daySlots=draftSlots.filter(s=>s.date===date);
+  const courtName=nextCourtNameForDate(date);
+  let times=[];
+  if(daySlots.length){
+    const firstCourt=[...new Set(daySlots.map(s=>s.court))].sort((a,b)=>String(a).localeCompare(String(b),'es',{numeric:true}))[0];
+    times=daySlots.filter(s=>s.court===firstCourt).map(s=>s.time);
+  }
+  if(!times.length){
+    const from=$('#customFrom')?.value||'14:30';
+    const to=$('#customTo')?.value||'16:00';
+    const a=timeToMin(from),z=timeToMin(to);
+    if(z>a && z-a>=90) times=[`${minToTime(a)} - ${minToTime(a+90)}`];
+    else times=['14:30 - 16:00'];
+  }
+  for(const time of [...new Set(times)]) draftSlots.push({day:dayNameES(date),date,time,court:courtName});
+  normalizeDraft();
+  persistDraft();
+  renderDraftBoard();
+  const status=$('#publishActionStatus');
+  if(status)status.textContent=`${courtName} añadida al borrador de ${dayDateES(date)}. Todavía no es visible para los jugadores.`;
 }
 
 function addBlock(date,from,to,courts=1){if(!date||!from||!to)return 0;let a=timeToMin(from),z=timeToMin(to);if(z<=a){alert('La hora final debe ser posterior a la inicial.');return 0}let added=0;for(let t=a;t+90<=z;t+=90){const time=`${minToTime(t)} - ${minToTime(t+90)}`;for(let c=1;c<=courts;c++){draftSlots.push({day:dayNameES(date),date,time,court:`Pista ${c}`});added++}}normalizeDraft();persistDraft();renderDraftBoard();return added}
@@ -8753,12 +8813,31 @@ $('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#w
 $('#clearFixtures').onclick=async()=>{if(!requireAdmin())return;if(confirm('¿Vaciar todos los enfrentamientos de esta categoría y jornada?')){delete data.fixtures[fixtureKey()];delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderAll();try{await saveStateOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado')}catch(e){alert(e.message)}}};
 $('#copyPrevFixtures').onclick=()=>{if(!requireAdmin())return;const i=weeks.findIndex(w=>w.id===state.week);if(i<=0){alert('No hay una semana anterior para copiar.');return}const prevKey=`${weeks[i-1].id}|${state.category}|${state.gender}`;const prev=data.fixtures[prevKey]||[];if(!prev.length){alert('La semana anterior no tiene enfrentamientos en esta categoría.');return}if(fixtures().length&&!confirm('Ya hay enfrentamientos en esta jornada. ¿Sustituirlos por los de la semana anterior?'))return;data.fixtures[fixtureKey()]=prev.map(m=>makeFixture(m.a,m.b));data.fixtureRounds[fixtureKey()]=data.fixtureRounds?.[prevKey]||'';localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderFixtureEditor();renderMatches()};
 if($('#courtsAddQuick'))$('#courtsAddQuick').onclick=()=>{if(!requireAdmin())return;const panel=$('#courtsCustomPanel');if(panel){panel.scrollIntoView({behavior:'smooth',block:'center'});const inp=$('#customDate');if(inp&&adminCourtsDay)inp.value=adminCourtsDay;setTimeout(()=>$('#customFrom')?.focus(),250)}};
+if($('#addCourtBtn'))$('#addCourtBtn').onclick=addNextCourtForCurrentDay;
+if($('#saveDraftSlots'))$('#saveDraftSlots').onclick=async()=>{
+  if(!requireAdmin())return;
+  const btn=$('#saveDraftSlots'),old=btn.textContent,status=$('#publishActionStatus');
+  btn.disabled=true;btn.textContent='⏳ Guardando…';
+  try{
+    if(!data.drafts)data.drafts={};
+    data.drafts[weekKey()]=draftSlots.map(x=>({...x}));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    await saveStateOnline();
+    setOnline(true,'☁️ Borrador guardado');
+    if(status)status.textContent=`✅ Borrador guardado online · ${draftSlots.length} franja${draftSlots.length===1?'':'s'} · todavía no visible para los jugadores.`;
+    alert(`✅ Borrador guardado sin publicar.\n\n${draftSlots.length} franja${draftSlots.length===1?'':'s'} preparada${draftSlots.length===1?'':'s'}. Los jugadores todavía no pueden verla${draftSlots.length===1?'':'s'}.`);
+  }catch(e){
+    setOnline(false,'⚠️ No guardado');
+    if(status)status.textContent='❌ No se pudo guardar el borrador online.';
+    alert('No se ha podido guardar el borrador online.\n\n'+e.message);
+  }finally{btn.disabled=false;btn.textContent=old}
+};
 $('#draftHabitual').onclick=()=>{if(!requireAdmin())return;draftSlots=buildDefaultWeekSlots();persistDraft();renderDraftBoard()};
 $('#draftAllMorning').onclick=()=>{if(!requireAdmin())return;draftSlots=buildAllPart('morning');persistDraft();renderDraftBoard()};
 $('#draftAllAfternoon').onclick=()=>{if(!requireAdmin())return;draftSlots=buildAllPart('afternoon');persistDraft();renderDraftBoard()};
 $('#draftFullWeek').onclick=()=>{if(!requireAdmin())return;draftSlots=buildFullWeek();persistDraft();renderDraftBoard()};
 $('#addCustomBlock').onclick=addCustomBlock;
-$('#clearSlots').onclick=()=>{if(!requireAdmin())return;if(confirm('¿Vaciar por completo el borrador de disponibilidad?')){draftSlots=[];persistDraft();renderDraftBoard()}};
+$('#clearSlots').onclick=()=>{if(!requireAdmin())return;if(confirm('¿Vaciar por completo el borrador de disponibilidad?\n\nEl borrador quedará vacío y seguirá vacío al volver a entrar. La disponibilidad ya publicada no se borra hasta que cierres reservas o publiques un nuevo borrador.')){draftSlots=[];persistDraft();renderDraftBoard();const status=$('#publishActionStatus');if(status)status.textContent='Borrador vacío guardado. La disponibilidad publicada, si existe, no se ha modificado.'}};
 $('#publishSlots').onclick=async()=>{
   if(!requireAdmin())return;
   const beforeRangeCheck=draftSlots.length;
