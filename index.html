@@ -2483,7 +2483,7 @@ body.resultModalOpen{overflow:hidden}
   top:0;
   z-index:2;
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+  grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr) auto;
   gap:10px;
   align-items:center;
   padding:8px 10px;
@@ -2497,13 +2497,36 @@ body.resultModalOpen{overflow:hidden}
   letter-spacing:.06em;
 }
 .fixtureItem.fixtureItemColumns{
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+  grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr) auto;
   gap:10px;
+  align-items:center;
 }
 .fixturePlayerCell{
   min-width:0;
   overflow-wrap:anywhere;
   color:inherit;
+}
+.fixtureVsCell{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  border-radius:999px;
+  background:#fff7db;
+  border:1px solid #f1df90;
+  color:#9a6a00;
+  font-weight:900;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.fixtureList .fixtureItem.fixtureItemColumns:nth-of-type(odd){
+  background:#ffffff;
+  border-color:#e2e7ee;
+}
+.fixtureList .fixtureItem.fixtureItemColumns:nth-of-type(even){
+  background:#f7f9fc;
+  border-color:#dce3ec;
 }
 .fixtureFutureNote{
   margin-top:9px;
@@ -2629,7 +2652,7 @@ body.resultModalOpen{overflow:hidden}
 .futureVisibleBadge{background:#e8f6ed;color:#287445}
 @media(max-width:560px){
   .fixtureListHead,.fixtureItem.fixtureItemColumns{
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr) auto;
   }
   .fixtureItem.fixtureItemColumns .btn{
     width:auto!important;
@@ -3152,12 +3175,15 @@ body.resultModalOpen{overflow:hidden}
   padding:5px 8px!important;font-size:8px!important;min-height:28px!important;
 }
 .journeyFixtureList .fixtureItem.fixtureItemColumns{
-  padding:5px 8px!important;gap:7px!important;min-height:38px!important;font-size:11px!important;line-height:1.18!important;
+  padding:5px 8px!important;gap:7px!important;min-height:38px!important;font-size:11px!important;line-height:1.18!important;grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr) auto!important;
 }
 .journeyFixtureList .fixtureItem.fixtureItemColumns .btn{
   min-height:28px!important;padding:5px 7px!important;font-size:9px!important;border-radius:7px!important;
 }
 .journeyFixtureList .fixturePlayerCell{line-height:1.18!important}
+.journeyFixtureList .fixtureItem.fixtureItemColumns:nth-of-type(odd){background:#fff!important}
+.journeyFixtureList .fixtureItem.fixtureItemColumns:nth-of-type(even){background:#f7f9fc!important}
+.journeyFixtureList .fixtureVsCell{min-height:30px!important;font-size:10px!important}
 
 @media(max-width:560px){
   .journeyNavigatorHead{align-items:flex-start!important;gap:7px!important}
@@ -3165,7 +3191,8 @@ body.resultModalOpen{overflow:hidden}
   .journeyNavigatorHint{flex:1;text-align:left!important}
   .journeyAddBtn{flex:0 0 auto}
   .journeyJump{min-width:92px!important;min-height:46px!important}
-  .journeyFixtureList .fixtureItem.fixtureItemColumns{padding:5px 6px!important;font-size:10.5px!important}
+  .journeyFixtureList .fixtureItem.fixtureItemColumns{padding:5px 6px!important;font-size:10.5px!important;grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr) auto!important}
+  .journeyFixtureList .fixtureVsCell{min-height:30px!important;font-size:10px!important;letter-spacing:.08em!important}
 }
 
 /* FIX TEST · evita que la clase global .empty convierta el punto de estado en un óvalo gigante */
@@ -4463,9 +4490,10 @@ function renderFixtureEditor(){
   if($('#journeyMatchesSub'))$('#journeyMatchesSub').textContent=`${fs.length} partido${fs.length===1?'':'s'} · ${visible?'visible para jugadores':'oculta para jugadores'}`;
 
   box.innerHTML=fs.length
-    ? `<div class="fixtureListHead"><span>JUGADOR A</span><span>JUGADOR B</span><span></span></div>`+
+    ? `<div class="fixtureListHead"><span>JUGADOR A</span><span style="text-align:center">VS</span><span>JUGADOR B</span><span></span></div>`+
       fs.map(m=>`<div class="fixtureItem fixtureItemColumns">
         <b class="fixturePlayerCell">${mappEsc(m.a)}</b>
+        <span class="fixtureVsCell">VS</span>
         <span class="fixturePlayerCell">${mappEsc(m.b)}</span>
         <button class="btn dangerBtn" type="button" data-remove-fixture="${mappEsc(m.id)}">Quitar</button>
       </div>`).join('')
