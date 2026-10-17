@@ -1,3 +1,4 @@
+// TEST 2026-10-17: resultado confirmado finaliza partido y libera reserva.
 // TEST FIX 1042: Push uses Cloudflare Service Binding, not global fetch.
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
@@ -324,7 +325,7 @@ var index_default = {
           worker: "online",
           kv,
           durableObject,
-          version: "2.6.10-test-restore",
+          version: "2.6.11-test-release-booking",
           error
         }, kv === "online" && durableObject === "online" ? 200 : 500, corsHeaders);
       }
@@ -335,7 +336,7 @@ var index_default = {
       const action = String(body.action || "").trim();
       if (action === "ping") {
         const ping = await bookingCall(env, { action: "ping" });
-        return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.10-test-restore" }, 200, corsHeaders);
+        return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.11-test-release-booking" }, 200, corsHeaders);
       }
       if (action === "restoreBackupTest") {
         const authorization = request.headers.get("Authorization") || "";
@@ -718,6 +719,9 @@ var index_default = {
         const found = findFixture(state, matchId);
         if (!found) return json({ ok: false, error: "El enfrentamiento no existe o ya no est\xE1 publicado." }, 404, corsHeaders);
         const { fixture, week, category, gender } = found;
+        if (state.results?.[matchId]?.status === "confirmed") {
+          return json({ ok: false, error: "Este partido ya está finalizado y no puede reservar una pista." }, 409, corsHeaders);
+        }
         if (auth.session.role !== "admin" && normalize(fixture.a) !== normalize(auth.session.name) && normalize(fixture.b) !== normalize(auth.session.name)) {
           return json({ ok: false, error: "Solo uno de los jugadores del partido puede reservar." }, 403, corsHeaders);
         }
@@ -815,6 +819,11 @@ var index_default = {
         };
         state.results[matchId] = result;
         state.updatedAt = now;
+        if (result.status === "confirmed") {
+          if (state.bookings && typeof state.bookings === "object") delete state.bookings[matchId];
+          if (state.reservations && typeof state.reservations === "object") delete state.reservations[matchId];
+          await bookingCall(env, { action: "cancel", matchId });
+        }
         await env.DATA.put(STATE_KEY, JSON.stringify(state));
 
         if (result.status === "pending") {
@@ -835,6 +844,7 @@ var index_default = {
           );
         } else {
           await broadcastRealtime(env, { type: "resultChanged", matchId, result });
+          await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
         }
 
         return json({ ok: true, result }, 200, corsHeaders);
@@ -863,8 +873,12 @@ var index_default = {
         result.confirmedAt = now;
         result.updatedAt = now;
         state.updatedAt = now;
+        if (state.bookings && typeof state.bookings === "object") delete state.bookings[matchId];
+        if (state.reservations && typeof state.reservations === "object") delete state.reservations[matchId];
+        await bookingCall(env, { action: "cancel", matchId });
         await env.DATA.put(STATE_KEY, JSON.stringify(state));
         await broadcastRealtime(env, { type: "resultChanged", matchId, result });
+        await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
         if (result.submittedBy && normalize(result.submittedBy) !== normalize(auth.session.name)) {
           await sendTargetedPush(
             env,
