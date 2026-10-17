@@ -3200,6 +3200,130 @@ body.resultModalOpen{overflow:hidden}
 .journeyJumpTop{min-height:14px!important}
 
 </style>
+
+<style id="fixture-pwa-pro-v1">
+/* TEST · JORNADA · enfrentamientos adaptados a PWA/móvil */
+@media (max-width:640px){
+  .journeyFixtureList{
+    max-height:none!important;
+    overflow:visible!important;
+    border:0!important;
+    background:transparent!important;
+    border-radius:0!important;
+  }
+
+  .journeyFixtureList .fixtureListHead{display:none!important}
+
+  .journeyFixtureList .fixtureItem.fixtureItemColumns{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr)!important;
+    grid-template-areas:
+      "playerA versus playerB"
+      "remove remove remove";
+    gap:8px 7px!important;
+    align-items:center!important;
+    min-height:0!important;
+    margin:0 0 8px!important;
+    padding:11px 10px 8px!important;
+    border:1px solid #dfe4ea!important;
+    border-radius:14px!important;
+    box-shadow:0 3px 10px rgba(24,32,44,.055)!important;
+    overflow:hidden!important;
+  }
+
+  .journeyFixtureList .fixtureItem.fixtureItemColumns:nth-of-type(odd){
+    background:#ffffff!important;
+  }
+  .journeyFixtureList .fixtureItem.fixtureItemColumns:nth-of-type(even){
+    background:#f4f6f9!important;
+  }
+
+  .journeyFixtureList .fixtureItem.fixtureItemColumns > b.fixturePlayerCell{grid-area:playerA}
+  .journeyFixtureList .fixtureItem.fixtureItemColumns > span.fixtureVsCell{grid-area:versus}
+  .journeyFixtureList .fixtureItem.fixtureItemColumns > span.fixturePlayerCell{grid-area:playerB}
+  .journeyFixtureList .fixtureItem.fixtureItemColumns > [data-remove-fixture]{grid-area:remove}
+
+  .journeyFixtureList .fixturePlayerCell{
+    min-width:0!important;
+    min-height:48px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:4px!important;
+    padding:2px 3px!important;
+    text-align:center!important;
+    color:#20242a!important;
+    font-size:11px!important;
+    font-weight:850!important;
+    line-height:1.22!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+  }
+
+  .journeyFixtureList b.fixturePlayerCell::before,
+  .journeyFixtureList span.fixturePlayerCell::before{
+    display:block;
+    color:#989da5;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.075em;
+    line-height:1;
+  }
+  .journeyFixtureList b.fixturePlayerCell::before{content:"JUGADOR A"}
+  .journeyFixtureList span.fixturePlayerCell::before{content:"JUGADOR B"}
+
+  .journeyFixtureList .fixtureVsCell{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    min-height:36px!important;
+    margin:auto!important;
+    padding:0!important;
+    display:grid!important;
+    place-items:center!important;
+    border:0!important;
+    border-radius:50%!important;
+    background:linear-gradient(145deg,#7d0013,#bd1028)!important;
+    color:#fff!important;
+    box-shadow:0 4px 10px rgba(125,0,19,.18)!important;
+    font-size:9px!important;
+    font-weight:950!important;
+    letter-spacing:.05em!important;
+  }
+
+  .journeyFixtureList .fixtureItem.fixtureItemColumns [data-remove-fixture]{
+    justify-self:end!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:28px!important;
+    margin-top:1px!important;
+    padding:4px 9px!important;
+    border:1px solid #efb7c0!important;
+    border-radius:8px!important;
+    background:#fff!important;
+    color:#c41430!important;
+    font-size:8.5px!important;
+    font-weight:900!important;
+    box-shadow:none!important;
+  }
+
+  .journeyMatchesHeader{align-items:center!important}
+  .journeyMatchesTitle{font-size:14px!important}
+  .journeyMatchesSub{font-size:8.5px!important}
+}
+
+@media (max-width:390px){
+  .journeyFixtureList .fixtureItem.fixtureItemColumns{
+    grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr)!important;
+    padding:10px 8px 7px!important;
+    gap:7px 5px!important;
+  }
+  .journeyFixtureList .fixturePlayerCell{font-size:10.3px!important}
+  .journeyFixtureList .fixtureVsCell{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;font-size:8px!important}
+}
+</style>
 </head>
 <body>
 <div class="testEnvBanner">🧪 ENTORNO DE PRUEBAS · Los cambios de esta web no afectan a la liga oficial</div>
