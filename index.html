@@ -4686,11 +4686,12 @@ Pablo Ruiz"></textarea>
 const CATEGORIES=["Benjamín","Alevín","Infantil","Cadete","Junior","Absoluto"];
 const STORAGE_KEY="ctcampeador_test_reservas_v3_cloudflare_cache";
 const TOKEN_KEY="ctcampeador_test_api_token";
+const SESSION_CACHE_KEY="ctcampeador_test_session_cache_v1";
 const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
 const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
-const APP_BUILD="20261017-test-pistas-pro-v8-push-via-api";
+const APP_BUILD="20261017-test-pistas-pro-v9-sesion-persistente";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -4771,7 +4772,7 @@ const PUSH_RESYNC_MS=7*24*60*60*1000;  // revalidación push como máximo una ve
 let lastRefreshAt=0;
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
 function publicState(){return {tournamentName:data.tournamentName||'II Liga Federada',playerLists:data.playerLists,fixtures:data.fixtures,fixtureRounds:data.fixtureRounds,slots:data.slots,drafts:data.drafts,published:data.published,bookings:data.bookings,reservations:data.bookings,results:data.results,staff:data.staff,accessExcluded:data.accessExcluded||[],adminRoles:Object.fromEntries(Object.entries(data.roles||{}).filter(([,r])=>r==='admin')),weekRanges:data.weekRanges||{},postponed:data.postponed||{},weeks:Object.fromEntries(weeks.map(w=>[w.id,w])),updatedAt:new Date().toISOString()}}
-async function apiRequest(payload,{auth=true}={}){const headers={'Content-Type':'application/json'};if(auth&&apiToken)headers.Authorization='Bearer '+apiToken;const r=await fetch(API_URL,{method:'POST',headers,body:JSON.stringify(payload)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));return j}
+async function apiRequest(payload,{auth=true}={}){const headers={'Content-Type':'application/json'};if(auth&&apiToken)headers.Authorization='Bearer '+apiToken;let r;try{r=await fetch(API_URL,{method:'POST',headers,body:JSON.stringify(payload)});}catch(fetchErr){const e=new Error(fetchErr?.message||'No se ha podido conectar con el servidor');e.network=true;e.cause=fetchErr;throw e;}let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false){const e=new Error(j.error||('HTTP '+r.status));e.status=r.status;e.code=j.code||j.errorCode||'';e.payload=j;throw e;}return j}
 
 function realtimeUrl(){
   return API_URL.replace(/^https:/,'wss:').replace(/^http:/,'ws:').replace(/\/$/,'')+'/realtime';
@@ -4897,9 +4898,24 @@ async function loadPublicTournamentName(){
 
 async function restoreSession(){
   if(!apiToken)return false;
+  const cached=(()=>{try{return JSON.parse(localStorage.getItem(SESSION_CACHE_KEY)||'null')}catch(_){return null}})();
+  const useCachedSession=()=>{
+    if(!cached?.name)return false;
+    state.player=cached.name;
+    state.authenticated=true;
+    if(cached.role)data.roles[state.player]=localRoleFromApi(cached.role);
+    data.roles["Adrián Prádanos"]='admin';
+    routePlayerToOwnCategory(state.player);
+    setOnline(false,'⚠️ Sin conexión · sesión conservada');
+    return true;
+  };
   try{
     const j=await apiRequest({action:'read'});
-    if(!j.user||!j.user.name){throw new Error('Sesión no válida');}
+    if(!j.user||!j.user.name){
+      const e=new Error('Sesión no válida');
+      e.status=401;
+      throw e;
+    }
     state.player=j.user.name;
     state.authenticated=true;
     if(j.state){
@@ -4912,15 +4928,30 @@ async function restoreSession(){
     }
     data.roles[state.player]=localRoleFromApi(j.user.role);
     data.roles["Adrián Prádanos"]='admin';
+    localStorage.setItem(SESSION_CACHE_KEY,JSON.stringify({name:j.user.name,role:j.user.role||'player'}));
     lastRefreshAt=Date.now();
     localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     if(isAdmin())await loadAdminUsers();
     return true;
   }catch(e){
-    apiToken='';
-    localStorage.removeItem(TOKEN_KEY);
+    const status=Number(e?.status||0);
+    const msg=String(e?.message||'').toLowerCase();
+    const invalidAuth=status===401||status===403||/token.*(inválid|invalid|expir|caduc)|sesión.*(inválid|invalid|expir|caduc)|no autorizado|unauthoriz/.test(msg);
+    if(invalidAuth){
+      apiToken='';
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(SESSION_CACHE_KEY);
+      state.player='';
+      state.authenticated=false;
+      return false;
+    }
+    console.warn('No se pudo validar la sesión al arrancar; se conserva para reintentar.',e);
+    if(useCachedSession())return true;
+    // Si todavía no existe caché de identidad (por ejemplo tras actualizar desde una versión anterior),
+    // conservamos el token y pedimos PIN solo esta vez. El token NO se destruye por un fallo temporal.
     state.player='';
     state.authenticated=false;
+    setOnline(false,'⚠️ Sin conexión');
     return false;
   }
 }
@@ -5628,6 +5659,7 @@ async function loginWithPinOnly(){
     const j=await apiRequest({action:'loginPin',pin},{auth:false});
     apiToken=j.token;
     localStorage.setItem(TOKEN_KEY,apiToken);
+    localStorage.setItem(SESSION_CACHE_KEY,JSON.stringify({name:j.user.name,role:j.user.role||'player'}));
     state.player=j.user.name;
     state.authenticated=true;
     data.roles[state.player]=localRoleFromApi(j.user.role);
@@ -8656,9 +8688,9 @@ $('#welcomePin').addEventListener('input',e=>{
 $('#welcomePin').addEventListener('keydown',e=>{if(e.key==='Enter')loginWithPinOnly()});
 
 $('#playerIdentity').onchange=e=>{if(!state.authenticated)state.player=e.target.value;$('#playerPin').value='';renderIdentity()};
-$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
+$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);localStorage.setItem(SESSION_CACHE_KEY,JSON.stringify({name:j.user.name,role:j.user.role||'player'}));state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
 $('#playerPin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});
-$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
+$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(SESSION_CACHE_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
 $$('.gender').forEach(b=>b.onclick=()=>{state.gender=b.dataset.gender;renderAll()});
 $('#weekSelect').onchange=e=>{state.week=e.target.value;renderAll()};
 function openNativeDatePicker(inputId){
