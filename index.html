@@ -3838,9 +3838,15 @@ body.modern-admin .courtsProCardTitle:before{
   height:26px;
   flex:0 0 26px;
   border-radius:8px;
-  background:linear-gradient(135deg,#760011,#a7001c);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+  background:var(--court-gradient,linear-gradient(135deg,#760011,#a7001c));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 2px 5px rgba(0,0,0,.08);
 }
+body.modern-admin .courtsProCard.courtTone1{--court-gradient:linear-gradient(135deg,#760011,#b00021)}
+body.modern-admin .courtsProCard.courtTone2{--court-gradient:linear-gradient(135deg,#1261c9,#2389eb)}
+body.modern-admin .courtsProCard.courtTone3{--court-gradient:linear-gradient(135deg,#0d8a58,#23b879)}
+body.modern-admin .courtsProCard.courtTone4{--court-gradient:linear-gradient(135deg,#b36b00,#e9a416)}
+body.modern-admin .courtsProCard.courtTone5{--court-gradient:linear-gradient(135deg,#6539a6,#8d61cc)}
+body.modern-admin .courtsProCard.courtTone6{--court-gradient:linear-gradient(135deg,#007f88,#18a8ae)}
 body.modern-admin .courtsProCardCount{
   min-height:23px;
   display:flex;
@@ -3853,6 +3859,25 @@ body.modern-admin .courtsProCardCount{
   font-weight:900;
   white-space:nowrap;
 }
+body.modern-admin .courtsProCardHeadRight{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+body.modern-admin .courtsProRemoveCourt{
+  min-height:28px!important;
+  padding:0 9px!important;
+  border:1px solid #efc3ca!important;
+  border-radius:8px!important;
+  background:#fff7f8!important;
+  color:#bd1530!important;
+  font-size:8px!important;
+  font-weight:950!important;
+  box-shadow:none!important;
+  white-space:nowrap;
+}
+body.modern-admin .courtsProRemoveCourt:active{transform:translateY(1px)}
 body.modern-admin .courtsProSlot{
   display:grid;
   grid-template-columns:82px minmax(0,1fr) 30px;
@@ -7440,8 +7465,16 @@ function renderDraftBoard(){
   }
   box.innerHTML=courts.map(court=>{
     const arr=daySlots.filter(s=>s.court===court).sort((a,b)=>a.time.localeCompare(b.time));
-    return `<section class="courtsProCard">
-      <div class="courtsProCardHead"><div class="courtsProCardTitle">${mappEsc(court)}</div><div class="courtsProCardCount">${arr.length} franjas</div></div>
+    const courtNumber=Number(String(court||'').match(/\d+/)?.[0]||1);
+    const courtTone=((courtNumber-1)%6)+1;
+    return `<section class="courtsProCard courtTone${courtTone}">
+      <div class="courtsProCardHead">
+        <div class="courtsProCardTitle">${mappEsc(court)}</div>
+        <div class="courtsProCardHeadRight">
+          <div class="courtsProCardCount">${arr.length} franjas</div>
+          <button class="courtsProRemoveCourt" type="button" data-remove-court="${mappEsc(court)}" title="Quitar pista y todas sus franjas">Quitar pista</button>
+        </div>
+      </div>
       <div>${arr.map(s=>{
         const published=slots().some(x=>x.id===s.id);
         const bk=slotBooking(s.id);
@@ -7457,6 +7490,29 @@ function renderDraftBoard(){
     </section>`;
   }).join('');
   box.querySelectorAll('[data-delslot]').forEach(b=>b.onclick=()=>removeDraftSlot(b.dataset.delslot));
+  box.querySelectorAll('[data-remove-court]').forEach(b=>b.onclick=()=>removeCourtForCurrentDay(b.dataset.removeCourt));
+}
+
+function removeCourtForCurrentDay(court){
+  if(!requireAdmin())return;
+  const w=weeks.find(x=>x.id===state.week);
+  const date=adminCourtsDay||w?.start;
+  if(!date||!court)return;
+  const courtSlots=draftSlots.filter(s=>s.date===date&&s.court===court);
+  if(!courtSlots.length)return;
+  const booked=courtSlots.filter(s=>!!slotBooking(s.id));
+  if(booked.length){
+    alert(`No se puede quitar ${court} porque tiene ${booked.length} franja${booked.length===1?'':'s'} con reserva activa.\n\nCancela o gestiona primero esas reservas para evitar dejar partidos sin pista.`);
+    return;
+  }
+  const publishedCount=courtSlots.filter(s=>slots().some(x=>x.id===s.id)).length;
+  const msg=`¿Quitar ${court} de ${dayDateES(date)}?\n\nSe eliminarán sus ${courtSlots.length} franja${courtSlots.length===1?'':'s'} del borrador.`+(publishedCount?`\n\n${publishedCount} de ellas están publicadas actualmente. Seguirán visibles para los jugadores hasta que vuelvas a publicar la disponibilidad.`:'');
+  if(!confirm(msg))return;
+  draftSlots=draftSlots.filter(s=>!(s.date===date&&s.court===court));
+  persistDraft();
+  renderDraftBoard();
+  const status=$('#publishActionStatus');
+  if(status)status.textContent=`${court} eliminada del borrador de ${dayDateES(date)}. ${publishedCount?'Vuelve a publicar para aplicar el cambio a los jugadores.':'El cambio sigue sin publicar.'}`;
 }
 
 function nextCourtNameForDate(date){
