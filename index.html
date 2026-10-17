@@ -4691,7 +4691,7 @@ const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
 const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
-const APP_BUILD="20261017-test-pistas-pro-v9-sesion-persistente";
+const APP_BUILD="20261017-test-pistas-pro-v10-fecha-dia-sincronizada";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -7439,7 +7439,12 @@ function renderCourtsDayTabs(days){
     const count=draftSlots.filter(s=>s.date===date).length;
     return `<button class="courtsProDay ${date===adminCourtsDay?'active':''}" type="button" data-court-day="${date}"><b>${wd} ${num}</b><span>${count} franja${count===1?'':'s'}</span></button>`;
   }).join('');
-  wrap.querySelectorAll('[data-court-day]').forEach(btn=>btn.onclick=()=>{adminCourtsDay=btn.dataset.courtDay;renderDraftBoard()});
+  wrap.querySelectorAll('[data-court-day]').forEach(btn=>btn.onclick=()=>{
+    adminCourtsDay=btn.dataset.courtDay;
+    const customDate=$('#customDate');
+    if(customDate) customDate.value=adminCourtsDay;
+    renderDraftBoard();
+  });
 }
 function renderDraftBoard(){
   normalizeDraft();
@@ -7612,7 +7617,8 @@ function setDefaultQuickDate(){
   const inp=$('#customDate'); if(!inp)return;
   const w=weeks.find(x=>x.id===state.week); if(!w)return;
   inp.min=w.start; inp.max=w.end;
-  if(!inp.value || inp.value<w.start || inp.value>w.end) inp.value=w.start;
+  const preferred=(adminCourtsDay && adminCourtsDay>=w.start && adminCourtsDay<=w.end)?adminCourtsDay:w.start;
+  if(!inp.value || inp.value<w.start || inp.value>w.end || inp.value!==preferred) inp.value=preferred;
 }
 function renderWhats(){const w=weeks.find(x=>x.id===state.week);const ss=slots().slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));let txt=`🎾 RESERVA DE PISTAS - LIGA CT CAMPEADOR 🎾\n\n📅 ${w.label.toUpperCase()}\n\n`;if(!ss.length)txt+='🔒 Disponibilidad todavía no publicada.';else{const days=[...new Set(ss.map(s=>s.date))];days.forEach(date=>{txt+=`━━━━━━━━━━━━━━━\n📅 ${dayDateES(date).toUpperCase()}\n\n`;ss.filter(s=>s.date===date).forEach(s=>{const bk=slotBooking(s.id);txt+=`${s.time} → ${s.court}: ${bk?`${bk.a} vs ${bk.b} (${bk.category})`:'LIBRE'}\n`});txt+='\n'})}txt+='❗ Los enfrentamientos son los fijados oficialmente para esa semana.';$('#whatsPreview').value=txt}
 
