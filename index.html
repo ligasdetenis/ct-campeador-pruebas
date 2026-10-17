@@ -1888,7 +1888,7 @@ body{padding-top:32px}
 .journeyJumpDot{width:7px;height:7px;border-radius:50%;background:#b5bac1;flex:0 0 7px}
 .journeyJumpDot.live{background:#1c9b58}
 .journeyJumpDot.ready{background:#d59c00}
-.journeyJumpDot.empty{background:#b9bec5}
+.journeyJumpDot.empty{background:#b9bec5;padding:0!important;width:7px!important;height:7px!important;min-width:7px!important;min-height:7px!important;max-width:7px!important;max-height:7px!important;display:block!important;flex:0 0 7px!important;border-radius:50%!important}
 .journeyJumpMeta{margin-top:4px;font-size:8px;color:#898e96;white-space:nowrap}
 .journeyJump.active .journeyJumpName{color:#720010}
 
@@ -3167,6 +3167,11 @@ body.resultModalOpen{overflow:hidden}
   .journeyJump{min-width:92px!important;min-height:46px!important}
   .journeyFixtureList .fixtureItem.fixtureItemColumns{padding:5px 6px!important;font-size:10.5px!important}
 }
+
+/* FIX TEST · evita que la clase global .empty convierta el punto de estado en un óvalo gigante */
+.journeyJumpDot{padding:0!important;margin:0!important;box-sizing:border-box!important}
+.journeyJumpTop{min-height:14px!important}
+
 </style>
 </head>
 <body>
