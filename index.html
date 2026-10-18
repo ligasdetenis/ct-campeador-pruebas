@@ -4705,7 +4705,7 @@ function safeDataImageUrl(value){
   const v=String(value||'').trim();
   return /^data:image\/(?:jpeg|jpg|png|webp|gif|avif);base64,[a-z0-9+/=]+$/i.test(v)?v:'';
 }
-const APP_BUILD="20261017-test-seguridad-v11";
+const APP_BUILD="20261018-test-seguridad-v13-resultados-recientes";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -7965,7 +7965,7 @@ function mappFreeSlots(){return isOpen()?slots().filter(s=>!slotBooking(s.id)):[
 function mappWeekShort(){const w=weeks.find(x=>x.id===state.week);const n=String(w?.id||'').replace(/\D/g,'');return n?`Jornada ${n}`:(w?.label||state.week)}
 function mappCurrentRound(){return fixtureRound()||'Jornada'}
 
-const resultsViewState={category:null,gender:null,week:'all'};
+const resultsViewState={category:'all',gender:'all',week:'all'};
 
 function confirmedResultsAll(){
   const out=[];
@@ -8041,14 +8041,12 @@ function resultRoundFor(item){
 function renderResultsFilters(){
   const cs=$('#resultsCategory'),gs=$('#resultsGender'),ws=$('#resultsWeek');
   if(!cs||!gs||!ws)return;
-  if(!resultsViewState.category) resultsViewState.category=state.category;
-  if(!resultsViewState.gender) resultsViewState.gender=state.gender;
   cs.innerHTML=`<option value="all">Todas</option>`+CATEGORIES.map(c=>`<option value="${mappEsc(c)}">${mappEsc(c)}</option>`).join('');
   gs.innerHTML=`<option value="all">Todos</option><option value="Masculino">Masculino</option><option value="Femenino">Femenino</option>`;
   cs.value=resultsViewState.category||'all';
   gs.value=resultsViewState.gender||'all';
   ws.innerHTML=`<option value="all">Todas las semanas</option>`+
-    weeks.map(w=>`<option value="${mappEsc(w.id)}" ${resultsViewState.week===w.id?'selected':''}>${mappEsc(w.label)}</option>`).join('');
+    [...weeks].reverse().map(w=>`<option value="${mappEsc(w.id)}" ${resultsViewState.week===w.id?'selected':''}>${mappEsc(w.label)}</option>`).join('');
 }
 
 
@@ -8092,7 +8090,13 @@ function renderModernResults(){
     (resultsViewState.category==='all'||x.category===resultsViewState.category) &&
     (resultsViewState.gender==='all'||x.gender===resultsViewState.gender) &&
     (resultsViewState.week==='all'||x.week===resultsViewState.week)
-  );
+  ).sort((a,b)=>{
+    if(resultsViewState.week==='all'){
+      const aw=journeyIndex(a.week), bw=journeyIndex(b.week);
+      if(aw!==bw)return bw-aw;
+    }
+    return String(b.when||'').localeCompare(String(a.when||''));
+  });
   if(!rows.length){
     box.innerHTML='<div class="mapp-result-empty">Todavía no hay resultados confirmados para esta selección.</div>';
     return;
