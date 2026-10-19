@@ -8516,11 +8516,26 @@ function renderModernMatch(){
     </div>
    </div>
    <div class="mapp-menu-row" data-match-reserve="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('calendar')}</div><div><div class="mapp-menu-title">${bk?'Cambiar pista':'Reservar pista'}</div><div class="mapp-menu-sub">${bk?'Modifica tu reserva actual':'Elige día, hora y pista'}</div></div><div>${mappIcon('chevron')}</div></div>
+   <div class="mapp-menu-row" data-match-live="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('activity')}</div><div><div class="mapp-menu-title">🎾 Marcador LIVE (TEST)</div><div class="mapp-menu-sub">Controlar puntos o seguir en directo · Sin resultado oficial</div></div><div>${mappIcon('chevron')}</div></div>
    <div class="mapp-menu-row" data-match-result="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('trophy')}</div><div><div class="mapp-menu-title">${r?'Ver / gestionar resultado':'Subir resultado'}</div><div class="mapp-menu-sub">Resultado del encuentro</div></div><div>${mappIcon('chevron')}</div></div>
    ${p?`<div class="mapp-menu-row"><div class="mapp-menu-icon gray">${mappIcon('calendar')}</div><div><div class="mapp-menu-title">Partido retrasado</div><div class="mapp-menu-sub">${p.targetWeek?'Reprogramado para '+mappEsc(weeks.find(w=>w.id===p.targetWeek)?.label||p.targetWeek):'Pendiente de nueva semana'}</div></div></div>`:''}
    </div>`;
  }).join('');
  box.querySelectorAll('[data-match-reserve]').forEach(x=>x.onclick=()=>openReserve(x.dataset.matchReserve));
+ box.querySelectorAll('[data-match-live]').forEach(x=>x.onclick=()=>{
+   const m=matches.find(v=>String(v.id)===String(x.dataset.matchLive));
+   if(!m)return;
+   // ID corto y estable, no contiene PIN ni credenciales.
+   const input=String(m.id);let h1=2166136261,h2=2166136261;
+   for(let i=0;i<input.length;i++){h1=Math.imul(h1^input.charCodeAt(i),16777619);h2=Math.imul(h2^(input.charCodeAt(i)+i),16777619)}
+   const key='ct'+(h1>>>0).toString(16).padStart(8,'0')+(h2>>>0).toString(16).padStart(8,'0');
+   const target=new URL('./marcador-live.html',location.href);
+   target.searchParams.set('id',key);
+   target.searchParams.set('a',m.a);
+   target.searchParams.set('b',m.b);
+   // La prueba no transmite credenciales de la liga al Worker LIVE.
+   window.open(target.href,'_blank','noopener');
+ });
  box.querySelectorAll('[data-match-result]').forEach(x=>x.onclick=()=>openResultModal(x.dataset.matchResult));
 }
 async function mappPushStatusText(){
