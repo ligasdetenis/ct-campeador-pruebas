@@ -550,6 +550,29 @@ var index_default = {
         return json({ ok: true }, 200, corsHeaders);
       }
 
+      // LIVE TEST: autoriza por sesión habitual, no por un token de marcador.
+      // La clave abreviada coincide con la generada por "Mi partido" en la web TEST.
+      if (action === "liveAuthorization") {
+        const auth = await requireUser(request, body, env);
+        if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
+        const matchKey = String(body.matchKey || "").trim();
+        if (!/^ct[0-9a-f]{16}$/.test(matchKey)) return json({ ok: false, error: "Identificador LIVE incorrecto." }, 400, corsHeaders);
+        const state = await getState(env);
+        let match = null;
+        for (const fixtures of Object.values(state.fixtures || {})) {
+          for (const fixture of Array.isArray(fixtures) ? fixtures : []) {
+            if (liveMatchKey(fixture.id) === matchKey) {
+              match = fixture;
+              break;
+            }
+          }
+          if (match) break;
+        }
+        if (!match) return json({ ok: false, error: "Este partido no existe en la liga TEST." }, 404, corsHeaders);
+        const me = normalize(auth.session.name);
+        const canControl = me === normalize(match.a) || me === normalize(match.b);
+        return json({ ok: true, canControl, names: [String(match.a), String(match.b)], player: auth.session.name }, 200, corsHeaders);
+      }
       if (action === "read") {
         const auth = await requireUser(request, body, env);
         if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
@@ -1529,6 +1552,15 @@ async function listReservations(env) {
   return r.reservations || {};
 }
 __name(listReservations, "listReservations");
+function liveMatchKey(matchId) {
+  const input = String(matchId);
+  let h1 = 2166136261, h2 = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h1 = Math.imul(h1 ^ input.charCodeAt(i), 16777619);
+    h2 = Math.imul(h2 ^ (input.charCodeAt(i) + i), 16777619);
+  }
+  return "ct" + (h1 >>> 0).toString(16).padStart(8, "0") + (h2 >>> 0).toString(16).padStart(8, "0");
+}
 function findFixture(state, matchId) {
   for (const [key, arr] of Object.entries(state.fixtures || {})) {
     const fixture = (arr || []).find((m) => String(m.id) === matchId);
