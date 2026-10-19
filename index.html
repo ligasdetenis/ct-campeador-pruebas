@@ -8534,7 +8534,8 @@ function renderModernMatch(){
    target.searchParams.set('a',m.a);
    target.searchParams.set('b',m.b);
    // La prueba no transmite credenciales de la liga al Worker LIVE.
-   window.open(target.href,'_blank','noopener');
+   // Abrir dentro de la PWA, manteniendo historial para regresar a Mi partido.
+   location.assign(target.href);
  });
  box.querySelectorAll('[data-match-result]').forEach(x=>x.onclick=()=>openResultModal(x.dataset.matchResult));
 }
