@@ -6,6 +6,10 @@ compatibility_date = "2026-10-01"
 name = "LIVE_MATCH"
 class_name = "LiveMatch"
 
+[[services]]
+binding = "API_TEST"
+service = "ct-campeador-api-test"
+
 [[migrations]]
 tag = "live_v1"
 new_sqlite_classes = ["LiveMatch"]

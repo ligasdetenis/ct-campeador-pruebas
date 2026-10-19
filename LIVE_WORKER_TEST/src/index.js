@@ -2,7 +2,6 @@ import { DurableObject } from 'cloudflare:workers';
 
 const json = (data, status=200) => new Response(JSON.stringify(data), {status, headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':'*'}});
 const validId = id => /^[a-zA-Z0-9_-]{1,80}$/.test(id || '');
-const sameToken = (a,b) => typeof a === 'string' && typeof b === 'string' && a.length > 0 && a === b;
 
 export default {
   async fetch(req, env) {
@@ -11,6 +10,33 @@ export default {
     if(url.pathname === '/health') return json({ok:true,service:'ct-campeador-live-test',websocket:true});
     const m = url.pathname.match(/^\/api\/match\/([^/]+)(\/ws)?$/);
     if(!m || !validId(m[1])) return json({error:'Ruta no encontrada'},404);
+    // Solo las acciones mutantes requieren permiso. Lectura/WebSocket son públicos.
+    if (req.method === 'POST' && !m[2]) {
+      const bearer = (req.headers.get('Authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
+      if (!bearer) return json({error:'Entra en la liga TEST con tu PIN para controlar el marcador.'},401);
+      if (!env.API_TEST) return json({error:'Falta Service Binding API_TEST en LIVE Worker.'},503);
+      let permission;
+      try {
+        const resp = await env.API_TEST.fetch('https://api.internal/', {
+          method:'POST',
+          headers:{'content-type':'application/json','authorization':'Bearer '+bearer},
+          body:JSON.stringify({action:'liveAuthorization',matchKey:m[1]})
+        });
+        permission = await resp.json();
+        if (!resp.ok || !permission.ok) return json({error:permission.error||'Sesión no válida'},resp.status===401?401:403);
+        if (!permission.canControl) return json({error:'Solo los dos jugadores de este partido pueden modificar el tanteo.'},403);
+      } catch(e) { return json({error:'No se pudo validar la sesión de TEST.'},503); }
+      // Identidad de los participantes obtenida exclusivamente de la API TEST.
+      let body;
+      try {body=await req.json()}catch{return json({error:'JSON inválido'},400)}
+      if (body.action==='start') body.names=permission.names;
+      const forwarded = new Request('https://internal'+url.pathname, {
+        method:'POST', headers:{'content-type':'application/json','x-live-validated':'1'},
+        body:JSON.stringify(body)
+      });
+      const stub = env.LIVE_MATCH.get(env.LIVE_MATCH.idFromName(m[1]));
+      return stub.fetch(forwarded);
+    }
     const stub = env.LIVE_MATCH.get(env.LIVE_MATCH.idFromName(m[1]));
     const forward = new Request('https://internal'+url.pathname+url.search, req);
     return stub.fetch(forward);
@@ -79,9 +105,8 @@ export class LiveMatch extends DurableObject {
     if(req.method==='GET')return json({ok:true,state:this.publicState(await this.getState())});
     if(req.method!=='POST')return json({error:'Método no permitido'},405);
     let body;try{body=await req.json()}catch{return json({error:'JSON inválido'},400)}
-    // El token nunca se pasa por URL ni se devuelve a los espectadores.
-    const token=req.headers.get('Authorization')?.replace(/^Bearer\s+/i,'');
-    if(!this.env.LIVE_TEST_ADMIN_TOKEN || !sameToken(token,this.env.LIVE_TEST_ADMIN_TOKEN))return json({error:'No autorizado'},401);
+    // El Worker exterior ya verificó la sesión y la participación en este partido.
+    if(req.headers.get('x-live-validated')!=='1')return json({error:'No autorizado'},401);
     try{
       const result=await this.ctx.blockConcurrencyWhile(async()=>{
         const s=await this.getState();
