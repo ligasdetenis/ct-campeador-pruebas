@@ -1,8 +1,9 @@
+
 {
   "id": "/ct-campeador-pruebas/",
   "name": "CT Campeador TEST",
   "short_name": "Campeador TEST",
-  "description": "Entorno de pruebas de CT Campeador, independiente de la aplicación oficial",
+  "description": "Entorno de pruebas de CT Campeador",
   "start_url": "/ct-campeador-pruebas/?source=pwa-test",
   "scope": "/ct-campeador-pruebas/",
   "display": "standalone",
