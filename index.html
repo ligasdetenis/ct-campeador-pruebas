@@ -1909,7 +1909,7 @@ body{padding-top:32px}
 }
 
 
-/* V16 TEST · plantillas por pista, sin modificar la publicación */
+/* V17 TEST · plantillas por pista y por día, sin modificar la publicación */
 body.modern-admin .courtsTemplatePanel{display:grid;gap:7px;padding:14px 17px;border:1px solid #e0e4ea;border-radius:17px;background:#f8fafc}
 body.modern-admin .courtsTemplateHeading{font-size:15px;font-weight:900;color:#242830}
 body.modern-admin .courtsTemplatePanel label{font-weight:800;font-size:12px;color:#4c5665}
@@ -4462,8 +4462,10 @@ body.modern-admin .courtsProEmptyActions .btn{
           </div>
 
           <div class="courtsProSecondary">
-            <button class="presetBtn" id="draftAllMorning" type="button">Solo mañanas</button>
-            <button class="presetBtn" id="draftAllAfternoon" type="button">Solo tardes</button>
+            <button class="presetBtn" id="draftDayMorning" type="button">☀ Mañana del día seleccionado</button>
+            <button class="presetBtn" id="draftDayAfternoon" type="button">◐ Tarde del día seleccionado</button>
+            <button class="presetBtn" id="draftAllMorning" type="button">Solo mañanas · semana</button>
+            <button class="presetBtn" id="draftAllAfternoon" type="button">Solo tardes · semana</button>
             <span class="countBadge" id="slotCount">0 franjas</span>
           </div>
 
@@ -7526,6 +7528,36 @@ function applyCourtTemplate(kind){
   draftSlots=[...remaining,...replacement];normalizeDraft();persistDraft();renderDraftBoard();
   const status=$('#publishActionStatus');if(status)status.textContent=`${labels[kind]} aplicado a ${target==='__ALL__'?'todas las pistas':target}. Borrador sin publicar.`;
 }
+// V17 TEST: aplica una sola parte del horario habitual al día seleccionado.
+// Conserva el resto de ese día, las otras fechas y las otras pistas.
+function applyDayPartTemplate(part){
+  if(!requireAdmin())return;
+  const w=currentWeekRange();
+  const date=adminCourtsDay||w?.start;
+  if(!date||!w||date<w.start||date>w.end){alert('Selecciona primero un día de la semana.');return;}
+  const target=$('#templateCourtPick')?.value||'__ALL__';
+  const existingCourts=[...new Set(draftSlots.filter(s=>s.date===date).map(s=>s.court).filter(Boolean))];
+  const courts=target==='__ALL__'?(existingCourts.length?existingCourts:['Pista 1']):[target];
+  const from=part==='morning'?'10:00':'16:00';
+  const to=part==='morning'?'14:30':'20:30';
+  const timeSlots=[];
+  for(let t=timeToMin(from);t+90<=timeToMin(to);t+=90){
+    const time=`${minToTime(t)} - ${minToTime(t+90)}`;
+    for(const court of courts)timeSlots.push({day:dayNameES(date),date,time,court});
+  }
+  const affected=s=>s.date===date&&courts.includes(s.court)&&partOfSlot(s)===part;
+  const replacementIds=new Set(timeSlots.map(s=>slotIdFor(s)));
+  const lostBookings=draftSlots.filter(s=>affected(s)&&!replacementIds.has(s.id)&&!!slotBooking(s.id));
+  if(lostBookings.length){alert(`No se puede sustituir este horario: ${lostBookings.length} franja(s) tienen reservas activas que desaparecerían.`);return;}
+  const prev=draftSlots.filter(affected).length;
+  const label=part==='morning'?'Mañana habitual':'Tarde habitual';
+  const desc=target==='__ALL__'?`todas las pistas de ${dayDateES(date)}`:`${target} el ${dayDateES(date)}`;
+  if(prev&&!confirm(`¿Aplicar «${label}» a ${desc}?\n\nSe sustituirán únicamente las ${prev} franjas de esa parte del día. La otra parte del día y el resto de la semana no cambian.\n\nNo se publicará automáticamente.`))return;
+  draftSlots=[...draftSlots.filter(s=>!affected(s)),...timeSlots];
+  normalizeDraft();persistDraft();renderDraftBoard();
+  const status=$('#publishActionStatus');
+  if(status)status.textContent=`${label} aplicada a ${desc}. Borrador sin publicar.`;
+}
 function renderDraftBoard(){
   normalizeDraft();refreshTemplateCourtPick();
   const slotCount=$('#slotCount'); if(slotCount)slotCount.textContent=`${draftSlots.length} ${draftSlots.length===1?'franja':'franjas'}`;
@@ -8919,6 +8951,8 @@ if($('#saveDraftSlots'))$('#saveDraftSlots').onclick=async()=>{
     alert('No se ha podido guardar el borrador online.\n\n'+e.message);
   }finally{btn.disabled=false;btn.textContent=old}
 };
+$('#draftDayMorning').onclick=()=>applyDayPartTemplate('morning');
+$('#draftDayAfternoon').onclick=()=>applyDayPartTemplate('afternoon');
 $('#draftHabitual').onclick=()=>applyCourtTemplate('habitual');
 $('#draftAllMorning').onclick=()=>applyCourtTemplate('morning');
 $('#draftAllAfternoon').onclick=()=>applyCourtTemplate('afternoon');
