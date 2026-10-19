@@ -1,0 +1,11 @@
+name = "ct-campeador-live-test"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[durable_objects.bindings]]
+name = "LIVE_MATCH"
+class_name = "LiveMatch"
+
+[[migrations]]
+tag = "live_v1"
+new_sqlite_classes = ["LiveMatch"]
