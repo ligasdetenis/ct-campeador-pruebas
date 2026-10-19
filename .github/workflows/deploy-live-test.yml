@@ -1,0 +1,28 @@
+name: Deploy CT Campeador LIVE TEST
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'LIVE_WORKER_TEST/**'
+      - '.github/workflows/deploy-live-test.yml'
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: LIVE_WORKER_TEST
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run check
+      - name: Deploy LIVE TEST
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
