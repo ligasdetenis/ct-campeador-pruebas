@@ -4731,7 +4731,7 @@ function safeDataImageUrl(value){
   const v=String(value||'').trim();
   return /^data:image\/(?:jpeg|jpg|png|webp|gif|avif);base64,[a-z0-9+/=]+$/i.test(v)?v:'';
 }
-const APP_BUILD="20261018-test-ux-v15-buscador-fix";
+const APP_BUILD="20261019-test-v18-contadores-despublicacion";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -7468,7 +7468,9 @@ function removeDayPart(date,part){draftSlots=draftSlots.filter(s=>!(s.date===dat
 function removeDraftSlot(id){draftSlots=draftSlots.filter(s=>s.id!==id);persistDraft();renderDraftBoard()}
 function renderSlotChips(){renderDraftBoard()}
 function renderCourtsProSummary(){
-  const publishedSlots=slots().slice();
+  // Las franjas almacenadas NO equivalen a disponibilidad publicada.
+  // Si la jornada está despublicada, los jugadores no pueden reservarlas.
+  const publishedSlots=isOpen()?slots().slice():[];
   const booked=publishedSlots.filter(s=>!!slotBooking(s.id)).length;
   const free=Math.max(0,publishedSlots.length-booked);
   const pending=draftSlots.length;
