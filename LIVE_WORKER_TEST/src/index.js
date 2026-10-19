@@ -115,6 +115,12 @@ export class LiveMatch extends DurableObject {
           if(!Array.isArray(body.names)||body.names.length!==2||body.names.some(x=>typeof x!=='string'||!x.trim()||x.length>80))throw Error('Nombres inválidos');
           if(body.firstServer!==0 && body.firstServer!==1)throw Error('Sacador inicial inválido');
           Object.assign(s,initial(),{names:body.names.map(x=>x.trim()),firstServer:body.firstServer,server:body.firstServer,status:'live'});
+        }else if(body.action==='reset'){
+          // Solo accesible desde POST validado por la API TEST (jugadores del partido).
+          if(s.status==='not_started')throw Error('El marcador ya está reiniciado');
+          const names=Array.isArray(s.names)&&s.names.length===2?s.names:['Jugador A','Jugador B'];
+          const oldVersion=s.version;
+          Object.assign(s,initial(),{version:oldVersion,names});
         }else if(body.action==='point'){
           if(body.who!==0&&body.who!==1)throw Error('Jugador inválido');
           if(s.history.length>=10000)throw Error('Historial completo');
