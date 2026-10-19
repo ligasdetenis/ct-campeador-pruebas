@@ -1,0 +1,25 @@
+{
+  "id": "/ct-campeador-pruebas/v20-test-separada",
+  "name": "CT Campeador TEST",
+  "short_name": "Campeador TEST",
+  "description": "Entorno independiente de pruebas de CT Campeador",
+  "start_url": "/ct-campeador-pruebas/?source=pwa-test-v20",
+  "scope": "/ct-campeador-pruebas/",
+  "display": "standalone",
+  "background_color": "#65000d",
+  "theme_color": "#65000d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
