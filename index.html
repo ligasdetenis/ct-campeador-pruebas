@@ -6126,7 +6126,7 @@ function renderSchedule(){
  // Si el admin ha despublicado la disponibilidad, las franjas siguen guardadas
  // internamente para poder corregirlas y volver a publicarlas, pero NO deben
  // mostrarse en la vista pública de ocupación.
- if(!isOpen()) {
+ if(!isOpen()&&!isAdmin()) {
    const hadSlots=!!(data.slots&&data.slots[weekKey()]&&data.slots[weekKey()].length);
    box.innerHTML=`<div class="empty">${hadSlots?'📴 La disponibilidad de esta semana está despublicada. Las pistas no son visibles para los jugadores hasta que el administrador vuelva a publicarlas.':'🔒 El club todavía no ha publicado la disponibilidad de pistas para esta semana.'}</div>`;
    return;
@@ -6136,7 +6136,7 @@ function renderSchedule(){
    box.innerHTML='<div class="empty">El club todavía no ha publicado franjas para esta semana.</div>';
    return;
  }
- box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+ box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk||mappIsPastDate(s.date)||!isOpen()?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
  box.querySelectorAll('[data-free-slot]').forEach(row=>{
    const go=()=>reserveFromOccupancy(row.dataset.freeSlot);
    row.onclick=go;
@@ -8068,7 +8068,21 @@ function mappOwnMatches(){
 }
 function mappPrimaryMatch(){return mappOwnMatches()[0]||null}
 function mappOpponent(m){if(!m)return'';return m.a===state.player?m.b:m.a}
-function mappFreeSlots(){return isOpen()?slots().filter(s=>!slotBooking(s.id)):[]}
+// Fecha local del dispositivo: evitar UTC para que ayer no reaparezca por huso horario.
+function mappLocalTodayISO(){
+ const d=new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function mappIsPastDate(value){
+ const str=String(value||'').slice(0,10);
+ return /^\d{4}-\d{2}-\d{2}$/.test(str) && str<mappLocalTodayISO();
+}
+// Solo filtra la presentación. El historial de reservas sigue intacto en la API.
+function mappUpcomingBooking(mid){
+ const booking=bookingFor(mid);
+ return booking&&!mappIsPastDate(booking.date)?booking:null;
+}
+function mappFreeSlots(){return isOpen()?slots().filter(s=>!mappIsPastDate(s.date)&&!slotBooking(s.id)):[]}
 function mappWeekShort(){const w=weeks.find(x=>x.id===state.week);const n=String(w?.id||'').replace(/\D/g,'');return n?`Jornada ${n}`:(w?.label||state.week)}
 function mappCurrentRound(){return fixtureRound()||'Jornada'}
 
@@ -8521,7 +8535,7 @@ function renderModernHome(){
  const m=mappPrimaryMatch(), frees=mappFreeSlots().slice(0,3);
  let hero='';
  if(m){
-   const bk=bookingFor(m.id), can=isOpen()&&isReservableInCurrentWeek(m.id);
+   const bk=mappUpcomingBooking(m.id), can=isOpen()&&isReservableInCurrentWeek(m.id);
    hero=`<div class="mapp-card"><div class="mapp-card-pad">
       <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Tu partido</div><span class="mapp-round">${mappEsc(mappCurrentRound())}</span></div>
       <div class="mapp-match-grid">
@@ -8557,11 +8571,12 @@ function renderModernHome(){
 }
 function renderModernCourts(){
  const box=$('#modernCourtsContent');if(!box)return;
- if(!isOpen()){
+ // El administrador conserva acceso histórico, incluso con la jornada cerrada.
+ if(!isOpen()&&!isAdmin()){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">🔒 La disponibilidad de pistas está despublicada. El club todavía no ha abierto las reservas de esta jornada.</div></div>';
    return
  }
- const ss=slots().slice().sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
+ const ss=slots().filter(s=>isAdmin()||!mappIsPastDate(s.date)).sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
  if(!ss.length){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">No hay disponibilidad publicada para esta semana.</div></div>';
    return
@@ -8583,14 +8598,15 @@ function renderModernCourts(){
            const entry=Object.entries(data.bookings||{}).find(([,b])=>b.week===state.week&&b.slotId===s.id);
            const matchId=entry?.[0]||'';
            const bk=entry?.[1]||null;
-           return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${bk?'':`data-mapp-slot="${mappEsc(s.id)}"`}>
+           const historic=mappIsPastDate(s.date);
+           return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${bk||historic||!isOpen()?'':`data-mapp-slot="${mappEsc(s.id)}"`}>
              <div>
                <div class="time">${mappEsc(s.time)}</div>
                ${bk?`<div class="booking">${mappEsc(bk.a)} vs ${mappEsc(bk.b)}</div>`:''}
              </div>
-             ${bk&&isAdmin()
+             ${bk&&isAdmin()&&!historic
                ? `<button class="mapp-admin-clean" type="button" data-admin-release-booking="${mappEsc(matchId)}">Liberar</button>`
-               : `<div class="${bk?'mapp-busy':'mapp-free'}">${bk?'OCUPADA':'LIBRE'}</div>`
+               : `<div class="${bk?'mapp-busy':'mapp-free'}">${historic?(bk?'RESERVADA · HISTÓRICO':'SIN RESERVA · HISTÓRICO'):(bk?'OCUPADA':'LIBRE')}</div>`
              }
              <div class="mapp-chevron">${bk?'':mappIcon('chevron')}</div>
            </div>`
@@ -8614,7 +8630,7 @@ function renderModernMatch(){
  const matches=mappOwnMatches();
  if(!matches.length){box.innerHTML=mappWeekCarouselNav()+'<div class="mapp-card"><div class="mapp-empty">No tienes partido en esta jornada.</div></div>';mappWireWeekCarousel(box);return}
  box.innerHTML=mappWeekCarouselNav()+`<div class="mapp-week-swipe-area">`+matches.map(m=>{
-   const bk=bookingFor(m.id),r=resultFor(m.id),p=postponedInfo(m.id);
+   const bk=mappUpcomingBooking(m.id),r=resultFor(m.id),p=postponedInfo(m.id);
    return `<div class="mapp-card"><div class="mapp-card-pad">
     <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Mi partido</div><span class="mapp-round">${mappEsc(mappCurrentRound())}</span></div>
     <div class="mapp-match-grid">
