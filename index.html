@@ -9446,7 +9446,7 @@ window.addEventListener('scroll',()=>{const a=document.getElementById('adminView
  }
  if(typeof renderModernHome==='function'){const orig=renderModernHome;renderModernHome=function(){orig();attach()}}
  if(typeof renderModernMatch==='function'){const orig=renderModernMatch;renderModernMatch=function(){orig();attach()}}
- if(typeof renderModernProfile==='function'){const orig=renderModernProfile;renderModernProfile=function(...args){const result=orig(...args);attach();return result}}
+ if(typeof renderModernProfile==='function'){const orig=renderModernProfile;renderModernProfile=async function(...args){const result=await orig(...args);attach();return result}}
  setTimeout(attach,200);
 })();
 </script>
