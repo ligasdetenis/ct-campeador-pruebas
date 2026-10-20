@@ -1872,6 +1872,7 @@ function stateForSession(state, reservations, profiles, session) {
     playerLists: state.playerLists || {},
     fixtures: state.fixtures || {},
     fixtureRounds: state.fixtureRounds || {},
+    fixtureVisibilityOverrides: state.fixtureVisibilityOverrides || {},
     slots: publishedSlots,
     drafts: {},
     published: state.published || {},
