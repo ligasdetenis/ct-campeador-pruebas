@@ -6136,7 +6136,7 @@ function renderSchedule(){
    box.innerHTML='<div class="empty">El club todavía no ha publicado franjas para esta semana.</div>';
    return;
  }
- box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk||mappIsPastDate(s.date)||!isOpen()?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+ box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk||mappIsPastDate(s.date,s.time)||!isOpen()?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
  box.querySelectorAll('[data-free-slot]').forEach(row=>{
    const go=()=>reserveFromOccupancy(row.dataset.freeSlot);
    row.onclick=go;
@@ -8073,16 +8073,27 @@ function mappLocalTodayISO(){
  const d=new Date();
  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-function mappIsPastDate(value){
+// Considerar fecha Y hora de finalización de la franja (ej.: 18:00 - 19:30).
+// Las franjas de hoy permanecen visibles mientras sigan en curso.
+function mappIsPastDate(value, time=''){
  const str=String(value||'').slice(0,10);
- return /^\d{4}-\d{2}-\d{2}$/.test(str) && str<mappLocalTodayISO();
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(str))return false;
+ const today=mappLocalTodayISO();
+ if(str<today)return true;
+ if(str>today)return false;
+ // Hora de FIN: no ocultar la reserva hasta acabar su franja.
+ const matches=String(time||'').match(/(?:[01]?\d|2[0-3]):[0-5]\d/g);
+ if(!matches?.length)return false; // Datos incompletos: no caducar por error.
+ const end=matches[matches.length-1].split(':').map(Number);
+ const now=new Date();
+ return now.getHours()*60+now.getMinutes()>=end[0]*60+end[1];
 }
 // Solo filtra la presentación. El historial de reservas sigue intacto en la API.
 function mappUpcomingBooking(mid){
  const booking=bookingFor(mid);
- return booking&&!mappIsPastDate(booking.date)?booking:null;
+ return booking&&!mappIsPastDate(booking.date,booking.time)?booking:null;
 }
-function mappFreeSlots(){return isOpen()?slots().filter(s=>!mappIsPastDate(s.date)&&!slotBooking(s.id)):[]}
+function mappFreeSlots(){return isOpen()?slots().filter(s=>!mappIsPastDate(s.date,s.time)&&!slotBooking(s.id)):[]}
 function mappWeekShort(){const w=weeks.find(x=>x.id===state.week);const n=String(w?.id||'').replace(/\D/g,'');return n?`Jornada ${n}`:(w?.label||state.week)}
 function mappCurrentRound(){return fixtureRound()||'Jornada'}
 
@@ -8576,7 +8587,7 @@ function renderModernCourts(){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">🔒 La disponibilidad de pistas está despublicada. El club todavía no ha abierto las reservas de esta jornada.</div></div>';
    return
  }
- const ss=slots().filter(s=>isAdmin()||!mappIsPastDate(s.date)).sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
+ const ss=slots().filter(s=>isAdmin()||!mappIsPastDate(s.date,s.time)).sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
  if(!ss.length){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">No hay disponibilidad publicada para esta semana.</div></div>';
    return
@@ -8598,7 +8609,7 @@ function renderModernCourts(){
            const entry=Object.entries(data.bookings||{}).find(([,b])=>b.week===state.week&&b.slotId===s.id);
            const matchId=entry?.[0]||'';
            const bk=entry?.[1]||null;
-           const historic=mappIsPastDate(s.date);
+           const historic=mappIsPastDate(s.date,s.time);
            return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${bk||historic||!isOpen()?'':`data-mapp-slot="${mappEsc(s.id)}"`}>
              <div>
                <div class="time">${mappEsc(s.time)}</div>
