@@ -4108,9 +4108,24 @@ body.modern-admin .courtsProEmptyActions .btn{
 }
 </style>
 <style id="pwa-test-marker">#testVersionRibbon{position:fixed;left:0;right:0;top:0;z-index:99999;background:#ffcd24;color:#111;text-align:center;font:bold 12px system-ui;padding:5px;pointer-events:none}body{padding-top:24px}</style>
+<style id="ct-test-v213-header-compacto">
+/* TEST V21.3 · Cabecera más compacta, sin afectar al menú ni al contenido */
+#modernApp .mapp-header{min-height:0!important;padding-top:10px!important}
+#modernApp .mapp-brand{min-height:106px!important;gap:10px!important}
+#modernApp .mapp-logo{width:118px!important;height:100px!important;flex:0 0 118px!important}
+#modernApp .mapp-context-item{padding-top:9px!important;padding-bottom:9px!important}
+@media(max-width:520px){
+ #modernApp .mapp-header{padding:9px 12px 0!important}
+ #modernApp .mapp-brand{min-height:93px!important;gap:8px!important}
+ #modernApp .mapp-logo{width:105px!important;height:90px!important;flex:0 0 105px!important}
+ #modernApp .mapp-brand-title{font-size:18px!important}
+ #modernApp .mapp-brand-sub{font-size:13px!important}
+ #modernApp .mapp-context-item{padding:8px 6px!important}
+}
+</style>
 </head>
 <body>
-<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V21 · CLASIFICACIÓN</div>
+<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V21.3 · CLASIFICACIÓN</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
