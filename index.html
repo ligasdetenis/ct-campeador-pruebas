@@ -1944,6 +1944,15 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .rankProForm{display:flex;gap:4px;margin-top:5px}.rankProDot{display:block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:#ced2d8}.rankProDot.w{background:#19ad68}.rankProDot.l{background:#e34757}
 .rankProPts{font-weight:950;color:#078a4d;font-size:13px}.rankProEmpty{padding:19px;text-align:center;font-size:12px;color:#777d87}
 .rankProDetails{position:fixed;inset:0;background:#1119;z-index:9500;display:flex;align-items:center;justify-content:center;padding:15px}.rankProDetailsPanel{background:#fff;color:#24262b;border-radius:17px;padding:21px;width:min(390px,100%);box-shadow:0 12px 50px #0004}.rankProDetailsPanel button{background:#780013;color:#fff;border:0;border-radius:9px;padding:10px 14px;margin-top:15px;width:100%}
+
+/* CT CAMPEADOR TEST V21.2 · Barra inferior de 6 pestañas */
+.mapp-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+.mapp-nav-btn{min-width:0!important;padding:5px 0!important}
+.mapp-nav-btn>span:last-child{font-size:clamp(7px,1.85vw,10px)!important;letter-spacing:-.02em;text-overflow:clip!important}
+.mapp-nav-btn svg{width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important}
+.mapp-nav-btn.active:after{width:29px!important}
+#modernRanking .rankProCard{margin-bottom:8px}
+@media(max-width:365px){.mapp-nav-btn>span:last-child{font-size:7px!important}}
 </style>
 
 <link rel="manifest" href="manifest-test.webmanifest">
@@ -4662,14 +4671,18 @@ Pablo Ruiz"></textarea>
       <div class="mapp-screen-heading">Mi partido</div>
       <div id="modernMatchContent"></div>
     </section>
-    <section class="mapp-screen" id="modernResults">
-      <div class="mapp-screen-heading">Resultados</div>
-      <div class="mapp-subheading">Solo se muestran resultados confirmados.</div>
+    <section class="mapp-screen" id="modernRanking">
+      <div class="mapp-screen-heading">Clasificación</div>
+      <div class="mapp-subheading">Clasificación por categoría · 2 puntos por victoria</div>
       <div class="rankProCard" id="rankProCard">
         <div class="rankProHeader"><h3>🏆 Clasificación</h3><span style="font-size:10px;color:#7c8088">2 puntos por victoria</span></div>
         <div class="rankProFilters"><select id="rankProCategory" aria-label="Categoría de clasificación"></select><select id="rankProGender" aria-label="Género de clasificación"></select></div>
         <div class="rankProScroll" id="rankProContent"></div>
       </div>
+    </section>
+    <section class="mapp-screen" id="modernResults">
+      <div class="mapp-screen-heading">Resultados</div>
+      <div class="mapp-subheading">Solo se muestran resultados confirmados.</div>
       <div class="mapp-results-toolbar">
         <div class="mapp-results-filter"><label>Categoría</label><select id="resultsCategory"></select></div>
         <div class="mapp-results-filter"><label>Género</label><select id="resultsGender"><option>Masculino</option><option>Femenino</option></select></div>
@@ -4692,7 +4705,8 @@ Pablo Ruiz"></textarea>
   <nav class="mapp-nav">
     <button class="mapp-nav-btn active" data-modern-go="home" type="button"><span data-icon="home"></span><span>Inicio</span></button>
     <button class="mapp-nav-btn" data-modern-go="courts" type="button"><span data-icon="court"></span><span>Pistas</span></button>
-    <button class="mapp-nav-btn" data-modern-go="match" type="button"><span data-icon="trophy"></span><span>Mi partido</span></button>
+    <button class="mapp-nav-btn" data-modern-go="match" type="button"><span data-icon="calendar"></span><span>Mi partido</span></button>
+    <button class="mapp-nav-btn" data-modern-go="ranking" type="button"><span data-icon="trophy"></span><span>Clasificación</span></button>
     <button class="mapp-nav-btn" data-modern-go="results" type="button"><span data-icon="chart"></span><span>Resultados</span></button>
     <button class="mapp-nav-btn" data-modern-go="profile" type="button"><span data-icon="user"></span><span>Mi perfil</span></button>
   </nav>
@@ -8485,14 +8499,14 @@ const MAPP_LAST_TAB_KEY='ct_campeador_test_last_tab_v1';
 function mappSavedTab(){
  try{
   const view=localStorage.getItem(MAPP_LAST_TAB_KEY)||'home';
-  return ['home','courts','match','results','profile'].includes(view)?view:'home';
+  return ['home','courts','match','ranking','results','profile'].includes(view)?view:'home';
  }catch(_){return 'home'}
 }
 function mappRestoreTab(){
  if(state.authenticated&&!document.body.classList.contains('modern-admin'))mappShow(mappSavedTab());
 }
 function mappShow(view){
- const map={home:'modernHome',courts:'modernCourts',match:'modernMatch',results:'modernResults',profile:'modernProfile'};
+ const map={home:'modernHome',courts:'modernCourts',match:'modernMatch',ranking:'modernRanking',results:'modernResults',profile:'modernProfile'};
  if(!Object.prototype.hasOwnProperty.call(map,view))return;
  try{localStorage.setItem(MAPP_LAST_TAB_KEY,view)}catch(_){}
  Object.values(map).forEach(id=>$('#'+id)?.classList.remove('active'));
@@ -8501,6 +8515,7 @@ function mappShow(view){
  if(view==='profile')renderModernProfile();
  if(view==='courts')renderModernCourts();
  if(view==='match')renderModernMatch();
+ if(view==='ranking')rankProRender();
  if(view==='results')renderModernResults();
  if(view==='home')renderModernHome();
  window.scrollTo({top:0,behavior:'smooth'});
