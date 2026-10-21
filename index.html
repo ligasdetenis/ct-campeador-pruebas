@@ -1920,6 +1920,30 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 @keyframes mappWeekSlideInRight{from{transform:translate3d(-38px,0,0) scale(.985);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
 @media(prefers-reduced-motion:reduce){.mapp-week-swipe-area{transition:none!important}.mapp-week-swipe-area.mapp-week-slide-in-left,.mapp-week-swipe-area.mapp-week-slide-in-right{animation:none!important}}
 
+
+/* TEST · Clasificación PRO: tabla accesible, nombre fijo y foto */
+.rankProCard{background:#fff;border:1px solid #e8e9ec;border-radius:17px;margin-bottom:16px;box-shadow:0 6px 20px #250e1410;overflow:hidden}
+.rankProHeader{padding:15px;display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.rankProHeader h3{font-size:17px;margin:0;color:#24262c;font-weight:950}
+.rankProFilters{display:flex;gap:8px;padding:0 14px 12px}
+.rankProFilters select{flex:1;min-width:0;max-width:100%;font-size:12px;padding:9px;background:#f6f7f9;color:#252830;border-color:#e1e3e7}
+.rankProScroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;max-width:100%}
+.rankProTable{border-spacing:0;border-collapse:separate;min-width:745px;width:100%;font-size:11px;color:#252830}
+.rankProTable th,.rankProTable td{padding:11px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #edeef0;background:#fff}
+.rankProTable th{font-size:9px;font-weight:950;color:#787d86;background:#f7f8fa;position:sticky;top:0;z-index:1}
+.rankProTable th:nth-child(1),.rankProTable td:nth-child(1){position:sticky;left:0;z-index:2;min-width:47px;width:47px}
+.rankProTable th:nth-child(2),.rankProTable td:nth-child(2){position:sticky;left:47px;z-index:2;min-width:171px;width:171px;text-align:left;box-shadow:5px 0 9px -10px #222}
+.rankProTable th:nth-child(-n+2){z-index:3;background:#f7f8fa}
+.rankProTable tr.rankProMine td{background:#fff0f2;border-bottom-color:#ead3d6}
+.rankProTable tr.rankProMine td:first-child{box-shadow:inset 3px 0 #b90024}
+.rankProPos{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#eef0f2;color:#4f555f;font-weight:950}
+.rankProPos.gold{background:#d1a02e;color:white}.rankProPos.silver{background:#a7aeba;color:white}.rankProPos.bronze{background:#b77b4e;color:white}
+.rankProIdentity{display:flex;align-items:center;gap:8px;min-width:0;background:none;border:0;color:inherit;padding:0;cursor:pointer;text-align:left}
+.rankProAvatar{flex:0 0 34px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eceef0;color:#7a0018;font-weight:950;font-size:10px;background-size:cover;background-position:center}
+.rankProName{font-size:11px;max-width:117px;overflow:hidden;text-overflow:ellipsis;font-weight:900}
+.rankProForm{display:flex;gap:4px;margin-top:5px}.rankProDot{display:block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:#ced2d8}.rankProDot.w{background:#19ad68}.rankProDot.l{background:#e34757}
+.rankProPts{font-weight:950;color:#078a4d;font-size:13px}.rankProEmpty{padding:19px;text-align:center;font-size:12px;color:#777d87}
+.rankProDetails{position:fixed;inset:0;background:#1119;z-index:9500;display:flex;align-items:center;justify-content:center;padding:15px}.rankProDetailsPanel{background:#fff;color:#24262b;border-radius:17px;padding:21px;width:min(390px,100%);box-shadow:0 12px 50px #0004}.rankProDetailsPanel button{background:#780013;color:#fff;border:0;border-radius:9px;padding:10px 14px;margin-top:15px;width:100%}
 </style>
 
 <link rel="manifest" href="manifest-test.webmanifest">
@@ -4077,7 +4101,7 @@ body.modern-admin .courtsProEmptyActions .btn{
 <style id="pwa-test-marker">#testVersionRibbon{position:fixed;left:0;right:0;top:0;z-index:99999;background:#ffcd24;color:#111;text-align:center;font:bold 12px system-ui;padding:5px;pointer-events:none}body{padding-top:24px}</style>
 </head>
 <body>
-<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V20</div>
+<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V21 · CLASIFICACIÓN</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -4641,6 +4665,11 @@ Pablo Ruiz"></textarea>
     <section class="mapp-screen" id="modernResults">
       <div class="mapp-screen-heading">Resultados</div>
       <div class="mapp-subheading">Solo se muestran resultados confirmados.</div>
+      <div class="rankProCard" id="rankProCard">
+        <div class="rankProHeader"><h3>🏆 Clasificación</h3><span style="font-size:10px;color:#7c8088">2 puntos por victoria</span></div>
+        <div class="rankProFilters"><select id="rankProCategory" aria-label="Categoría de clasificación"></select><select id="rankProGender" aria-label="Género de clasificación"></select></div>
+        <div class="rankProScroll" id="rankProContent"></div>
+      </div>
       <div class="mapp-results-toolbar">
         <div class="mapp-results-filter"><label>Categoría</label><select id="resultsCategory"></select></div>
         <div class="mapp-results-filter"><label>Género</label><select id="resultsGender"><option>Masculino</option><option>Femenino</option></select></div>
@@ -8217,7 +8246,73 @@ async function adminReleaseBookingDirect(matchId,reservation){
   }
 }
 
+
+/* Clasificación TEST · solo lectura, sin alterar resultados ni datos */
+const rankProState={category:null,gender:null};
+function rankProCompute(category,gender){
+  const players=new Map();
+  function entry(name){
+    const key=normalizeName(name);
+    if(!key)return null;
+    if(!players.has(key))players.set(key,{name,pj:0,pg:0,pp:0,sg:0,sp:0,jg:0,jp:0,form:[]});
+    return players.get(key);
+  }
+  (data.playerLists?.[`${category}|${gender}`]||[]).forEach(entry);
+  const matches=confirmedResultsAll().filter(x=>x.category===category&&x.gender===gender).sort((a,b)=>String(a.when||a.week).localeCompare(String(b.when||b.week)));
+  for(const match of matches){
+    const r=match.result||{};
+    if(r.type==='not_played')continue; // Sin ganador no se puede adjudicar una derrota.
+    const a=entry(match.a),b=entry(match.b);
+    if(!a||!b||a===b)continue;
+    let winner=String(r.winner||'');
+    const sets=Array.isArray(r.sets)?r.sets:[];
+    let aw=0,bw=0;
+    for(let i=0;i<sets.length;i++){
+      const one=Number(sets[i]?.a),two=Number(sets[i]?.b);
+      if(!Number.isFinite(one)||!Number.isFinite(two)||one<0||two<0||one===two)continue;
+      if(one>two)aw++;else bw++;
+      a.sg+=(one>two?1:0);a.sp+=(two>one?1:0);
+      b.sg+=(two>one?1:0);b.sp+=(one>two?1:0);
+      // El super tie decisivo cuenta como set, pero NO como juegos (10-8, etc.).
+      const isSuper=i===2 && Math.max(one,two)>=10;
+      if(!isSuper){a.jg+=one;a.jp+=two;b.jg+=two;b.jp+=one;}
+    }
+    if(!winner&&aw!==bw)winner=aw>bw?match.a:match.b;
+    if(!winner || ![normalizeName(match.a),normalizeName(match.b)].includes(normalizeName(winner)))continue;
+    const aWins=normalizeName(winner)===normalizeName(match.a);
+    a.pj++;b.pj++;
+    if(aWins){a.pg++;b.pp++;}else{b.pg++;a.pp++;}
+    a.form.push({win:aWins,when:match.when});b.form.push({win:!aWins,when:match.when});
+  }
+  return [...players.values()].sort((a,b)=>2*(b.pg-a.pg)||b.sg-a.sg||a.sp-b.sp||b.jg-a.jg||a.jp-b.jp||a.name.localeCompare(b.name,'es'));
+}
+function rankProRender(){
+  const root=document.getElementById('rankProContent'),cat=document.getElementById('rankProCategory'),gender=document.getElementById('rankProGender');
+  if(!root||!cat||!gender)return;
+  rankProState.category=rankProState.category||state.category;
+  rankProState.gender=rankProState.gender||state.gender;
+  cat.innerHTML=CATEGORIES.map(c=>`<option value="${mappEsc(c)}">${mappEsc(c)}</option>`).join('');
+  gender.innerHTML=['Masculino','Femenino'].map(g=>`<option value="${g}">${g}</option>`).join('');
+  if(!CATEGORIES.includes(rankProState.category))rankProState.category=CATEGORIES[0];
+  cat.value=rankProState.category;gender.value=rankProState.gender;
+  const standings=rankProCompute(rankProState.category,rankProState.gender);
+  if(!standings.length){root.innerHTML='<div class="rankProEmpty">Todavía no hay jugadores inscritos en esta categoría.</div>';return;}
+  root.innerHTML=`<table class="rankProTable"><thead><tr>${['POS','JUGADOR','PJ','PG','PP','SG','SP','JG','JP','PTS'].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>`+standings.map((p,i)=>{
+    const photo=mappPhoto(p.name),style=photo?` style="background-image:url('${photo.replace(/'/g,'%27')}')"`:'';
+    const own=state.authenticated&&normalizeName(state.player)===normalizeName(p.name);
+    const dots=Array(5).fill(null);p.form.slice(-5).forEach((v,j)=>dots[5-Math.min(5,p.form.length)+j]=v);
+    return `<tr class="${own?'rankProMine':''}"><td><span class="rankProPos ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span></td><td><button class="rankProIdentity" data-rank-player="${mappEsc(p.name)}"><span class="rankProAvatar"${style}>${photo?'':mappEsc(mappInitials(p.name))}</span><span><span class="rankProName" style="display:block">${mappEsc(p.name)}</span><span class="rankProForm">${dots.map(v=>`<span class="rankProDot ${v?(v.win?'w':'l'):''}"></span>`).join('')}</span></span></button></td>${[p.pj,p.pg,p.pp,p.sg,p.sp,p.jg,p.jp].map(v=>`<td>${v}</td>`).join('')}<td class="rankProPts">${p.pg*2}</td></tr>`;
+  }).join('')+'</tbody></table>';
+  root.querySelectorAll('[data-rank-player]').forEach(b=>b.onclick=()=>{
+    const p=standings.find(x=>x.name===b.dataset.rankPlayer);if(!p)return;
+    const modal=document.createElement('div');modal.className='rankProDetails';
+    modal.innerHTML=`<div class="rankProDetailsPanel"><h3 style="margin:0 0 10px">${mappEsc(p.name)}</h3><p>Partidos: ${p.pj} · Victorias: ${p.pg} · Derrotas: ${p.pp}</p><p>Sets: ${p.sg} ganados / ${p.sp} perdidos</p><p>Juegos: ${p.jg} ganados / ${p.jp} perdidos</p><strong>${p.pg*2} puntos</strong><button type="button">Cerrar</button></div>`;
+    modal.querySelector('button').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove()};document.body.appendChild(modal);
+  });
+}
+
 function renderModernResults(){
+  rankProRender();
   const box=$('#modernResultsContent');if(!box)return;
   renderResultsFilters();
   const rows=confirmedResultsAll().filter(x=>
@@ -8923,6 +9018,8 @@ document.querySelectorAll('[data-modern-go]').forEach(b=>b.onclick=()=>mappShow(
 $('#resultsCategory').onchange=e=>{resultsViewState.category=e.target.value;renderModernResults()};
 $('#resultsGender').onchange=e=>{resultsViewState.gender=e.target.value;renderModernResults()};
 $('#resultsWeek').onchange=e=>{resultsViewState.week=e.target.value;renderModernResults()};
+$('#rankProCategory').onchange=e=>{rankProState.category=e.target.value;rankProRender()};
+$('#rankProGender').onchange=e=>{rankProState.gender=e.target.value;rankProRender()};
 $('#modernTicker').onclick=()=>mappShow('results');
 $('#modernTicker').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();mappShow('results')}};
 
