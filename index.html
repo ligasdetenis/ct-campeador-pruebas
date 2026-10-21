@@ -8480,8 +8480,21 @@ function queuePushDeepLink(){
   if(state.authenticated&&apiToken)setTimeout(()=>processPushDeepLink(),80);
 }
 
+// TEST V21.1 · recordar la última pestaña del jugador en este dispositivo.
+const MAPP_LAST_TAB_KEY='ct_campeador_test_last_tab_v1';
+function mappSavedTab(){
+ try{
+  const view=localStorage.getItem(MAPP_LAST_TAB_KEY)||'home';
+  return ['home','courts','match','results','profile'].includes(view)?view:'home';
+ }catch(_){return 'home'}
+}
+function mappRestoreTab(){
+ if(state.authenticated&&!document.body.classList.contains('modern-admin'))mappShow(mappSavedTab());
+}
 function mappShow(view){
  const map={home:'modernHome',courts:'modernCourts',match:'modernMatch',results:'modernResults',profile:'modernProfile'};
+ if(!Object.prototype.hasOwnProperty.call(map,view))return;
+ try{localStorage.setItem(MAPP_LAST_TAB_KEY,view)}catch(_){}
  Object.values(map).forEach(id=>$('#'+id)?.classList.remove('active'));
  $('#'+map[view])?.classList.add('active');
  document.querySelectorAll('[data-modern-go]').forEach(b=>b.classList.toggle('active',b.dataset.modernGo===view));
@@ -9048,9 +9061,9 @@ $('#welcomePin').addEventListener('input',e=>{
 $('#welcomePin').addEventListener('keydown',e=>{if(e.key==='Enter')loginWithPinOnly()});
 
 $('#playerIdentity').onchange=e=>{if(!state.authenticated)state.player=e.target.value;$('#playerPin').value='';renderIdentity()};
-$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
+$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();mappRestoreTab();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
 $('#playerPin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});
-$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
+$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(MAPP_LAST_TAB_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
 $$('.gender').forEach(b=>b.onclick=()=>{state.gender=b.dataset.gender;renderAll()});
 $('#weekSelect').onchange=e=>{state.week=e.target.value;renderAll()};
 function openNativeDatePicker(inputId){
@@ -9450,6 +9463,7 @@ async function bootstrapApp(){
       showPinWelcome('PIN personal de 6 cifras · los PIN antiguos de 4 siguen funcionando',false);
     }
     renderAll();
+    if(restored)mappRestoreTab();
     queuePushDeepLink();
     document.documentElement.classList.remove('app-booting');
     document.documentElement.classList.add('app-ready');
