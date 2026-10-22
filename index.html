@@ -4177,9 +4177,19 @@ body.modern-admin .journeyNavigator::-webkit-scrollbar-track{background:#edf0f3;
   body.modern-admin .journeyNavigatorActions .journeyAddBtn{width:100%!important;padding:9px 10px!important;font-size:11px!important}
 }
 </style>
+<style id="test-v224-journey-scroll-stable">
+/* La barra solo se mueve si el usuario la desplaza. */
+body.modern-admin #journeyNavigator{
+  scroll-snap-type:none!important;
+  scroll-behavior:auto!important;
+  overflow-x:auto!important;
+  overscroll-behavior-x:contain!important;
+}
+body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!important}
+</style>
 </head>
 <body>
-<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V21.3 · CLASIFICACIÓN</div>
+<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V22.4 · SCROLL ESTABLE</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -5276,26 +5286,32 @@ function goToJourney(weekId){
   ['#quickFixturePanel','#pasteFixturePanel','#journeySettingsPanel'].forEach(sel=>$(sel)?.classList.add('hidden'));
   renderAll();
   renderModernAdminContext();
-  requestAnimationFrame(()=>document.querySelector('.journeyManagerTop')?.scrollIntoView({behavior:'smooth',block:'nearest'}));
+  // No centrar la jornada ni modificar desplazamientos al cambiarla.
 }
 
+// TEST V22.4 · Posición independiente del DOM y sin scroll-snap al redibujar.
+const JOURNEY_NAV_SCROLL_KEY='ctcampeador-test-journey-navigator-scroll-v224';
+let journeyNavScrollPosition=(()=>{try{return Math.max(0,Number(localStorage.getItem(JOURNEY_NAV_SCROLL_KEY))||0)}catch(_){return 0}})();
+let journeyNavIsRestoring=false;
+let journeyNavRestoreEpoch=0;
 function renderJourneyNavigator(){
   const box=$('#journeyNavigator');
   if(!box)return;
-  // V22.3 TEST: conservar exactamente la posición elegida por el usuario.
-  // Nunca centrar automáticamente la jornada activa al repintar el panel.
-  const scrollKey='ctcampeador-test-journey-navigator-scroll-v223';
-  let previousScroll=box.scrollLeft;
+  // Capturar el desplazamiento antes de tocar el contenido.
+  if(box.dataset.scrollMemoryReady==='1' && !journeyNavIsRestoring){
+    journeyNavScrollPosition=box.scrollLeft;
+  }
   if(!box.dataset.scrollMemoryReady){
-    try{
-      const saved=Number(localStorage.getItem(scrollKey));
-      if(Number.isFinite(saved) && saved>=0)previousScroll=saved;
-    }catch(_e){}
     box.dataset.scrollMemoryReady='1';
     box.addEventListener('scroll',()=>{
-      try{localStorage.setItem(scrollKey,String(box.scrollLeft));}catch(_e){}
+      if(journeyNavIsRestoring)return;
+      journeyNavScrollPosition=box.scrollLeft;
+      try{localStorage.setItem(JOURNEY_NAV_SCROLL_KEY,String(journeyNavScrollPosition))}catch(_){}
     },{passive:true});
   }
+  const target=journeyNavScrollPosition;
+  journeyNavIsRestoring=true;
+  const epoch=++journeyNavRestoreEpoch;
   box.innerHTML=weeks.map((w,i)=>{
     const arr=data.fixtures?.[fixtureKeyForWeek(w.id)]||[];
     const visible=journeyFixturesArePublic(w.id);
@@ -5309,7 +5325,20 @@ function renderJourneyNavigator(){
     </button>`;
   }).join('');
   box.querySelectorAll('[data-journey-jump]').forEach(btn=>btn.onclick=()=>goToJourney(btn.dataset.journeyJump));
-  box.scrollLeft=previousScroll;
+  // Restaurar tras calcular el ancho real y después del siguiente render.
+  const restore=()=>{if(epoch===journeyNavRestoreEpoch && box.isConnected)box.scrollLeft=target};
+  restore();
+  requestAnimationFrame(()=>{
+    restore();
+    requestAnimationFrame(()=>{
+      restore();
+      if(epoch===journeyNavRestoreEpoch){
+        journeyNavIsRestoring=false;
+        // Solo persistir la posición intencionada, nunca el cero temporal del repintado.
+        try{localStorage.setItem(JOURNEY_NAV_SCROLL_KEY,String(box.scrollLeft))}catch(_){}
+      }
+    });
+  });
 }
 
 function renderFutureJourneysPreview(){
