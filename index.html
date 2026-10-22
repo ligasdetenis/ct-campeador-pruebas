@@ -9382,13 +9382,27 @@ async function importCompleteLeagueFile(file){
     }
     schedule.push(pairs);
   }
-  if(schedule.length>weeks.length){
-    alert(`El archivo contiene ${schedule.length} jornadas y actualmente hay ${weeks.length}. Crea las jornadas que falten antes de importar. No se ha modificado nada.`);return;
+  // Planificar jornadas faltantes SIN modificar el estado hasta confirmar.
+  // Los identificadores siguen W1, W2... y las fechas son rangos orientativos,
+  // calculados al final de la última jornada existente, no tomados del PDF.
+  const currentWeeks=[...weeks].sort((a,b)=>weekNumber(a.id)-weekNumber(b.id));
+  const missingCount=Math.max(0,schedule.length-currentWeeks.length);
+  const plannedWeeks=[...currentWeeks];
+  if(missingCount){
+    let last=currentWeeks[currentWeeks.length-1];
+    let nextN=Math.max(0,...currentWeeks.map(w=>weekNumber(w.id)))+1;
+    for(let j=0;j<missingCount;j++){
+      const start=last?.end?isoAddDays(last.end,1):isoAddDays(new Date().toISOString().slice(0,10),1);
+      const end=isoAddDays(start,6),id=`W${nextN++}`;
+      const next={id,start,end,label:''};
+      next.label=makeWeekLabel(next);
+      plannedWeeks.push(next);last=next;
+    }
   }
   const conflicts=[];
   for(let i=0;i<schedule.length;i++){
-    const key=`${weeks[i].id}|${category}|${gender}`;
-    if((data.fixtures?.[key]||[]).length)conflicts.push(journeyDisplayName(weeks[i].id));
+    const key=`${plannedWeeks[i].id}|${category}|${gender}`;
+    if((data.fixtures?.[key]||[]).length)conflicts.push(journeyDisplayName(plannedWeeks[i].id));
   }
   if(conflicts.length){
     alert(`Importación cancelada: ya hay enfrentamientos en ${category} / ${gender}:\n${conflicts.join(', ')}.\nNo se reemplazará ningún partido.`);return;
@@ -9399,19 +9413,28 @@ async function importCompleteLeagueFile(file){
   const reusedFromOtherCategory=addedToCategory.filter(n=>globalNames.has(normalizeName(n)));
   const total=schedule.reduce((n,p)=>n+p.length,0);
   const sample=newAccounts.length?`\n\nALTAS NUEVAS (${newAccounts.length}):\n${newAccounts.slice(0,18).join('\n')}${newAccounts.length>18?'\n…':''}`:'';
-  const ok=confirm(`VISTA PREVIA · IMPORTAR LIGA\n\n${doc.competicion||'Liga'}\nDestino detectado: ${category} / ${gender}\n${schedule.length} jornadas · ${total} partidos\n${roster.length} jugadores\n\n${newAccounts.length} cuentas nuevas con PIN automático\n${reusedFromOtherCategory.length} usuarios reutilizados de otras categorías\n${addedToCategory.length} incorporaciones a esta categoría${sample}\n\nNo sustituye enfrentamientos, no modifica fechas ni publica jornadas. Las que ya sean públicas seguirán visibles.\n\n¿Confirmas el alta de usuarios y la importación?`);
+  const ok=confirm(`VISTA PREVIA · IMPORTAR LIGA\n\n${doc.competicion||'Liga'}\nDestino detectado: ${category} / ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas nuevas que se crearán automáticamente\n${roster.length} jugadores\n\n${newAccounts.length} cuentas nuevas con PIN automático\n${reusedFromOtherCategory.length} usuarios reutilizados de otras categorías\n${addedToCategory.length} incorporaciones a esta categoría${sample}\n\nNo sustituye enfrentamientos ni modifica las fechas de jornadas existentes. Las nuevas jornadas se crean ocultas con fechas orientativas posteriores a la última. Las jornadas ya públicas seguirán visibles.\n\n¿Confirmas el alta de usuarios y la importación?`);
   if(!ok)return;
   const btn=$('#importCompleteLeagueBtn'), oldLabel=btn?.textContent;
   if(btn){btn.disabled=true;btn.textContent='Importando…';}
-  const backup=JSON.stringify(data),oldCategory=state.category,oldGender=state.gender,oldWeek=state.week;
+  const backup=JSON.stringify(data),backupWeeks=weeks.map(w=>({...w})),oldCategory=state.category,oldGender=state.gender,oldWeek=state.week;
   let remoteSaved=false;
   try{
     if(!apiToken)throw new Error('Falta la conexión de administrador con Cloudflare.');
+    // Crear todas las jornadas necesarias en memoria antes de guardar una sola vez.
+    data.weekRanges=data.weekRanges||{};
+    for(const w of plannedWeeks.slice(currentWeeks.length)){
+      weeks.push({...w});
+      data.weekRanges[w.id]={start:w.start,end:w.end};
+      setJourneyName(w.id,`Jornada ${weekNumber(w.id)}`);
+      // No se marca como publicada: solo se crean jornada y enfrentamientos.
+    }
+    weeks.sort((a,b)=>weekNumber(a.id)-weekNumber(b.id));
     data.playerLists[destKey]=targetPlayers.concat(addedToCategory);
     for(const newName of newAccounts){if(!data.roles[newName])data.roles[newName]='jugador';}
     data.fixtures=data.fixtures||{};
     for(let i=0;i<schedule.length;i++){
-      const key=`${weeks[i].id}|${category}|${gender}`;
+      const key=`${plannedWeeks[i].id}|${category}|${gender}`;
       data.fixtures[key]=schedule[i].map(([a,b])=>({id:`${key}|${slug(a)}|${slug(b)}`,a,b}));
     }
     ensurePins();syncWeeksIntoData();
@@ -9421,9 +9444,9 @@ async function importCompleteLeagueFile(file){
     fixtureEditorDirty=false;playerEditorDirty=false;
     state.category=category;state.gender=gender;state.week=weeks[0].id;
     renderAll();renderModernAdminContext();
-    alert(`✅ Importación completada en TEST.\n\n${category} · ${gender}\n${schedule.length} jornadas · ${total} partidos\n${newAccounts.length} usuarios nuevos con PIN\n${reusedFromOtherCategory.length} usuarios ya existentes reutilizados.\n\nRevisa los PIN nuevos en Administración → Usuarios antes de entregárselos a sus titulares.`);
+    alert(`✅ Importación completada en TEST.\n\n${category} · ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas creadas automáticamente\n${newAccounts.length} usuarios nuevos con PIN\n${reusedFromOtherCategory.length} usuarios ya existentes reutilizados.\n\nRevisa los PIN nuevos en Administración → Usuarios antes de entregárselos a sus titulares.`);
   }catch(e){
-    if(!remoteSaved){data=normalizeData(JSON.parse(backup));state.category=oldCategory;state.gender=oldGender;state.week=oldWeek;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
+    if(!remoteSaved){weeks.splice(0,weeks.length,...backupWeeks);data=normalizeData(JSON.parse(backup));state.category=oldCategory;state.gender=oldGender;state.week=oldWeek;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
     renderAll();renderModernAdminContext();
     alert((remoteSaved?'Los partidos ya se guardaron, pero falló la sincronización de usuarios. No repitas la importación; revisa Usuarios.':'No se completó la importación y se recuperaron los datos locales anteriores.')+'\n\n'+(e.message||e));
   }finally{if(btn){btn.disabled=false;btn.textContent=oldLabel;}}
