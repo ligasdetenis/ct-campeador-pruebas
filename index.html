@@ -4457,6 +4457,8 @@ body.modern-admin .courtsProEmptyActions .btn{
           </div>
           <div class="journeyNavigatorActions">
             <div class="journeyNavigatorHint">Toca una jornada para editarla.</div>
+            <button class="btn secondary journeyAddBtn" id="importCompleteLeagueBtn" type="button">⇧ Importar liga JSON</button>
+            <input type="file" id="importCompleteLeagueFile" accept=".json,application/json" style="display:none" aria-label="Seleccionar archivo de liga">
             <button class="btn secondary journeyAddBtn" id="addJourneyBtn" type="button">＋ Nueva jornada</button>
           </div>
         </div>
@@ -9268,6 +9270,122 @@ $('#toggleJourneySettings').onclick=()=>toggleJourneyPanel('#journeySettingsPane
 $('#journeyMoreBtn').onclick=()=>$('#journeyDangerMenu').classList.toggle('hidden');
 $('#journeyPrevBtn').onclick=()=>navigateJourney(-1);
 $('#journeyNextBtn').onclick=()=>navigateJourney(1);
+/* CT CAMPEADOR · Importación JSON de liga completa (jornadas + participantes)
+   Sin asignar fechas ni publicar expresamente. Usa la categoría/género actuales. */
+async function importCompleteLeagueFile(file){
+  if(!requireAdmin()||!file)return;
+  if(fixtureEditorDirty||playerEditorDirty){
+    alert('Guarda primero los cambios pendientes antes de importar una liga.');return;
+  }
+  if(file.size>1024*1024){alert('El JSON supera 1 MB.');return;}
+  let doc;
+  try{doc=JSON.parse(await file.text())}
+  catch(e){alert('El archivo no es un JSON válido.');return;}
+  if(!doc||doc.formato!=='ct-campeador-liga'||doc.version!==1||!Array.isArray(doc.jornadas)||!doc.jornadas.length||!Array.isArray(doc.jugadores)){
+    alert('Formato de liga no reconocido. Debe ser ct-campeador-liga, versión 1.');return;
+  }
+  if(doc.jornadas.length>50||doc.jugadores.length>250){alert('El archivo supera los límites permitidos.');return;}
+  const expectedCategory=normalizeName(doc.categoria||'');
+  const currentCategory=normalizeName(state.category);
+  const expectedGender=normalizeName(doc.genero||'');
+  if(!expectedCategory.includes(currentCategory)||expectedGender!==normalizeName(state.gender)){
+    alert(`Antes de importar selecciona en Administración la categoría y género correspondientes al archivo.\n\nArchivo: ${doc.categoria} / ${doc.genero}\nSeleccionado: ${state.category} / ${state.gender}`);return;
+  }
+  const roster=[];
+  const names=new Map();
+  for(const raw of doc.jugadores){
+    if(typeof raw!=='string'||!raw.trim()||raw.length>150){alert('La lista de jugadores contiene un nombre inválido.');return;}
+    const name=raw.trim(); const norm=normalizeName(name);
+    if(names.has(norm)){alert('Hay jugadores repetidos en el archivo: '+name);return;}
+    names.set(norm,name);roster.push(name);
+  }
+  if(!roster.length){alert('El archivo no contiene jugadores.');return;}
+  const schedule=[];
+  const seenMatches=new Set();
+  for(let i=0;i<doc.jornadas.length;i++){
+    const round=doc.jornadas[i];
+    if(!round||Number(round.numero)!==i+1||!Array.isArray(round.enfrentamientos)||round.enfrentamientos.length>500){
+      alert(`Estructura inválida en la jornada ${i+1}.`);return;
+    }
+    const pairs=[];
+    const seenRoundPlayers=new Set();
+    for(const m of round.enfrentamientos){
+      const na=normalizeName(m?.jugadorA),nb=normalizeName(m?.jugadorB);
+      if(!na||!nb||na===nb||!names.has(na)||!names.has(nb)){
+        alert(`Enfrentamiento incorrecto en la jornada ${i+1}: comprueba que ambos jugadores estén en el listado.`);return;
+      }
+      if(seenRoundPlayers.has(na)||seenRoundPlayers.has(nb)){
+        alert(`Un jugador aparece dos veces en la jornada ${i+1}.`);return;
+      }
+      seenRoundPlayers.add(na);seenRoundPlayers.add(nb);
+      const key=[na,nb].sort().join('|');
+      if(seenMatches.has(key)){alert(`Enfrentamiento repetido entre jornadas: ${m.jugadorA} / ${m.jugadorB}.`);return;}
+      seenMatches.add(key);pairs.push([names.get(na),names.get(nb)]);
+    }
+    if(!pairs.length){alert(`La jornada ${i+1} está vacía.`);return;}
+    schedule.push(pairs);
+  }
+  if(schedule.length>weeks.length){
+    alert(`Hay ${schedule.length} jornadas en el archivo, pero la liga solo tiene ${weeks.length} jornadas creadas. Añade primero las jornadas que falten.`);return;
+  }
+  // Jamás sobrescribir partidos ya existentes de la categoría en jornadas de destino.
+  const conflicts=[];
+  for(let i=0;i<schedule.length;i++){
+    const k=`${weeks[i].id}|${state.category}|${state.gender}`;
+    if((data.fixtures?.[k]||[]).length)conflicts.push(journeyDisplayName(weeks[i].id));
+  }
+  if(conflicts.length){
+    alert('Importación detenida para proteger los enfrentamientos existentes.\n\nEstas jornadas ya tienen partidos: '+conflicts.join(', ')+'\n\nNo se ha modificado ningún dato.');return;
+  }
+  const existing=data.playerLists[playerListKey()]||[];
+  const existingNames=new Set(existing.map(normalizeName));
+  const missing=roster.filter(n=>!existingNames.has(normalizeName(n)));
+  const total=schedule.reduce((acc,x)=>acc+x.length,0);
+  const startVisible=journeyFixturesArePublic(weeks[0].id);
+  const ok=confirm(`IMPORTAR LIGA COMPLETA\n\n${doc.competicion||'Liga'}\n${state.category} · ${state.gender}\n\n${schedule.length} jornadas · ${total} partidos\n${roster.length} jugadores (${missing.length} nuevos en esta categoría)\n\nDestino: las primeras ${schedule.length} jornadas actuales; NO se cambiarán sus fechas.\nLas jornadas ya publicadas conservan su visibilidad${startVisible?' (la primera ya es visible)':''}.\n\n¿Importar y guardar en la nube?`);
+  if(!ok)return;
+  const btn=$('#importCompleteLeagueBtn');
+  const oldLabel=btn?.textContent;
+  if(btn){btn.disabled=true;btn.textContent='Importando…';}
+  const backup=JSON.stringify(data);
+  const oldWeek=state.week;
+  let remoteSaved=false;
+  try{
+    data.playerLists[playerListKey()]=existing.concat(missing);
+    data.fixtures=data.fixtures||{};
+    for(let i=0;i<schedule.length;i++){
+      const weekId=weeks[i].id;
+      const k=`${weekId}|${state.category}|${state.gender}`;
+      data.fixtures[k]=schedule[i].map(([a,b])=>{
+        a=canonicalPlayer(a);b=canonicalPlayer(b);
+        return {id:`${k}|${slug(a)}|${slug(b)}`,a,b};
+      });
+      // El nombre de jornada se mantiene como estaba, sin alterar otras categorías.
+    }
+    ensurePins();
+    syncWeeksIntoData();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    if(!apiToken)throw new Error('No hay conexión de administrador con la API.');
+    await saveStateOnline();remoteSaved=true;
+    await saveUsersOnline();
+    fixtureEditorDirty=false;playerEditorDirty=false;
+    state.week=weeks[0].id;
+    renderAll();renderModernAdminContext();
+    alert(`✅ Liga importada y guardada.\n\n${total} partidos en ${schedule.length} jornadas.\n${roster.length} jugadores en ${state.category} / ${state.gender}.\n\nLas fechas y la publicación de cada jornada siguen como estaban.`);
+  }catch(e){
+    if(!remoteSaved){data=normalizeData(JSON.parse(backup));state.week=oldWeek;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();renderModernAdminContext();}
+    else {renderAll();renderModernAdminContext();}
+    alert((remoteSaved?'Los enfrentamientos se han guardado, pero ha fallado la sincronización de usuarios. Revisa Administración y no repitas la importación.':'No se ha completado la importación. Los datos locales anteriores se han restaurado.')+'\n\n'+(e.message||e));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=oldLabel;}
+  }
+}
+$('#importCompleteLeagueBtn').onclick=()=>{if(requireAdmin())$('#importCompleteLeagueFile').click()};
+$('#importCompleteLeagueFile').onchange=async function(){
+  const file=this.files?.[0];this.value='';
+  if(file)await importCompleteLeagueFile(file);
+};
+
 if($('#addJourneyBtn'))$('#addJourneyBtn').onclick=addJourney;
 
 if($('#futureFixturesBtn'))$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
