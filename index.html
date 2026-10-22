@@ -5282,6 +5282,20 @@ function goToJourney(weekId){
 function renderJourneyNavigator(){
   const box=$('#journeyNavigator');
   if(!box)return;
+  // V22.3 TEST: conservar exactamente la posición elegida por el usuario.
+  // Nunca centrar automáticamente la jornada activa al repintar el panel.
+  const scrollKey='ctcampeador-test-journey-navigator-scroll-v223';
+  let previousScroll=box.scrollLeft;
+  if(!box.dataset.scrollMemoryReady){
+    try{
+      const saved=Number(localStorage.getItem(scrollKey));
+      if(Number.isFinite(saved) && saved>=0)previousScroll=saved;
+    }catch(_e){}
+    box.dataset.scrollMemoryReady='1';
+    box.addEventListener('scroll',()=>{
+      try{localStorage.setItem(scrollKey,String(box.scrollLeft));}catch(_e){}
+    },{passive:true});
+  }
   box.innerHTML=weeks.map((w,i)=>{
     const arr=data.fixtures?.[fixtureKeyForWeek(w.id)]||[];
     const visible=journeyFixturesArePublic(w.id);
@@ -5295,8 +5309,7 @@ function renderJourneyNavigator(){
     </button>`;
   }).join('');
   box.querySelectorAll('[data-journey-jump]').forEach(btn=>btn.onclick=()=>goToJourney(btn.dataset.journeyJump));
-  const active=box.querySelector('.journeyJump.active');
-  if(active)active.scrollIntoView({behavior:'auto',block:'nearest',inline:'center'});
+  box.scrollLeft=previousScroll;
 }
 
 function renderFutureJourneysPreview(){
