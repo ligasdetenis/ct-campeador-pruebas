@@ -4123,6 +4123,60 @@ body.modern-admin .courtsProEmptyActions .btn{
  #modernApp .mapp-context-item{padding:8px 6px!important}
 }
 </style>
+
+<style id="v22-1-jornadas-responsive">
+/* V22.1 · Evita que importar liga / nueva jornada salgan fuera de la pantalla */
+body.modern-admin .journeyNavigatorSection,
+body.modern-admin .journeyNavigatorHead,
+body.modern-admin .journeyNavigatorActions{min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+body.modern-admin .journeyNavigatorActions{
+  display:flex!important;
+  flex-flow:row wrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+}
+body.modern-admin .journeyNavigatorHint{
+  flex:1 1 100%!important;
+  min-width:0!important;
+}
+body.modern-admin .journeyNavigatorActions .journeyAddBtn{
+  flex:0 1 auto!important;
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  line-height:1.25!important;
+  text-align:center!important;
+  min-height:38px!important;
+}
+body.modern-admin .journeyNavigator{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-x:contain!important;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:#9a9da4 #edf0f3;
+  padding-bottom:12px!important;
+}
+body.modern-admin .journeyNavigator .journeyJump{flex-shrink:0!important}
+body.modern-admin .journeyNavigator::-webkit-scrollbar{height:6px}
+body.modern-admin .journeyNavigator::-webkit-scrollbar-thumb{background:#9a9da4;border-radius:6px}
+body.modern-admin .journeyNavigator::-webkit-scrollbar-track{background:#edf0f3;border-radius:6px}
+@media(max-width:600px){
+  body.modern-admin .journeyNavigatorActions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important}
+  body.modern-admin .journeyNavigatorHint{grid-column:1/-1!important}
+  body.modern-admin #importCompleteLeagueBtn{grid-column:1/-1!important}
+  body.modern-admin #addJourneyBtn{grid-column:1/-1!important}
+  body.modern-admin .journeyNavigatorActions .journeyAddBtn{width:100%!important;padding:9px 10px!important;font-size:11px!important}
+}
+</style>
 </head>
 <body>
 <div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V21.3 · CLASIFICACIÓN</div>
