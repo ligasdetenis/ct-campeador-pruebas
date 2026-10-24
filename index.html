@@ -7146,6 +7146,7 @@ function waPhone(raw){
   const v=String(raw||'').replace(/[\s().-]/g,'');
   if(/^\+34[67]\d{8}$/.test(v))return v.slice(1);
   if(/^0034[67]\d{8}$/.test(v))return v.slice(2);
+  if(/^34[67]\d{8}$/.test(v))return v;
   if(/^[67]\d{8}$/.test(v))return '34'+v;
   if(/^\+\d{10,15}$/.test(v))return v.slice(1);
   return '';
@@ -7155,7 +7156,18 @@ function waUserActions(name){
   const rec=waUserRecord(name), hasPhone=!!waPhone(rec.phone), hasPin=!!data.pins[name];
   const label=rec.deliveredAt?'✅ Entregado '+new Date(rec.deliveredAt).toLocaleDateString('es-ES'):rec.openedAt?'⏳ Preparado, pendiente de confirmar':'Pendiente';
   const safe=mappEsc(name);
-  return `<div class="waAction"><span class="waPhone">${rec.phone?mappEsc(rec.phone):'Sin teléfono'}</span><span class="waStatus">${label}</span><button type="button" data-wa-open="${safe}" ${hasPhone&&hasPin?'':'disabled'}>WhatsApp ↗</button><button type="button" class="waMark ${rec.deliveredAt?'waDelivered':''}" data-wa-mark="${safe}" ${hasPhone?'':'disabled'}>${rec.deliveredAt?'Desmarcar entrega':'Marcar entregado'}</button></div>`;
+  return `<div class="waAction"><span class="waPhone">${rec.phone?mappEsc(rec.phone):'Sin teléfono'}</span><span class="waStatus">${label}</span><button type="button" data-wa-open="${safe}" ${hasPhone&&hasPin?'':'disabled'}>WhatsApp ↗</button><button type="button" class="waMark ${rec.deliveredAt?'waDelivered':''}" data-wa-mark="${safe}" ${hasPhone?'':'disabled'}>${rec.deliveredAt?'Desmarcar entrega':'Marcar entregado'}</button><button type="button" data-wa-edit="${safe}">Editar teléfono</button></div>`;
+}
+function waEditFor(name){
+  if(!requireAdmin())return;
+  const records=waGetData(), key=waCanonical(name), rec=records[key]||{};
+  const raw=prompt('Teléfono de '+name+' (puedes escribir 9 dígitos o +34):',String(rec.phone||''));
+  if(raw===null)return;
+  const phone=raw.trim()?waPhone(raw):'';
+  if(raw.trim()&&!phone){alert('Número no válido. Usa un móvil español de 9 cifras o el prefijo +34.');return}
+  records[key]={...rec,phone,openedAt:'',deliveredAt:''};
+  waPutData(records);
+  renderPins();
 }
 function waMessage(name,pin){return `Hola ${name}. 🎾\n\nTu PIN personal para acceder a la Liga CT Campeador es: ${pin}.\n\nAccede aquí: https://ligasdetenis.github.io/ct-campeador-liga-test/\n\nNo compartas este PIN con otras personas.`}
 function waOpenFor(name){
@@ -7307,6 +7319,7 @@ function renderPins(){
   document.querySelectorAll('#pinTable [data-delete-user],#pinCardsMobile [data-delete-user]').forEach(b=>b.onclick=()=>deleteAccessUsers([b.dataset.deleteUser]));
   document.querySelectorAll('#pinTable [data-wa-open],#pinCardsMobile [data-wa-open]').forEach(b=>b.onclick=()=>waOpenFor(b.dataset.waOpen));
   document.querySelectorAll('#pinTable [data-wa-mark],#pinCardsMobile [data-wa-mark]').forEach(b=>b.onclick=()=>waMarkFor(b.dataset.waMark));
+  document.querySelectorAll('#pinTable [data-wa-edit],#pinCardsMobile [data-wa-edit]').forEach(b=>b.onclick=()=>waEditFor(b.dataset.waEdit));
 
   document.querySelectorAll('#pinTable [data-user-select],#pinCardsMobile [data-user-select]').forEach(c=>c.onchange=()=>{
     const name=c.dataset.userSelect;
