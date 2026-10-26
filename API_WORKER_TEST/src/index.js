@@ -168,8 +168,28 @@ var BookingCoordinator = class extends DurableObject {
       return doJson({ ok: true, reservation });
     }
     if (action === "getProposal") {
-      const row = this.sql.exec("SELECT payload FROM match_proposals WHERE match_id = ?", String(body.matchId || "")).toArray()[0];
-      return doJson({ok:true,proposal:row ? JSON.parse(row.payload) : null});
+      const matchId = String(body.matchId || "");
+      if (!matchId) return doJson({ ok: false, error: "Falta el partido" }, 400);
+      // Reparación automática de propuestas aceptadas que quedaron huérfanas
+      // tras cancelaciones realizadas antes de incorporar la sincronización.
+      const proposal = this.ctx.storage.transactionSync(() => {
+        const row = this.sql.exec("SELECT payload FROM match_proposals WHERE match_id = ?", matchId).toArray()[0];
+        if (!row) return null;
+        let current;
+        try { current = JSON.parse(row.payload); } catch (_) { return null; }
+        if (current.status !== "accepted") return current;
+        const booked = this.sql.exec("SELECT slot_id FROM reservations WHERE match_id = ?", matchId).toArray()[0];
+        if (booked && String(booked.slot_id) === String(current.slotId)) return current;
+        // No existe la reserva que se aceptó: no debe seguir mostrándose como confirmada.
+        const now = new Date().toISOString();
+        current.status = "cancelled";
+        current.cancelledAt = current.cancelledAt || now;
+        current.updatedAt = now;
+        current.reconciled = true;
+        this.sql.exec("UPDATE match_proposals SET payload = ?, updated_at = ? WHERE match_id = ?", JSON.stringify(current), now, matchId);
+        return current;
+      });
+      return doJson({ ok: true, proposal });
     }
     if (action === "proposeSlot") {
       const proposal = body.proposal;
