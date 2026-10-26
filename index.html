@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,maximum-scale=1" name="viewport"/>
 <meta content="#b40012" name="theme-color"/>
-<title>CT Campeador</title>
+<title>CT Campeador TEST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1903,21 +1903,25 @@ body.modern-admin .courtsTemplatePanel label{font-weight:800;font-size:12px;colo
 body.modern-admin #templateCourtPick{min-height:44px;width:100%;max-width:480px;border-radius:11px;border:1px solid #cbd2dd;background:white;color:#252b34;font-weight:750;padding:9px}
 body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;line-height:1.45}
 
-/* Histórico de pistas · ADMIN exclusivamente. No afecta a la pantalla Pistas. */
-.adminHistoryFilters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.adminHistoryFilters label{display:grid;gap:5px;color:#626871;font-size:11px;font-weight:850}
-.adminHistoryFilters select{min-height:42px;width:100%;background:#fff;color:#25282d;border:1px solid #dce1e7;border-radius:10px;padding:7px}
-.adminHistoryList{display:grid;gap:12px;max-height:550px;overflow-y:auto;overscroll-behavior:contain}
-.adminHistoryDay{border:1px solid #e4e7eb;border-radius:12px;overflow:hidden;background:#fff}
-.adminHistoryDayTitle{background:#f5f6f8;color:#282c32;padding:10px 12px;font-size:12px;font-weight:900}
-.adminHistoryRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px 12px;border-top:1px solid #edf0f2;align-items:center}
-.adminHistoryMain{min-width:0;color:#282b30;font-size:12px;font-weight:800;overflow-wrap:anywhere}
-.adminHistoryPlayers{font-size:11px;color:#696e77;font-weight:550;margin-top:4px;overflow-wrap:anywhere}
-.adminHistoryTag{font-size:9px;font-weight:900;background:#f1f2f4;color:#6a6e75;padding:5px 7px;border-radius:8px;white-space:nowrap}
-.adminHistoryTag.occupied{background:#e8f6ed;color:#237447}
-.adminHistoryEmpty{padding:16px;color:#858a91;font-size:12px;text-align:center}
-@media(max-width:520px){.adminHistoryFilters{grid-template-columns:1fr}}
-/* PRODUCCIÓN · Clasificación PRO: tabla accesible, nombre fijo y foto */
+/* CT Campeador: carrusel de jornadas en Inicio y Mi partido */
+.mapp-week-carousel-head{display:flex;justify-content:space-between;gap:8px;margin:5px 3px 8px;font-weight:850;letter-spacing:.065em;font-size:10px;color:#8a6469}
+.mapp-week-carousel-nav{display:flex;overflow-x:auto;gap:8px;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding:0 2px 12px;margin-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mapp-week-carousel-nav::-webkit-scrollbar{display:none}
+.mapp-week-carousel-chip{appearance:none;flex:0 0 auto;scroll-snap-align:center;border:1px solid #d9c8cb;background:white;color:#651c29;border-radius:99px;padding:10px 17px;font:800 13px Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 1px 4px #360d1414}
+.mapp-week-carousel-chip.selected{background:#b90020;color:white;border-color:#b90020;box-shadow:0 3px 12px #bb001e33}
+.mapp-week-swipe-area{touch-action:pan-y;}
+/* Transición de tarjeta de jornada: deslizamiento y fundido suaves. */
+.mapp-week-swipe-area{will-change:transform,opacity;transition:transform .24s cubic-bezier(.22,1,.36,1),opacity .24s ease;}
+.mapp-week-swipe-area.mapp-week-slide-out-left{transform:translate3d(-38px,0,0) scale(.985);opacity:0;}
+.mapp-week-swipe-area.mapp-week-slide-out-right{transform:translate3d(38px,0,0) scale(.985);opacity:0;}
+.mapp-week-swipe-area.mapp-week-slide-in-left{animation:mappWeekSlideInLeft .42s cubic-bezier(.2,.8,.2,1) both;}
+.mapp-week-swipe-area.mapp-week-slide-in-right{animation:mappWeekSlideInRight .42s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes mappWeekSlideInLeft{from{transform:translate3d(38px,0,0) scale(.985);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
+@keyframes mappWeekSlideInRight{from{transform:translate3d(-38px,0,0) scale(.985);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.mapp-week-swipe-area{transition:none!important}.mapp-week-swipe-area.mapp-week-slide-in-left,.mapp-week-swipe-area.mapp-week-slide-in-right{animation:none!important}}
+
+
+/* TEST · Clasificación PRO: tabla accesible, nombre fijo y foto */
 .rankProCard{background:#fff;border:1px solid #e8e9ec;border-radius:17px;margin-bottom:16px;box-shadow:0 6px 20px #250e1410;overflow:hidden}
 .rankProHeader{padding:15px;display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .rankProHeader h3{font-size:17px;margin:0;color:#24262c;font-weight:950}
@@ -1941,7 +1945,7 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .rankProPts{font-weight:950;color:#078a4d;font-size:13px}.rankProEmpty{padding:19px;text-align:center;font-size:12px;color:#777d87}
 .rankProDetails{position:fixed;inset:0;background:#1119;z-index:9500;display:flex;align-items:center;justify-content:center;padding:15px}.rankProDetailsPanel{background:#fff;color:#24262b;border-radius:17px;padding:21px;width:min(390px,100%);box-shadow:0 12px 50px #0004}.rankProDetailsPanel button{background:#780013;color:#fff;border:0;border-radius:9px;padding:10px 14px;margin-top:15px;width:100%}
 
-/* CT CAMPEADOR · Clasificación · Barra inferior de 6 pestañas */
+/* CT CAMPEADOR TEST V21.2 · Barra inferior de 6 pestañas */
 .mapp-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}
 .mapp-nav-btn{min-width:0!important;padding:5px 0!important}
 .mapp-nav-btn>span:last-child{font-size:clamp(7px,1.85vw,10px)!important;letter-spacing:-.02em;text-overflow:clip!important}
@@ -1950,39 +1954,14 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 #modernRanking .rankProCard{margin-bottom:8px}
 @media(max-width:365px){.mapp-nav-btn>span:last-child{font-size:7px!important}}
 
-/* V22.6 · fecha de jornada discreta en tarjetas de partido */
-.mapp-round.mapp-round-with-dates{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 10px;line-height:1.15;text-align:center;max-width:155px;white-space:normal}
-.mapp-round-title{font-size:11px;font-weight:900;white-space:nowrap}
-.mapp-round-dates{font-size:9px;font-weight:700;color:#956b32;white-space:nowrap}
-@media(max-width:380px){.mapp-round.mapp-round-with-dates{padding:5px 7px;max-width:132px}.mapp-round-title{font-size:10px}.mapp-round-dates{font-size:8px}}
-/* Carrusel de jornadas · Producción V22.8 */
-
-.mapp-week-carousel-head{display:flex;justify-content:space-between;gap:8px;margin:5px 3px 8px;font-weight:850;letter-spacing:.065em;font-size:10px;color:#8a6469}
-.mapp-week-carousel-nav{scroll-behavior:smooth;display:flex;overflow-x:auto;gap:8px;scroll-snap-type:none;overscroll-behavior-x:contain;padding:0 2px 12px;margin-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.mapp-week-carousel-nav::-webkit-scrollbar{display:none}
-.mapp-week-carousel-chip{appearance:none;flex:0 0 auto;scroll-snap-align:none;border:1px solid #d9c8cb;background:white;color:#651c29;border-radius:99px;padding:10px 17px;font:800 13px Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 1px 4px #360d1414}
-.mapp-week-carousel-chip.selected{background:#b90020;color:white;border-color:#b90020;box-shadow:0 3px 12px #bb001e33}
-.mapp-week-swipe-area{touch-action:pan-y;}
-/* Transición de tarjeta de jornada: deslizamiento y fundido suaves. */
-.mapp-week-swipe-area{will-change:transform,opacity;transition:transform .24s cubic-bezier(.22,1,.36,1),opacity .24s ease;}
-.mapp-week-swipe-area.mapp-week-slide-out-left{transform:translate3d(-18px,0,0) scale(.995);opacity:0;}
-.mapp-week-swipe-area.mapp-week-slide-out-right{transform:translate3d(18px,0,0) scale(.995);opacity:0;}
-.mapp-week-swipe-area.mapp-week-slide-in-left{animation:mappWeekSlideInLeft .28s cubic-bezier(.2,.8,.2,1) both;}
-.mapp-week-swipe-area.mapp-week-slide-in-right{animation:mappWeekSlideInRight .28s cubic-bezier(.2,.8,.2,1) both;}
-@keyframes mappWeekSlideInLeft{from{transform:translate3d(18px,0,0) scale(.995);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
-@keyframes mappWeekSlideInRight{from{transform:translate3d(-18px,0,0) scale(.995);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
-@media(prefers-reduced-motion:reduce){.mapp-week-swipe-area{transition:none!important}.mapp-week-swipe-area.mapp-week-slide-in-left,.mapp-week-swipe-area.mapp-week-slide-in-right{animation:none!important}}
-
-
-
-/* V22.10 · carrusel accesible en Inicio y Mi partido */
-.mapp-week-carousel-nav{max-width:100%;min-width:0;overflow-x:auto!important;overflow-y:hidden!important;touch-action:pan-x!important;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:#bd9fa5 transparent;scroll-padding-inline:24px}
-.mapp-week-carousel-nav::-webkit-scrollbar{height:4px;display:block}
-.mapp-week-carousel-nav::-webkit-scrollbar-thumb{background:#bd9fa5;border-radius:8px}
-.mapp-week-carousel-chip{flex-shrink:0!important}
-.mapp-week-swipe-area{touch-action:pan-y!important;min-width:0}
-
-/* V22.12 · WhatsApp asistido (solo admin) */
+/* TEST V22.7 · Detección de jugadores de enfrentamientos sin cuenta */
+.waMissingAccess{display:grid;gap:8px}
+.waMissingAccessTitle{font-size:12px;font-weight:900;color:#23272d}
+.waMissingRow{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;padding:9px 10px;background:#fff;border:1px solid #e3e5e8;border-radius:10px}
+.waMissingRow b{font-size:11px;color:#292c32}
+.waMissingRow small{display:block;font-size:9px;color:#787d84;margin-top:3px}
+.waMissingRow button{border:1px solid #b8d3c3;border-radius:9px;background:#ecf8ef;color:#17643c;min-height:34px;padding:7px 10px;font-size:10px;font-weight:900}
+/* TEST V22.5 · WhatsApp asistido (solo admin) */
 .waAccessPanel{margin:13px 0;padding:13px;border:1px solid #dee3e9;border-radius:13px;background:#f9fafb;color:#252a32;display:grid;gap:9px}
 .waAccessTitle{font-weight:900;font-size:14px}
 .waAccessTools{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
@@ -1991,7 +1970,6 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .waAction{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px}
 .waAction button{border:1px solid #cdd8d1;background:#eff8f1;color:#17643c;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:850;cursor:pointer}
 .waAction button:disabled{opacity:.4;cursor:not-allowed}
-.waAction .waEdit{background:#f2f4f8;border-color:#cbd3df;color:#374151}
 .waAction .waMark{background:#fff;border-color:#dce0e5;color:#51565e}
 .waAction .waDelivered{background:#e7f6ed;color:#18663e;border-color:#b5dbc4}
 .waPhone{font-size:10px;color:#66707c;font-weight:650}
@@ -1999,10 +1977,10 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .mapp-proposal-cta{display:flex;align-items:center;gap:12px;margin:12px 14px;padding:15px 13px;border-radius:15px;background:linear-gradient(120deg,#f9e8d1,#fff6e9);border:2px solid #c79b42;color:#491d24;cursor:pointer;box-shadow:0 4px 13px rgba(60,20,18,.13)}.mapp-proposal-cta:focus-visible{outline:3px solid #b12236;outline-offset:3px}.mapp-proposal-cta-icon{font-size:25px}.mapp-proposal-cta strong{display:block;font-weight:950;font-size:14px;line-height:1.2}.mapp-proposal-cta small{display:block;font-size:12px;margin-top:5px;line-height:1.35}
 </style>
 
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest-test.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CT Campeador">
+<meta name="apple-mobile-web-app-title" content="CT Campeador TEST">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 <style id="v31612-admin-buttons-fix">
@@ -4151,8 +4129,9 @@ body.modern-admin .courtsProEmptyActions .btn{
   body.modern-admin .courtsProPublishActions .btn{width:100%!important}
 }
 </style>
-<style id="ct-produccion-v213-header-compacto">
-/* V21.3 · Cabecera más compacta, sin afectar al menú ni al contenido */
+<style id="pwa-test-marker">#testVersionRibbon{position:fixed;left:0;right:0;top:0;z-index:99999;background:#ffcd24;color:#111;text-align:center;font:bold 12px system-ui;padding:5px;pointer-events:none}body{padding-top:24px}</style>
+<style id="ct-test-v213-header-compacto">
+/* TEST V21.3 · Cabecera más compacta, sin afectar al menú ni al contenido */
 #modernApp .mapp-header{min-height:0!important;padding-top:10px!important}
 #modernApp .mapp-brand{min-height:106px!important;gap:10px!important}
 #modernApp .mapp-logo{width:118px!important;height:100px!important;flex:0 0 118px!important}
@@ -4166,6 +4145,7 @@ body.modern-admin .courtsProEmptyActions .btn{
  #modernApp .mapp-context-item{padding:8px 6px!important}
 }
 </style>
+
 <style id="v22-1-jornadas-responsive">
 /* V22.1 · Evita que importar liga / nueva jornada salgan fuera de la pantalla */
 body.modern-admin .journeyNavigatorSection,
@@ -4219,7 +4199,7 @@ body.modern-admin .journeyNavigator::-webkit-scrollbar-track{background:#edf0f3;
   body.modern-admin .journeyNavigatorActions .journeyAddBtn{width:100%!important;padding:9px 10px!important;font-size:11px!important}
 }
 </style>
-<style id="prod-v224-journey-scroll-stable">
+<style id="test-v224-journey-scroll-stable">
 /* La barra solo se mueve si el usuario la desplaza. */
 body.modern-admin #journeyNavigator{
   scroll-snap-type:none!important;
@@ -4260,6 +4240,7 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
 </style>
 </head>
 <body>
+<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V22.5 · WHATSAPP ASISTIDO</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -4399,19 +4380,6 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
   </div>
 </div>
 
-
-<!-- PRODUCCIÓN · Histórico de pistas: solo lectura, exclusivamente Administración -->
-<details class="adminBlock adminAccordion adminPrimary" data-admin-section="courtHistory" id="adminCourtHistoryPanel">
-  <summary class="adminSummary"><span class="adminSummaryTitle">Histórico de pistas</span><span class="adminSummaryMeta" id="adminHistoryMeta">Consultar reservas finalizadas</span></summary>
-  <div class="adminAccordionBody">
-    <p class="authNote">Consulta las franjas ya finalizadas. Los datos no se eliminan ni se modifican.</p>
-    <div class="adminHistoryFilters">
-      <label>Mes <select id="adminHistoryMonth" aria-label="Mes del histórico"></select></label>
-      <label>Ocupación <select id="adminHistoryStatus"><option value="all">Todas las franjas</option><option value="booked">Solo ocupadas</option><option value="free">Sin reserva registrada</option></select></label>
-    </div>
-    <div id="adminHistoryList" class="adminHistoryList"></div>
-  </div>
-</details>
 
 <details class="adminBlock adminAccordion adminPrimary adminTournamentPanel" data-admin-section="tournamentIdentity" open>
   <summary class="adminSummary">
@@ -4605,9 +4573,8 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
           <div class="journeyNavigatorActions">
             <div class="journeyNavigatorHint">Toca una jornada para editarla.</div>
             <button class="btn secondary journeyAddBtn" id="importCompleteLeagueBtn" type="button">⇧ Importar liga JSON · categoría automática</button>
-             <input type="file" id="importCompleteLeagueFile" accept=".json,application/json" style="display:none" aria-label="Seleccionar archivo de liga">
-             <button class="btn secondary journeyAddBtn" id="addJourneyBtn" type="button">＋ Nueva jornada</button>
-            <button class="btn gold journeyAddBtn" id="publishAllJourneysBtn" type="button">📣 Publicar todas</button>
+            <input type="file" id="importCompleteLeagueFile" accept=".json,application/json" style="display:none" aria-label="Seleccionar archivo de liga">
+            <button class="btn secondary journeyAddBtn" id="addJourneyBtn" type="button">＋ Nueva jornada</button>
           </div>
         </div>
         <div class="journeyNavigator" id="journeyNavigator"></div>
@@ -4644,7 +4611,7 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
             <div class="courtsTemplateHeading">Plantillas de horario por pista</div>
             <label for="templateCourtPick">Aplicar a</label>
             <select id="templateCourtPick" aria-label="Pista a la que aplicar el horario"><option value="__ALL__">Todas las pistas</option></select>
-            <p>«Semana habitual» siempre prepara todas las pistas (incluidas las dos del sábado y domingo), aunque haya una pista seleccionada. Las demás plantillas respetan el selector. Solo cambia el borrador; para hacerlo visible tendrás que publicarlo.</p>
+            <p>Selecciona la pista y aplica un horario. Solo cambia el borrador; para hacerlo visible tendrás que publicarlo.</p>
           </div>
           <div class="courtsProActions">
             <button class="btn" id="addCourtBtn" type="button">＋ Añadir pista</button>
@@ -4721,10 +4688,11 @@ Pablo Ruiz"></textarea>
 <div class="tiny" id="selectedUsersInfo" style="margin-top:7px">Selecciona uno o varios usuarios para eliminarlos rápidamente.</div>
 
 <div id="waAccessPanel" class="waAccessPanel">
-  <div class="waAccessTitle">📱 Accesos por WhatsApp · envío asistido</div>
+  <div class="waAccessTitle">🧪 TEST · Accesos por WhatsApp · envío asistido</div>
   <div class="tiny">Importa un CSV con columnas <b>nombre;telefono</b> (o nombre,telefono). Se relacionará con usuarios ya creados, sin modificar PIN ni enviar mensajes automáticamente.</div>
   <div class="waAccessTools"><input type="file" id="waPhoneCsv" accept=".csv,.txt,text/csv" aria-label="Seleccionar CSV de teléfonos"><button type="button" class="btn secondary" id="waCsvTemplate">Descargar plantilla CSV</button><button type="button" class="btn secondary" id="waExportLog">Exportar seguimiento</button></div>
   <div id="waAccessSummary" class="tiny" aria-live="polite"></div>
+  <div id="waMissingAccess" class="waMissingAccess" aria-live="polite"></div>
   <div class="tiny">Los teléfonos y el registro de envíos se guardan <b>solo en este navegador</b>, no se sincronizan entre administradores. «Preparado» no significa enviado: marca la entrega después de pulsar Enviar en WhatsApp. Utiliza únicamente números facilitados para esta finalidad.</div>
 </div>
 <div class="schedule accessUsersSchedule accessUsersDesktop" style="margin-top:10px"><table class="accessUsersTable"><thead><tr><th style="width:42px"><input id="selectAllUsers" type="checkbox" aria-label="Seleccionar todos"></th><th>Usuario</th><th>PIN</th><th>Mensaje</th><th>Acciones</th></tr></thead><tbody id="pinTable"></tbody></table></div>
@@ -4921,12 +4889,12 @@ Pablo Ruiz"></textarea>
 </div></div></div>
 <script>
 const CATEGORIES=["Benjamín","Alevín","Infantil","Cadete","Junior","Absoluto"];
-const STORAGE_KEY="ctcampeador_reservas_v3_cloudflare_cache";
-const TOKEN_KEY="ctcampeador_api_token";
-const API_URL="https://ct-campeador-api.ligasdetenis.workers.dev/";
-const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
+const STORAGE_KEY="ctcampeador_test_reservas_v3_cloudflare_cache";
+const TOKEN_KEY="ctcampeador_test_api_token";
+const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
+const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
-const PUSH_SW_URL="/ct-campeador-liga/push-sw.js";
+const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
 
 
 /* =========================================================
@@ -4944,7 +4912,7 @@ function safeDataImageUrl(value){
   const v=String(value||'').trim();
   return /^data:image\/(?:jpeg|jpg|png|webp|gif|avif);base64,[a-z0-9+/=]+$/i.test(v)?v:'';
 }
-const APP_BUILD="20261021-prod-live-independiente-v1";
+const APP_BUILD="20261019-test-v20-pwa-separada-01";
 const DEFAULT_WEEKS=[
  {id:"W1",label:"Semana 1 · 17–25 octubre",start:"2026-10-17",end:"2026-10-25"},
  {id:"W2",label:"Semana 2 · 26 octubre–1 noviembre",start:"2026-10-26",end:"2026-11-01"},
@@ -5186,7 +5154,7 @@ function adminEditorActive(){
   return !!(el && el.closest && el.closest('#adminView') && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 }
 
-async function refreshOnline({silent=false,force=false}={}){if((fixtureEditorDirty||playerEditorDirty||adminEditorActive())&&!force){setOnline(true,'✏️ Editando · actualización pausada');return false}try{const j=await apiRequest({action:'read'});const remote=normalizeData(j.state);data.tournamentName=remote.tournamentName||data.tournamentName||'II Liga Federada';data.playerLists=remote.playerLists;data.fixtures=remote.fixtures;data.fixtureRounds=remote.fixtureRounds;data.slots=remote.slots;data.drafts=remote.drafts;data.published=remote.published;data.bookings=remote.bookings;data.results=remote.results;data.profiles=remote.profiles||data.profiles||{};data.weekRanges=remote.weekRanges||data.weekRanges||{};data.postponed=remote.postponed||{};data.fixtureVisibilityOverrides=remote.fixtureVisibilityOverrides||{};data.accessExcluded=remote.accessExcluded||data.accessExcluded||[];applyWeekRanges();data.staff={...(data.staff||{}),...(remote.staff||{})};data.roles={...(data.roles||{}),...(remote.roles||{})};data.roles["Adrián Prádanos"]="admin";localStorage.setItem(STORAGE_KEY,JSON.stringify(data));lastRefreshAt=Date.now();setOnline(true,'☁️ Online');renderAll();return true}catch(e){setOnline(false,'⚠️ Offline');if(!silent)alert('No se ha podido actualizar desde Cloudflare.\n\n'+e.message);return false}}
+async function refreshOnline({silent=false,force=false}={}){if((fixtureEditorDirty||playerEditorDirty||adminEditorActive())&&!force){setOnline(true,'✏️ Editando · actualización pausada');return false}try{const j=await apiRequest({action:'read'});const remote=normalizeData(j.state);data.tournamentName=remote.tournamentName||data.tournamentName||'II Liga Federada';data.playerLists=remote.playerLists;data.fixtures=remote.fixtures;data.fixtureRounds=remote.fixtureRounds;data.slots=remote.slots;data.drafts=remote.drafts;data.published=remote.published;data.bookings=remote.bookings;data.results=remote.results;data.profiles=remote.profiles||data.profiles||{};data.weekRanges=remote.weekRanges||data.weekRanges||{};data.postponed=remote.postponed||{};data.fixtureVisibilityOverrides=remote.fixtureVisibilityOverrides||{};data.accessExcluded=remote.accessExcluded||data.accessExcluded||[];applyWeekRanges();data.staff={...(data.staff||{}),...(remote.staff||{})};data.roles={...(data.roles||{}),...(remote.roles||{})};data.roles["Adrián Prádanos"]="admin";localStorage.setItem(STORAGE_KEY,JSON.stringify(data));ctProposalCache.clear();lastRefreshAt=Date.now();setOnline(true,'☁️ Online');renderAll();return true}catch(e){setOnline(false,'⚠️ Offline');if(!silent)alert('No se ha podido actualizar desde Cloudflare.\n\n'+e.message);return false}}
 async function saveStateOnline(){
   if(!apiToken||!isAdmin())return;
   if(saveTimer){clearTimeout(saveTimer);saveTimer=null}
@@ -5381,8 +5349,8 @@ function goToJourney(weekId){
   // No centrar la jornada ni modificar desplazamientos al cambiarla.
 }
 
-// PRODUCCIÓN V22.4 · Posición independiente del DOM y sin scroll-snap al redibujar.
-const JOURNEY_NAV_SCROLL_KEY='ctcampeador-prod-journey-navigator-scroll-v224';
+// TEST V22.4 · Posición independiente del DOM y sin scroll-snap al redibujar.
+const JOURNEY_NAV_SCROLL_KEY='ctcampeador-test-journey-navigator-scroll-v224';
 let journeyNavScrollPosition=(()=>{try{return Math.max(0,Number(localStorage.getItem(JOURNEY_NAV_SCROLL_KEY))||0)}catch(_){return 0}})();
 let journeyNavIsRestoring=false;
 let journeyNavRestoreEpoch=0;
@@ -5783,37 +5751,6 @@ async function publishJourneyFixturesNow(weekId){
     alert('No se ha podido publicar.\n\n'+e.message);
   }
 }
-/* PRODUCCIÓN V22.5 · publicar todas las jornadas de la categoría/género actual. */
-async function publishAllJourneysNow(){
-  if(!isAdmin() || !apiToken){alert('Entra como administrador conectado para publicar jornadas.');return;}
-  if(fixtureEditorDirty || playerEditorDirty){alert('Guarda primero los cambios pendientes.');return;}
-  const pending=weeks.filter(w=>
-    (data.fixtures?.[fixtureKeyForWeek(w.id)]||[]).length>0 &&
-    !journeyFixturesArePublic(w.id)
-  );
-  if(!pending.length){alert('No hay jornadas con enfrentamientos pendientes de publicar en esta categoría.');return;}
-  const matchCount=pending.reduce((n,w)=>n+(data.fixtures?.[fixtureKeyForWeek(w.id)]||[]).length,0);
-  const message=`¿PUBLICAR TODAS LAS JORNADAS?\n\nCategoría: ${state.category} · ${state.gender}\nJornadas: ${pending.length}\nEnfrentamientos: ${matchCount}\n\nSe harán visibles inmediatamente para los jugadores, aunque sus fechas sean futuras.\n\nNo se modifican otras categorías ni las reservas de pistas.`;
-  if(!confirm(message))return;
-  const btn=document.getElementById('publishAllJourneysBtn');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Publicando…';}
-  const backup={...(data.fixtureVisibilityOverrides||{})};
-  try{
-    data.fixtureVisibilityOverrides={...backup};
-    for(const w of pending)data.fixtureVisibilityOverrides[fixtureVisibilityKey(w.id)]=true;
-    await saveStateOnline();
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-    renderAll();
-    alert(`✅ Publicadas ${pending.length} jornadas de ${state.category} · ${state.gender}.`);
-  }catch(e){
-    data.fixtureVisibilityOverrides=backup;
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-    renderAll();
-    alert('No se han podido publicar las jornadas.\n\n'+e.message);
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='📣 Publicar todas';}
-  }
-}
 function adminOrPublishedFixtures(arr,weekId){
   return isAdmin()||journeyFixturesArePublic(weekId)?arr:[];
 }
@@ -5833,26 +5770,6 @@ function isReservableInCurrentWeek(mid){const r=resultFor(mid);return effectiveW
 function slots(){return data.slots[weekKey()]||[]}
 function isOpen(){return !!data.published[weekKey()]}
 function bookingFor(mid){return data.bookings[mid]||null}
-/* PRODUCCIÓN · caducidad visual de franjas en horario de Madrid (sin borrar reservas). */
-function madridNowParts(){
- const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
- const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));
- return {date:`${p.year}-${p.month}-${p.day}`,minute:Number(p.hour)*60+Number(p.minute)};
-}
-function slotHasFinished(date,time){
- const day=String(date||'').slice(0,10);
- const match=String(time||'').match(/(?:^|\s)(\d{1,2}):(\d{2})\s*(?:-|–|—|a)\s*(\d{1,2}):(\d{2})/);
- const now=madridNowParts();
- if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return false;
- if(day<now.date)return true;
- if(day>now.date)return false;
- if(!match)return false; // No ocultar una franja de hoy si falta la hora de fin.
- const end=Number(match[3])*60+Number(match[4]);
- return now.minute>=end;
-}
-function bookingIsUpcoming(b){return !!b&&!slotHasFinished(b.date,b.time)}
-function upcomingBookingFor(mid){const b=bookingFor(mid);return bookingIsUpcoming(b)?b:null}
-
 function resultFor(mid){return data.results[mid]||null}
 function slotBooking(slotId){return Object.entries(data.bookings).find(([,b])=>b.week===state.week&&b.slotId===slotId)?.[1]||null}
 function allWeekFixtures(){
@@ -5969,33 +5886,6 @@ function routePlayerToOwnCategory(player){
   state.gender=chosen.gender;
   return chosen;
 }
-// Jornada inicial según calendario de la liga (hora civil peninsular española).
-// Se ejecuta únicamente al entrar o restaurar sesión; no interfiere con
-// los cambios manuales de jornada ni con los enlaces directos del Push.
-function ctcSelectCalendarWeekOnEntry(){
-  if(!state.authenticated)return;
-  const todayParts=new Intl.DateTimeFormat('en-CA',{
-    timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'
-  }).formatToParts(new Date());
-  const parts=Object.fromEntries(todayParts.map(p=>[p.type,p.value]));
-  const today=`${parts.year}-${parts.month}-${parts.day}`;
-  const valid=weeks.filter(w=>/^\d{4}-\d{2}-\d{2}$/.test(w.start||'')
-    && /^\d{4}-\d{2}-\d{2}$/.test(w.end||'') && w.start<=w.end);
-  if(!valid.length)return;
-  // La jornada vigente manda aunque haya otra publicada anticipadamente.
-  const current=valid.find(w=>w.start<=today&&today<=w.end);
-  // Fuera de rango, la última jornada iniciada sigue siendo accesible
-  // para partidos aplazados; antes del torneo se elige la primera.
-  const started=valid.filter(w=>w.start<=today).sort((a,b)=>b.start.localeCompare(a.start));
-  const chosen=current||started[0]||[...valid].sort((a,b)=>a.start.localeCompare(b.start))[0];
-  if(!chosen)return;
-  // No enviar a una jornada invisible: usar la más próxima ya publicada.
-  const publicWeeks=mappPublishedOwnWeeks();
-  const allowed=publicWeeks.find(w=>w.id===chosen.id)
-    || publicWeeks.filter(w=>w.start<=today).sort((a,b)=>b.start.localeCompare(a.start))[0]
-    || publicWeeks[0];
-  if(allowed)state.week=allowed.id;
-}
 async function loginWithPinOnly(){
   const pin=$('#welcomePin')?.value.trim()||'';
   if(!/^(?:\d{4}|\d{6})$/.test(pin)){
@@ -6014,7 +5904,7 @@ async function loginWithPinOnly(){
     data.roles[state.player]=localRoleFromApi(j.user.role);
     await refreshOnline({silent:true,force:true});
     if(isAdmin())await loadAdminUsers();
-    routePlayerToOwnCategory(state.player);ctcSelectCalendarWeekOnEntry();
+    routePlayerToOwnCategory(state.player);
     hidePinWelcome();
     setOnline(true,'☁️ Online');
     connectRealtime();
@@ -6040,10 +5930,11 @@ function base64UrlToUint8Array(base64String){
 }
 async function getPushPublicKey(){
   if(PUSH_VAPID_PUBLIC_KEY)return PUSH_VAPID_PUBLIC_KEY;
-  const r=await fetch(PUSH_URL+'/public-key',{cache:'no-store'});
-  let j={};try{j=await r.json()}catch(e){}
-  if(!r.ok||j.ok===false||!j.publicKey)throw new Error(j.error||'No se ha podido obtener la clave Push.');
-  PUSH_VAPID_PUBLIC_KEY=String(j.publicKey);
+  // TEST: obtener VAPID a traves de la API autenticada (Service Binding).
+  // Evita llamar a rutas inexistentes del Worker Push publico.
+  const j=await apiRequest({action:'getPushConfig'});
+  if(!j.vapidPublicKey)throw new Error('La API no ha devuelto la clave publica Push.');
+  PUSH_VAPID_PUBLIC_KEY=String(j.vapidPublicKey);
   return PUSH_VAPID_PUBLIC_KEY;
 }
 function getPushDeviceId(){
@@ -6056,7 +5947,7 @@ function getPushDeviceId(){
 }
 async function pushRegistration(){
   if(!('serviceWorker' in navigator))throw new Error('Este navegador no soporta Service Worker.');
-  await navigator.serviceWorker.register(PUSH_SW_URL,{scope:'/ct-campeador-liga/'});
+  await navigator.serviceWorker.register(PUSH_SW_URL,{scope:'/ct-campeador-pruebas/'});
   return navigator.serviceWorker.ready;
 }
 async function currentPushSubscription(){
@@ -6080,20 +5971,13 @@ async function syncPushSubscription(sub,{force=false}={}){
       if(cached?.fingerprint===fp && Date.now()-Number(cached.syncedAt||0)<PUSH_RESYNC_MS)return true;
     }catch(_){}
   }
-  const r=await fetch(PUSH_URL+'/subscribe',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':'Bearer '+apiToken
-    },
-    body:JSON.stringify({
-      deviceId:getPushDeviceId(),
-      subscription:sub.toJSON?sub.toJSON():sub,
-      userName:state.player
-    })
+  // Registrar mediante API TEST: valida sesion y usa PUSH_SERVICE interno.
+  // Se conserva deviceId para compatibilidad futura.
+  await apiRequest({
+    action:'subscribePush',
+    deviceId:getPushDeviceId(),
+    subscription:sub.toJSON?sub.toJSON():sub
   });
-  let j={};try{j=await r.json()}catch(e){}
-  if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));
   if(fp){try{localStorage.setItem(PUSH_SYNC_CACHE_KEY,JSON.stringify({fingerprint:fp,syncedAt:Date.now()}))}catch(_){}}
   return true;
 }
@@ -6109,7 +5993,7 @@ async function checkInstalledAppVersion(){
   try{
     const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
     if(!standalone)return;
-    const r = await fetch(`/ct-campeador-liga/app-version.json?t=${Date.now()}`,{cache:'no-store'});
+    const r = await fetch(`/ct-campeador-pruebas/app-version.json?t=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return;
     const j = await r.json();
     const remote = String(j?.build||'').trim();
@@ -6343,7 +6227,7 @@ function renderMatches(){const fs=viewFixtures(), box=$('#matches');const offici
  box.querySelectorAll('[data-confirm-result]').forEach(b=>b.onclick=()=>confirmResult(b.dataset.confirmResult));
  box.querySelectorAll('[data-delay-mid]').forEach(b=>b.onclick=()=>openDelayModal(b.dataset.delayMid));
 }
-async function cancelBooking(mid){const m=findFixtureById(mid);const bk=bookingFor(mid);if(!m||!bk)return;if(!canPlayerReserve(m)&&!isAdmin()){alert('Solo uno de los dos jugadores o un administrador puede cancelar la reserva.');return;}const ok=confirm(`¿Cancelar esta reserva?\n\n${m.a} vs ${m.b}\n${dayDateES(bk.date)} · ${bk.time} · ${bk.court}\n\nLa pista volverá a quedar libre.`);if(!ok)return;try{await apiRequest({action:'cancelReservation',matchId:mid});delete data.bookings[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();alert('✅ Reserva cancelada. La pista vuelve a estar disponible.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
+async function cancelBooking(mid){const m=findFixtureById(mid);const bk=bookingFor(mid);if(!m||!bk)return;if(!canPlayerReserve(m)&&!isAdmin()){alert('Solo uno de los dos jugadores o un administrador puede cancelar la reserva.');return;}const ok=confirm(`¿Cancelar esta reserva?\n\n${m.a} vs ${m.b}\n${dayDateES(bk.date)} · ${bk.time} · ${bk.court}\n\nLa pista volverá a quedar libre.`);if(!ok)return;try{await apiRequest({action:'cancelReservation',matchId:mid});delete data.bookings[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));ctProposalCache?.delete(mid);renderAll();ctLoadSmartProposal(mid,true);alert('✅ Reserva cancelada. La pista vuelve a estar disponible.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
 function openDelayModal(mid){if(!isAdmin())return;const rec=fixtureRecord(mid);if(!rec)return;state.delayMatchId=mid;const p=postponedInfo(mid);$('#delayMatch').textContent=`${rec.m.a} vs ${rec.m.b}`;$('#delayOrigin').textContent=`Jornada oficial: ${weeks.find(w=>w.id===rec.week)?.label||rec.week} · ${rec.category} ${rec.gender}`;const originIdx=weeks.findIndex(w=>w.id===rec.week);const options=['<option value="">Retrasado · todavía sin nueva semana</option>'];weeks.forEach((w,i)=>{if(i>originIdx)options.push(`<option value="${w.id}">${w.label}</option>`)});$('#delayTargetWeek').innerHTML=options.join('');$('#delayTargetWeek').value=p?.targetWeek||'';$('#restoreDelayBtn').classList.toggle('hidden',!p);$('#delayModal').classList.add('show')}
 async function saveDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;const target=$('#delayTargetWeek').value;data.postponed=data.postponed||{};data.postponed[mid]={originalWeek:rec.week,targetWeek:target||'',status:target?'reprogrammed':'delayed',updatedAt:new Date().toISOString(),updatedBy:state.player};localStorage.setItem(STORAGE_KEY,JSON.stringify(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert(target?`✅ Partido reprogramado a ${weeks.find(w=>w.id===target)?.label||target}.`:'✅ Partido marcado como retrasado. Queda pendiente de asignar una nueva semana.')}catch(e){alert('El cambio se ha guardado localmente, pero no se pudo guardar online.\n\n'+e.message)}}
 async function restoreDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;if(!confirm(`¿Devolver ${rec.m.a} vs ${rec.m.b} a su jornada oficial?`))return;delete data.postponed[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert('✅ Partido devuelto a su jornada oficial.')}catch(e){alert(e.message)}}
@@ -6459,12 +6343,12 @@ function renderSchedule(){
    box.innerHTML=`<div class="empty">${hadSlots?'📴 La disponibilidad de esta semana está despublicada. Las pistas no son visibles para los jugadores hasta que el administrador vuelva a publicarlas.':'🔒 El club todavía no ha publicado la disponibilidad de pistas para esta semana.'}</div>`;
    return;
  }
- const ss=slots().filter(s=>!slotHasFinished(s.date,s.time)).slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.court.localeCompare(b.court));
+ const ss=slots().slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.court.localeCompare(b.court));
  if(!ss.length){
    box.innerHTML='<div class="empty">El club todavía no ha publicado franjas para esta semana.</div>';
    return;
  }
- box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk||slotHasFinished(s.date,s.time)||!isOpen()?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+ box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk||mappIsPastDate(s.date,s.time)||!isOpen()?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
  box.querySelectorAll('[data-free-slot]').forEach(row=>{
    const go=()=>reserveFromOccupancy(row.dataset.freeSlot);
    row.onclick=go;
@@ -6494,7 +6378,6 @@ function reserveFromOccupancy(slotId){
   }
   const s=slots().find(x=>x.id===slotId);
   if(!s)return;
-  if(slotHasFinished(s.date,s.time)){alert("Esta franja ya ha terminado.");return;}
   if(slotBooking(slotId)){
     alert('Esta pista acaba de ser ocupada. Pulsa Actualizar para ver el estado más reciente.');
     return;
@@ -6535,7 +6418,6 @@ function reservableSlotsFor(mid){
  if(!isOpen()) return [];
  const current=bookingFor(mid);
  return slots().filter(s=>{
-   if(slotHasFinished(s.date,s.time))return false;
    const occ=slotBooking(s.id);
    return !occ || (current && current.slotId===s.id);
  }).slice().sort((a,b)=>(a.date+a.time+a.court).localeCompare(b.date+b.time+b.court));
@@ -6863,7 +6745,6 @@ const ADMIN_DEFAULT_ORDER=[
   'matchesAdmin',
   'journey',
   'courts',
-  'courtHistory',
   'players',
   'accessDevices',
   'whats'
@@ -6908,28 +6789,6 @@ function normalizeAdminOrder(order){
     ...ADMIN_DEFAULT_ORDER.filter(id=>available.includes(id)&&!src.includes(id)),
     ...available.filter(id=>!src.includes(id)&&!ADMIN_DEFAULT_ORDER.includes(id))
   ];
-}
-/* La API antigua no contempla aún courtHistory. Conservar su posición en el dispositivo
-   sin modificar el orden que Cloudflare guarda para los demás módulos. */
-function adminOrderWithLocalHistory(cloudOrder,localOrder){
-  const id='courtHistory';
-  const remote=normalizeAdminOrder(cloudOrder).filter(x=>x!==id);
-  const local=Array.isArray(localOrder)?localOrder:[];
-  const pos=local.indexOf(id);
-  if(pos!==-1){
-    // El bloque sigue al vecino anterior conocido, o precede al siguiente.
-    for(let i=pos-1;i>=0;i--){
-      const at=remote.indexOf(local[i]);
-      if(at!==-1){remote.splice(at+1,0,id);return remote;}
-    }
-    for(let i=pos+1;i<local.length;i++){
-      const at=remote.indexOf(local[i]);
-      if(at!==-1){remote.splice(at,0,id);return remote;}
-    }
-  }
-  const courtIndex=remote.indexOf('courts');
-  remote.splice(courtIndex<0?remote.length:courtIndex+1,0,id);
-  return remote;
 }
 function applyAdminOrderArray(order){
   const manager=document.querySelector('#adminView .adminManager');
@@ -6976,10 +6835,9 @@ async function persistAdminBlockOrder({silent=false}={}){
   if(!silent)setAdminOrderStatus('Guardando…');
 
   try{
-    const cloudOrder=order.filter(id=>id!=='courtHistory');
-    const j=await apiRequest({action:'saveAdminOrder',order:cloudOrder});
-    const saved=Array.isArray(j?.adminOrder)?j.adminOrder:cloudOrder;
-    const normalized=adminOrderWithLocalHistory(saved,order);
+    const j=await apiRequest({action:'saveAdminOrder',order});
+    const saved=Array.isArray(j?.adminOrder)?j.adminOrder:[];
+    const normalized=normalizeAdminOrder(saved.length?saved:order);
     saveAdminOrderLocal(normalized);
     applyAdminOrderArray(normalized);
     adminCloudOrderLoadedFor=normalizeName(state.player);
@@ -7018,14 +6876,12 @@ async function loadAdminBlockOrderFromCloud({force=false}={}){
   try{
     const j=await apiRequest({action:'getAdminPreferences'});
     const order=Array.isArray(j?.preferences?.adminOrder)?j.preferences.adminOrder:[];
-    const localOrder=readAdminOrderLocal();
     if(order.length){
-      const normalized=adminOrderWithLocalHistory(order,localOrder);
+      const normalized=normalizeAdminOrder(order);
       saveAdminOrderLocal(normalized);
       applyAdminOrderArray(normalized);
-    }else if(localOrder.length){
-      applyAdminOrderArray(localOrder);
     }else{
+      try{localStorage.removeItem(adminOrderStorageKey())}catch(_){}
       applyAdminOrderArray(ADMIN_DEFAULT_ORDER);
     }
     adminCloudOrderLoadedFor=who;
@@ -7334,52 +7190,11 @@ async function downloadAdminBackup(){
 }
 
 /* ==================== ADMINISTRACIÓN ==================== */
-
-/* Histórico administrativo no destructivo: solo información conservada en el estado. */
-function courtHistoryRecords(){
- const records=[];
- const seen=new Set();
- const bookings=Object.entries(data.bookings||{});
- const slotsByWeek=data.slots||{};
- for(const [week,weekSlots] of Object.entries(slotsByWeek)){
-  for(const slot of Array.isArray(weekSlots)?weekSlots:[]){
-   if(!slot||!slotHasFinished(slot.date,slot.time))continue;
-   const match=bookings.find(([,b])=>b&&String(b.week)===String(week)&&String(b.slotId)===String(slot.id));
-   const bk=match?.[1]||null;
-   if(match)seen.add(match[0]);
-   records.push({week,date:String(slot.date||''),time:String(slot.time||''),court:String(slot.court||''),booking:bk});
-  }
- }
- // Reserva conservada aunque la franja original ya no esté en la planificación.
- for(const [id,b] of bookings){
-  if(seen.has(id)||!b||!slotHasFinished(b.date,b.time))continue;
-  records.push({week:String(b.week||''),date:String(b.date||''),time:String(b.time||''),court:String(b.court||'No consta'),booking:b});
- }
- return records.sort((a,b)=>`${b.date} ${b.time} ${b.court}`.localeCompare(`${a.date} ${a.time} ${a.court}`));
-}
-function renderAdminCourtHistory(){
- if(!isAdmin())return;
- const month=$('#adminHistoryMonth'),status=$('#adminHistoryStatus'),list=$('#adminHistoryList');
- if(!month||!status||!list)return;
- const all=courtHistoryRecords();
- const previous=month.value||'all';
- const months=[...new Set(all.map(r=>r.date.slice(0,7)).filter(m=>/^\d{4}-\d{2}$/.test(m)))].sort().reverse();
- month.innerHTML='<option value="all">Todos los meses</option>'+months.map(m=>`<option value="${m}">${mappEsc(new Date(m+'-15T12:00:00').toLocaleDateString('es-ES',{month:'long',year:'numeric'}))}</option>`).join('');
- month.value=months.includes(previous)?previous:'all';
- const selected=all.filter(r=>(month.value==='all'||r.date.startsWith(month.value))&&(status.value==='all'||(status.value==='booked'?!!r.booking:!r.booking)));
- const groups=new Map();
- for(const r of selected){if(!groups.has(r.date))groups.set(r.date,[]);groups.get(r.date).push(r)}
- list.innerHTML=selected.length?[...groups].map(([day,rows])=>`<div class="adminHistoryDay"><div class="adminHistoryDayTitle">${mappEsc(dayDateES(day))}</div>${rows.map(r=>`<div class="adminHistoryRow"><div><div class="adminHistoryMain">${mappEsc(r.time||'Hora no indicada')} · ${mappEsc(r.court||'Pista no indicada')}</div><div class="adminHistoryPlayers">${r.booking?mappEsc(`${r.booking.a||'Jugador sin identificar'} vs ${r.booking.b||'Jugador sin identificar'}`):'Sin reserva registrada'} · ${mappEsc(r.week)}</div></div><span class="adminHistoryTag ${r.booking?'occupied':''}">${r.booking?'RESERVADA':'SIN RESERVA'}</span></div>`).join('')}</div>`).join(''):'<div class="adminHistoryEmpty">No hay franjas finalizadas registradas con estos filtros.</div>';
- $('#adminHistoryMeta').textContent=`${all.length} franjas finalizadas`;
- month.onchange=renderAdminCourtHistory;
- status.onchange=renderAdminCourtHistory;
-}
-
 function renderAdmin(){
   const admin=isAdmin();
   $('#adminNavBtn').classList.toggle('hidden',!admin);
   if(!admin){$('#adminView').classList.add('hidden');return}
-  const cps=categoryPlayers();if(!playerEditorDirty)$('#playerPaste').value=cps.join('\n');$('#playerCount').textContent=`${cps.length} jugador${cps.length===1?'':'es'}`;$('#fixturePaste').value='';renderFixtureEditor();const cw=weeks.find(w=>w.id===state.week);if(cw){$('#weekStartDate').value=cw.start;$('#weekEndDate').value=cw.end;$('#weekRangeHint').textContent=`Rango actual: ${dayDateES(cw.start)} → ${dayDateES(cw.end)}. Las pistas del borrador se limitarán a estas fechas.`}renderSlotRows();setDefaultQuickDate();renderAdminMatches();renderPins();renderRoles();renderExternalAdmins();renderWhats();renderAdminFunctionalTools();wireAdminFunctionalTools();renderAdminCourtHistory();setupAdminBlockOrdering();
+  const cps=categoryPlayers();if(!playerEditorDirty)$('#playerPaste').value=cps.join('\n');$('#playerCount').textContent=`${cps.length} jugador${cps.length===1?'':'es'}`;$('#fixturePaste').value='';renderFixtureEditor();const cw=weeks.find(w=>w.id===state.week);if(cw){$('#weekStartDate').value=cw.start;$('#weekEndDate').value=cw.end;$('#weekRangeHint').textContent=`Rango actual: ${dayDateES(cw.start)} → ${dayDateES(cw.end)}. Las pistas del borrador se limitarán a estas fechas.`}renderSlotRows();setDefaultQuickDate();renderAdminMatches();renderPins();renderRoles();renderExternalAdmins();renderWhats();renderAdminFunctionalTools();wireAdminFunctionalTools();setupAdminBlockOrdering();
 }
 function renderRoles(){
   const tb=$('#roleTable');const ps=allIdentities().filter(p=>!accessIsExcluded(p));
@@ -7432,9 +7247,9 @@ function pushStatusDotHtml(name){
 }
 
 
-/* V22.12 · Datos de WhatsApp locales al navegador del administrador.
+/* TEST V22.5 · Datos de WhatsApp locales al navegador del administrador.
    No se escriben ni en el estado público ni en el servidor. */
-const WA_ACCESS_KEY='ctcampeador_prod_wa_access_v1';
+const WA_ACCESS_KEY='ctcampeador_test_wa_access_v1';
 function waGetData(){
   try{const x=JSON.parse(localStorage.getItem(WA_ACCESS_KEY)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}
   catch(e){return {}}
@@ -7450,29 +7265,88 @@ function waPhone(raw){
   if(/^\+\d{10,15}$/.test(v))return v.slice(1);
   return '';
 }
+// Los partidos pueden tener jugadores que todavía no figuran en playerLists o listUsers.
+// Solo proponemos su alta: NUNCA fabricamos un PIN sin aprobación del administrador.
+function waFixtureCandidates(){
+  const registered=new Set(allIdentities().filter(n=>!accessIsExcluded(n)).map(waCanonical));
+  const candidates=new Map();
+  for(const [group,items] of Object.entries(data.fixtures||{})){
+    if(!Array.isArray(items))continue;
+    for(const match of items){
+      for(const person of [match?.a,match?.b]){
+        const name=String(person||'').trim(),key=waCanonical(name);
+        if(!key||registered.has(key)||candidates.has(key))continue;
+        const categories=new Set();
+        categories.add(group.split('|').slice(1).join(' · '));
+        candidates.set(key,{name,categories});
+      }
+    }
+  }
+  return [...candidates.values()].sort((a,b)=>a.name.localeCompare(b.name,'es'));
+}
+function waRenderMissingAccess(){
+  const panel=document.getElementById('waMissingAccess');if(!panel)return;
+  const missing=waFixtureCandidates();
+  if(!missing.length){panel.innerHTML='<div class="tiny">✅ No hay jugadores de enfrentamientos pendientes de incorporar al listado de accesos.</div>';return}
+  panel.innerHTML=`<div class="waMissingAccessTitle">⚠️ ${missing.length} jugador(es) con partidos, pero sin usuario de acceso activo</div>`+
+    missing.map(({name})=>{
+      const rec=waUserRecord(name),hasPhone=!!waPhone(rec.phone);
+      return `<div class="waMissingRow"><div><b>${mappEsc(name)}</b><small>${hasPhone?'Teléfono ya importado · ':'Sin teléfono · '}Sin PIN activo</small></div><button type="button" data-wa-create-user="${mappEsc(name)}">Crear acceso</button></div>`;
+    }).join('');
+  panel.querySelectorAll('[data-wa-create-user]').forEach(b=>b.onclick=()=>waCreateFixtureAccess(b.dataset.waCreateUser));
+}
+async function waCreateFixtureAccess(candidate){
+  if(!requireAdmin())return;
+  const name=waFixtureCandidates().find(x=>waCanonical(x.name)===waCanonical(candidate))?.name;
+  if(!name){alert('Este jugador ya figura como usuario o no tiene enfrentamientos pendientes. Actualiza el listado.');waRenderMissingAccess();return}
+  if(!confirm(`¿Crear acceso de jugador para ${name}?\n\nSe creará un PIN nuevo solamente si no existe ya una cuenta en Cloudflare TEST. Los demás PIN no cambiarán.`))return;
+  try{
+    // Volver a consultar Cloudflare es importante para no duplicar cuentas en otro dispositivo.
+    const response=await apiRequest({action:'listUsers'});
+    const remote=Array.isArray(response.users)?response.users:[];
+    const existing=remote.find(u=>waCanonical(u.name)===waCanonical(name));
+    if(existing){
+      await loadAdminUsers();renderPins();
+      alert(`El jugador ${name} ya tenía una cuenta. Se ha actualizado el listado sin modificar su PIN.`);
+      return;
+    }
+    const oldStaff=data.staff?.[name],oldRole=data.roles?.[name],oldPin=data.pins?.[name];
+    const used=new Set([...Object.values(data.pins||{}),...remote.map(u=>String(u.pin||''))]);
+    const newPin=randomPin(used);
+    data.staff=data.staff||{};data.roles=data.roles||{};data.pins=data.pins||{};
+    data.staff[name]={name};data.roles[name]='jugador';data.pins[name]=newPin;
+    // Guardar la cuenta a través de la API, sin regenerar los PIN existentes.
+    try{await saveUsersOnline();await saveStateOnline()}
+    catch(error){
+      if(oldStaff===undefined)delete data.staff[name];else data.staff[name]=oldStaff;
+      if(oldRole===undefined)delete data.roles[name];else data.roles[name]=oldRole;
+      if(oldPin===undefined)delete data.pins[name];else data.pins[name]=oldPin;
+      throw error;
+    }
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    await loadAdminUsers();renderAll();
+    alert(`✅ Acceso de TEST creado para ${name}. El PIN ya puede enviarse desde WhatsApp (si tiene teléfono asociado).`);
+  }catch(e){alert('No se ha podido crear el acceso. No envíes un PIN hasta comprobarlo en la lista.\n'+e.message)}
+}
 function waUserRecord(name){return waGetData()[waCanonical(name)]||{}}
 function waUserActions(name){
   const rec=waUserRecord(name), hasPhone=!!waPhone(rec.phone), hasPin=!!data.pins[name];
   const label=rec.deliveredAt?'✅ Entregado '+new Date(rec.deliveredAt).toLocaleDateString('es-ES'):rec.openedAt?'⏳ Preparado, pendiente de confirmar':'Pendiente';
   const safe=mappEsc(name);
-  return `<div class="waAction"><span class="waPhone">${rec.phone?mappEsc(rec.phone):'Sin teléfono'}</span><span class="waStatus">${label}</span><button type="button" class="waEdit" data-wa-edit="${safe}">✏️ Editar teléfono</button><button type="button" data-wa-open="${safe}" ${hasPhone&&hasPin?'':'disabled'}>WhatsApp ↗</button><button type="button" class="waMark ${rec.deliveredAt?'waDelivered':''}" data-wa-mark="${safe}" ${hasPhone?'':'disabled'}>${rec.deliveredAt?'Desmarcar entrega':'Marcar entregado'}</button></div>`;
+  return `<div class="waAction"><span class="waPhone">${rec.phone?mappEsc(rec.phone):'Sin teléfono'}</span><span class="waStatus">${label}</span><button type="button" data-wa-open="${safe}" ${hasPhone&&hasPin?'':'disabled'}>WhatsApp ↗</button><button type="button" class="waMark ${rec.deliveredAt?'waDelivered':''}" data-wa-mark="${safe}" ${hasPhone?'':'disabled'}>${rec.deliveredAt?'Desmarcar entrega':'Marcar entregado'}</button><button type="button" data-wa-edit="${safe}">Editar teléfono</button></div>`;
 }
-function waMessage(name,pin){return `Hola ${name}. \uD83C\uDFBE\n\nTu PIN personal para acceder a la Liga CT Campeador es: ${pin}.\n\nAccede aquí: https://ligasdetenis.github.io/ct-campeador-liga/\n\nNo compartas este PIN con otras personas.`}
 function waEditFor(name){
   if(!requireAdmin())return;
-  const store=waGetData(), key=waCanonical(name), old=store[key]||{};
-  const input=prompt(`Teléfono de ${name}\n\nIntroduce el móvil (9 cifras, 34 o +34).\nDeja el campo vacío para quitarlo:`,old.phone||'');
-  if(input===null)return;
-  const raw=input.trim();
-  const phone=raw?waPhone(raw):'';
-  if(raw&&!phone){alert('Número no válido. Introduce un móvil español de 9 cifras, con 34 o +34, o un número internacional válido.');return}
-  const previous=waPhone(old.phone);
-  if(phone===previous)return;
-  if(!confirm(phone?`¿Guardar el teléfono ${phone} para ${name}?\n\nSe reiniciará el estado de entrega de este jugador.`:`¿Quitar el teléfono de ${name}?\n\nSe reiniciará su estado de entrega.`))return;
-  store[key]={...old,phone,openedAt:'',deliveredAt:''};
-  waPutData(store);
+  const records=waGetData(), key=waCanonical(name), rec=records[key]||{};
+  const raw=prompt('Teléfono de '+name+' (puedes escribir 9 dígitos o +34):',String(rec.phone||''));
+  if(raw===null)return;
+  const phone=raw.trim()?waPhone(raw):'';
+  if(raw.trim()&&!phone){alert('Número no válido. Usa un móvil español de 9 cifras o el prefijo +34.');return}
+  records[key]={...rec,phone,openedAt:'',deliveredAt:''};
+  waPutData(records);
   renderPins();
 }
+function waMessage(name,pin){return `Hola ${name}. 🎾\n\nTu PIN personal para acceder a la Liga CT Campeador es: ${pin}.\n\nAccede aquí: https://ligasdetenis.github.io/ct-campeador-liga-test/\n\nNo compartas este PIN con otras personas.`}
 function waOpenFor(name){
   if(!requireAdmin())return;
   const x=waGetData(), k=waCanonical(name), rec=x[k]||{}, phone=waPhone(rec.phone), pin=String(data.pins[name]||'');
@@ -7512,7 +7386,7 @@ async function waImportFile(file){
   const ni=headers.findIndex(x=>['nombre','jugador','name'].includes(x));
   const ti=headers.findIndex(x=>['telefono','movil','phone','whatsapp'].includes(x));
   if(ni<0||ti<0){alert('El CSV necesita columnas nombre y telefono.');return}
-  const identities=allIdentities().filter(n=>!accessIsExcluded(n));
+  const identities=[...allIdentities().filter(n=>!accessIsExcluded(n)),...waFixtureCandidates().map(x=>x.name)];
   const byName=new Map(identities.map(n=>[waCanonical(n),n]));
   const existing=waGetData(), add={}, missing=[], invalid=[], duplicated=[];
   for(const line of lines){
@@ -7538,7 +7412,7 @@ function waUpdateSummary(){
   const records=waGetData(), names=allIdentities().filter(x=>!accessIsExcluded(x));
   let phones=0,delivered=0,ready=0;
   for(const name of names){const r=records[waCanonical(name)]||{};if(waPhone(r.phone)){phones++;if(r.deliveredAt)delivered++;else if(r.openedAt)ready++}}
-  el.textContent=`Usuarios: ${names.length} · Con teléfono: ${phones} · Marcados entregados: ${delivered} · Abiertos, sin confirmar: ${ready} · Sin teléfono: ${names.length-phones}`;
+  el.textContent=`Usuarios: ${names.length} · Con teléfono: ${phones} · Marcados entregados: ${delivered} · Abiertos, sin confirmar: ${ready} · Sin teléfono: ${names.length-phones} · Con partidos y sin acceso: ${waFixtureCandidates().length}`;
 }
 function waDownloadFile(filename,text,type){
   const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -7620,9 +7494,9 @@ function renderPins(){
   document.querySelectorAll('#pinTable [data-copy-pin],#pinCardsMobile [data-copy-pin]').forEach(b=>b.onclick=()=>copyPinMessage(b.dataset.copyPin));
   document.querySelectorAll('#pinTable [data-regenerate-pin],#pinCardsMobile [data-regenerate-pin]').forEach(b=>b.onclick=()=>regeneratePinFor(b.dataset.regeneratePin));
   document.querySelectorAll('#pinTable [data-delete-user],#pinCardsMobile [data-delete-user]').forEach(b=>b.onclick=()=>deleteAccessUsers([b.dataset.deleteUser]));
-  document.querySelectorAll('#pinTable [data-wa-edit],#pinCardsMobile [data-wa-edit]').forEach(b=>b.onclick=()=>waEditFor(b.dataset.waEdit));
   document.querySelectorAll('#pinTable [data-wa-open],#pinCardsMobile [data-wa-open]').forEach(b=>b.onclick=()=>waOpenFor(b.dataset.waOpen));
   document.querySelectorAll('#pinTable [data-wa-mark],#pinCardsMobile [data-wa-mark]').forEach(b=>b.onclick=()=>waMarkFor(b.dataset.waMark));
+  document.querySelectorAll('#pinTable [data-wa-edit],#pinCardsMobile [data-wa-edit]').forEach(b=>b.onclick=()=>waEditFor(b.dataset.waEdit));
 
   document.querySelectorAll('#pinTable [data-user-select],#pinCardsMobile [data-user-select]').forEach(c=>c.onchange=()=>{
     const name=c.dataset.userSelect;
@@ -7635,6 +7509,7 @@ function renderPins(){
 
   updateSelectedUsersUI();
   waUpdateSummary();
+  waRenderMissingAccess();
 }
 async function deleteAccessUsers(names){
   if(!requireAdmin())return;
@@ -7757,7 +7632,7 @@ async function copyTextRobust(text){
 async function copyPinMessage(player){
   const pin=data.pins[player];
   if(!pin){alert('Ese jugador todavía no tiene PIN.');return}
-  const msg=`Hola ${player}. Tu PIN para reservar pistas en la Liga CT Campeador es ${pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-liga/`;
+  const msg=`Hola ${player}. Tu PIN para reservar pistas en la Liga CT Campeador es ${pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
   const ok=await copyTextRobust(msg);
   if(ok){alert('📋 Mensaje copiado. Ya puedes pegarlo en WhatsApp.');return}
 
@@ -7771,7 +7646,7 @@ async function regeneratePinFor(player){
     data.pins[player]=String(r.pin||'');
     localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderPins();
-    const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-liga/`;
+    const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
     const copied=await copyTextRobust(msg);
     alert(`✅ PIN regenerado.\n\n${player}\nNuevo PIN: ${r.pin}`+(copied?'\n\n📋 Mensaje copiado al portapapeles.':''));
   }catch(e){
@@ -7939,7 +7814,7 @@ async function sendAdminMessage(){
       recipients,
       title,
       message:body,
-      url:'https://ligasdetenis.github.io/ct-campeador-liga/'
+      url:'https://ligasdetenis.github.io/ct-campeador-pruebas/'
     });
     await loadCloudMessages({silent:false});
     renderMessageHistory();
@@ -8135,9 +8010,7 @@ function refreshTemplateCourtPick(){
 }
 function applyCourtTemplate(kind){
   if(!requireAdmin())return;
-  // Semana habitual es una plantilla global: debe respetar Pista 1 y Pista 2.
-  // El selector individual solo se aplica a las demás plantillas.
-  const sel=$('#templateCourtPick');const target=kind==='habitual'?'__ALL__':(sel?.value||'__ALL__');
+  const sel=$('#templateCourtPick');const target=sel?.value||'__ALL__';
   const source=kind==='habitual'?buildDefaultWeekSlots():kind==='morning'?buildAllPart('morning'):kind==='afternoon'?buildAllPart('afternoon'):buildFullWeek();
   // En modo individual se replica el horario de la plantilla sobre la pista escogida,
   // pero todas las demás pistas permanecen sin cambios.
@@ -8326,11 +8199,10 @@ function addBlockToArray(arr,date,from,to,courts=1){
 }
 function buildDefaultWeekSlots(){
   const arr=[];
-  // Horario habitual CT Campeador: L-V mañana (P1), sábado 14:00-21:30 (P1 y P2),
-  // domingo mañana 10:00-14:30 y tarde 16:00-20:30 (P1 y P2).
+  // Borrador habitual: L-V mañana, sábado tarde, domingo mañana+tarde.
   for(let dow=1;dow<=5;dow++){const d=dateForWeekday(dow);if(d)addBlockToArray(arr,localISO(d),'10:00','14:30',1)}
-  const sat=dateForWeekday(6);if(sat)addBlockToArray(arr,localISO(sat),'14:00','21:30',2);
-  const sun=dateForWeekday(0);if(sun){const ds=localISO(sun);addBlockToArray(arr,ds,'10:00','14:30',2);addBlockToArray(arr,ds,'16:00','20:30',2)}
+  const sat=dateForWeekday(6);if(sat)addBlockToArray(arr,localISO(sat),'16:00','20:30',2);
+  const sun=dateForWeekday(0);if(sun){const ds=localISO(sun);addBlockToArray(arr,ds,'10:00','14:30',1);addBlockToArray(arr,ds,'16:00','20:30',1)}
   return arr;
 }
 function buildAllPart(part){
@@ -8673,18 +8545,34 @@ function mappOwnMatches(){
 }
 function mappPrimaryMatch(){return mappOwnMatches()[0]||null}
 function mappOpponent(m){if(!m)return'';return m.a===state.player?m.b:m.a}
-function mappFreeSlots(){return isOpen()?slots().filter(s=>!slotBooking(s.id)&&!slotHasFinished(s.date,s.time)):[]}
+// Fecha local del dispositivo: evitar UTC para que ayer no reaparezca por huso horario.
+function mappLocalTodayISO(){
+ const d=new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+// Considerar fecha Y hora de finalización de la franja (ej.: 18:00 - 19:30).
+// Las franjas de hoy permanecen visibles mientras sigan en curso.
+function mappIsPastDate(value, time=''){
+ const str=String(value||'').slice(0,10);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(str))return false;
+ const today=mappLocalTodayISO();
+ if(str<today)return true;
+ if(str>today)return false;
+ // Hora de FIN: no ocultar la reserva hasta acabar su franja.
+ const matches=String(time||'').match(/(?:[01]?\d|2[0-3]):[0-5]\d/g);
+ if(!matches?.length)return false; // Datos incompletos: no caducar por error.
+ const end=matches[matches.length-1].split(':').map(Number);
+ const now=new Date();
+ return now.getHours()*60+now.getMinutes()>=end[0]*60+end[1];
+}
+// Solo filtra la presentación. El historial de reservas sigue intacto en la API.
+function mappUpcomingBooking(mid){
+ const booking=bookingFor(mid);
+ return booking&&!mappIsPastDate(booking.date,booking.time)?booking:null;
+}
+function mappFreeSlots(){return isOpen()?slots().filter(s=>!mappIsPastDate(s.date,s.time)&&!slotBooking(s.id)):[]}
 function mappWeekShort(){const w=weeks.find(x=>x.id===state.week);const n=String(w?.id||'').replace(/\D/g,'');return n?`Jornada ${n}`:(w?.label||state.week)}
 function mappCurrentRound(){return fixtureRound()||'Jornada'}
-// V22.6 · fecha breve de la jornada seleccionada en la tarjeta del partido.
-function mappCurrentRoundBadge(){
- const w=weeks.find(x=>x.id===state.week);
- const title=mappEsc(mappCurrentRound());
- if(!w?.start||!w?.end)return `<span class="mapp-round-title">${title}</span>`;
- const range=`${shortDateES(w.start)} – ${shortDateES(w.end)}`;
- return `<span class="mapp-round-title">${title}</span><span class="mapp-round-dates">${mappEsc(range)}</span>`;
-}
-
 
 const resultsViewState={category:null,gender:null,week:'all'};
 
@@ -8764,8 +8652,10 @@ function renderResultsFilters(){
   if(!cs||!gs||!ws)return;
   if(!resultsViewState.category) resultsViewState.category=state.category;
   if(!resultsViewState.gender) resultsViewState.gender=state.gender;
-  const chosen=mappSetLeagueChoices(cs,gs,resultsViewState.category,resultsViewState.gender,{allowAll:true});
-  resultsViewState.category=chosen.category;resultsViewState.gender=chosen.gender;
+  cs.innerHTML=`<option value="all">Todas</option>`+CATEGORIES.map(c=>`<option value="${mappEsc(c)}">${mappEsc(c)}</option>`).join('');
+  gs.innerHTML=`<option value="all">Todos</option><option value="Masculino">Masculino</option><option value="Femenino">Femenino</option>`;
+  cs.value=resultsViewState.category||'all';
+  gs.value=resultsViewState.gender||'all';
   ws.innerHTML=`<option value="all">Todas las semanas</option>`+
     weeks.map(w=>`<option value="${mappEsc(w.id)}" ${resultsViewState.week===w.id?'selected':''}>${mappEsc(w.label)}</option>`).join('');
 }
@@ -8804,7 +8694,8 @@ async function adminReleaseBookingDirect(matchId,reservation){
   }
 }
 
-/* Clasificación de la liga · solo lectura, sin alterar resultados ni datos */
+
+/* Clasificación TEST · solo lectura, sin alterar resultados ni datos */
 const rankProState={category:null,gender:null};
 function rankProCompute(category,gender){
   const players=new Map();
@@ -8848,9 +8739,10 @@ function rankProRender(){
   if(!root||!cat||!gender)return;
   rankProState.category=rankProState.category||state.category;
   rankProState.gender=rankProState.gender||state.gender;
-  const chosen=mappSetLeagueChoices(cat,gender,rankProState.category,rankProState.gender);
-  rankProState.category=chosen.category;rankProState.gender=chosen.gender;
-  if(!chosen.category){root.innerHTML='<div class="rankProEmpty">No hay categorías con jugadores y partidos programados.</div>';return;}
+  cat.innerHTML=CATEGORIES.map(c=>`<option value="${mappEsc(c)}">${mappEsc(c)}</option>`).join('');
+  gender.innerHTML=['Masculino','Femenino'].map(g=>`<option value="${g}">${g}</option>`).join('');
+  if(!CATEGORIES.includes(rankProState.category))rankProState.category=CATEGORIES[0];
+  cat.value=rankProState.category;gender.value=rankProState.gender;
   const standings=rankProCompute(rankProState.category,rankProState.gender);
   if(!standings.length){root.innerHTML='<div class="rankProEmpty">Todavía no hay jugadores inscritos en esta categoría.</div>';return;}
   root.innerHTML=`<table class="rankProTable"><thead><tr>${['POS','JUGADOR','PJ','PG','PP','SG','SP','JG','JP','PTS'].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>`+standings.map((p,i)=>{
@@ -8868,6 +8760,7 @@ function rankProRender(){
 }
 
 function renderModernResults(){
+  rankProRender();
   const box=$('#modernResultsContent');if(!box)return;
   renderResultsFilters();
   const rows=confirmedResultsAll().filter(x=>
@@ -9045,8 +8938,8 @@ function queuePushDeepLink(){
   if(state.authenticated&&apiToken)setTimeout(()=>processPushDeepLink(),80);
 }
 
-// Producción · · recordar la última pestaña del jugador en este dispositivo.
-const MAPP_LAST_TAB_KEY='ct_campeador_prod_last_tab_v1';
+// TEST V21.1 · recordar la última pestaña del jugador en este dispositivo.
+const MAPP_LAST_TAB_KEY='ct_campeador_test_last_tab_v1';
 function mappSavedTab(){
  try{
   const view=localStorage.getItem(MAPP_LAST_TAB_KEY)||'home';
@@ -9071,56 +8964,16 @@ function mappShow(view){
  if(view==='home')renderModernHome();
  window.scrollTo({top:0,behavior:'smooth'});
 }
-
-/* V22.7 · Solo categorías con jugadores inscritos Y enfrentamientos programados.
-   Administración conserva todas las categorías para configurar ligas futuras. */
-function mappActiveLeaguePairs(){
- const pairs=[];
- for(const category of CATEGORIES){
-  for(const gender of ['Masculino','Femenino']){
-   const key=`${category}|${gender}`;
-   const players=data.playerLists?.[key];
-   if(!Array.isArray(players)||!players.some(n=>String(n||'').trim()))continue;
-   const hasMatches=Object.entries(data.fixtures||{}).some(([fixtureKey,arr])=>{
-    const parts=fixtureKey.split('|');
-    return parts.length>=3&&parts[1]===category&&parts[2]===gender&&Array.isArray(arr)&&arr.some(m=>m&&m.a&&m.b);
-   });
-   if(hasMatches)pairs.push({category,gender});
-  }
- }
- return pairs;
-}
-function mappActiveCategories(){
- return [...new Set(mappActiveLeaguePairs().map(x=>x.category))];
-}
-function mappActiveGenders(category){
- return [...new Set(mappActiveLeaguePairs().filter(x=>x.category===category).map(x=>x.gender))];
-}
-function mappSetLeagueChoices(catSelect,genderSelect,category,gender,{allowAll=false}={}){
- const categories=mappActiveCategories();
- const catOptions=allowAll?['all',...categories]:categories;
- const selectedCategory=catOptions.includes(category)?category:(categories[0]||(allowAll?'all':''));
- catSelect.innerHTML=catOptions.map(c=>`<option value="${mappEsc(c)}">${c==='all'?'Todas':mappEsc(c)}</option>`).join('');
- catSelect.value=selectedCategory;
- const genders=selectedCategory==='all'? [...new Set(mappActiveLeaguePairs().map(x=>x.gender))]:mappActiveGenders(selectedCategory);
- const genderOptions=allowAll?['all',...genders]:genders;
- const selectedGender=genderOptions.includes(gender)?gender:(genders[0]||(allowAll?'all':''));
- genderSelect.innerHTML=genderOptions.map(g=>`<option value="${mappEsc(g)}">${g==='all'?'Todos':mappEsc(g)}</option>`).join('');
- genderSelect.value=selectedGender;
- return {category:selectedCategory,gender:selectedGender};
-}
-
 function mappOpenSelector(){
  const cs=$('#modernCatSelect'),gs=$('#modernGenderSelect'),ws=$('#modernWeekSelect');
- mappSetLeagueChoices(cs,gs,state.category,state.gender);
+ cs.innerHTML=CATEGORIES.map(c=>`<option ${c===state.category?'selected':''}>${mappEsc(c)}</option>`).join('');
+ gs.value=state.gender;
  ws.innerHTML=weeks.map(w=>`<option value="${mappEsc(w.id)}" ${w.id===state.week?'selected':''}>${mappEsc(w.label)}</option>`).join('');
  $('#modernSelectorSheet').classList.add('show')
 }
 function mappApplySelector(){
- const selected=mappSetLeagueChoices($('#modernCatSelect'),$('#modernGenderSelect'),$('#modernCatSelect').value,$('#modernGenderSelect').value);
- if(!selected.category){alert('No hay categorías con jugadores y partidos programados.');return;}
- state.category=selected.category;
- state.gender=selected.gender;
+ state.category=$('#modernCatSelect').value;
+ state.gender=$('#modernGenderSelect').value;
  state.week=$('#modernWeekSelect').value;
  $('#modernSelectorSheet').classList.remove('show');
  renderAll();
@@ -9175,122 +9028,74 @@ function renderModernHeader(){
  if(tn)tn.textContent=tournament;
  const welcomeTn=$('#pinWelcomeTournamentName');
  if(welcomeTn)welcomeTn.textContent=tournament;
- document.title=`CT Campeador · ${tournament}`;
+ document.title=`CT Campeador TEST · ${tournament}`;
  mappRefreshBellState();
 }
+
+/* CT CAMPEADOR TEST: selector deslizante de partidos por jornadas publicadas.
+   Conserva el contexto state.week al abrir reservas, resultados o LIVE. */
 function mappPublishedOwnWeeks(){
-  if(!state.authenticated)return [];
-  // La lista se basa en enfrentamientos REALES de la categoría y género activos.
-  // El listado de jugadores no es necesario para navegar por jornadas públicas.
-  const related=new Set();
-  for(const [key,items] of Object.entries(data.fixtures||{})){
-    const [week,category,gender]=key.split('|');
-    if(category!==state.category||gender!==state.gender||!Array.isArray(items)||!items.length)continue;
-    for(const match of items){
-      if(!match||!match.a||!match.b)continue;
-      related.add(week);
-      const moved=postponedInfo(match.id)?.targetWeek;
-      if(moved)related.add(moved);
-    }
-  }
-  return weeks.filter(w=>related.has(w.id)&&(isAdmin()||journeyFixturesArePublic(w.id)));
+  if(!state.authenticated||!state.player)return [];
+  const me=normalizeName(state.player);
+  return weeks.filter(w=>{
+    const key=`${w.id}|${state.category}|${state.gender}`;
+    const published=isAdmin()||journeyFixturesArePublic(w.id);
+    if(!published)return false;
+    const own=(data.fixtures?.[key]||[]).some(m=>
+      (normalizeName(m.a)===me||normalizeName(m.b)===me)&&resultFor(m.id)?.status!=='confirmed'&&effectiveWeekFor(m.id)===w.id);
+    const postponed=Object.entries(data.fixtures||{}).some(([k,list])=>{
+      const [,cat,gender]=k.split('|');
+      return cat===state.category&&gender===state.gender&&(list||[]).some(m=>
+        effectiveWeekFor(m.id)===w.id&&(normalizeName(m.a)===me||normalizeName(m.b)===me)&&resultFor(m.id)?.status!=='confirmed');
+    });
+    return own||postponed;
+  });
 }
 function mappWeekCarouselNav(){
   const available=mappPublishedOwnWeeks();
-  if(!available.length)return '';
-  const pos=available.findIndex(w=>w.id===state.week);
-  return `<div class="mapp-week-carousel-head"><span>JORNADAS PUBLICADAS · DESLIZA</span><span>${Math.max(0,pos)+1} / ${available.length}</span></div>
+  if(available.length<2)return '';
+  return `<div class="mapp-week-carousel-head"><span>DESLIZA PARA CAMBIAR DE JORNADA</span><span>${available.findIndex(w=>w.id===state.week)+1>0?available.findIndex(w=>w.id===state.week)+1:1} / ${available.length}</span></div>
     <div class="mapp-week-carousel-nav" aria-label="Jornadas publicadas" role="group">${available.map(w=>
       `<button type="button" class="mapp-week-carousel-chip ${state.week===w.id?'selected':''}" data-mapp-carousel-week="${mappEsc(w.id)}" aria-pressed="${state.week===w.id}">${mappEsc(journeyDisplayName(w.id,`${w.id}|${state.category}|${state.gender}`)||w.label||w.id)}</button>`
     ).join('')}</div>`;
 }
 let mappCarouselSwitching=false;
-let mappCarouselDirection=0;
-// Memoriza por separado la posicion de Inicio y Mi partido ANTES de redibujar.
-const mappCarouselPositions=Object.create(null);
-function mappCenterSelectedWeek(box,smooth=true){
-  const nav=box?.querySelector('.mapp-week-carousel-nav');
-  const selected=nav?.querySelector('.mapp-week-carousel-chip.selected');
-  if(!nav||!selected)return;
-  // Solo corregir lo imprescindible cuando la jornada roja queda fuera del area visible.
-  const padding=12;
-  const left=selected.offsetLeft-nav.offsetLeft;
-  const right=left+selected.offsetWidth;
-  const visibleLeft=nav.scrollLeft;
-  const visibleRight=visibleLeft+nav.clientWidth;
-  let target=visibleLeft;
-  if(left<visibleLeft+padding)target=Math.max(0,left-padding);
-  else if(right>visibleRight-padding)target=Math.min(nav.scrollWidth-nav.clientWidth,right-nav.clientWidth+padding);
-  if(Math.abs(target-visibleLeft)<2)return;
-  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  nav.scrollTo({left:target,behavior:smooth&&!reduced?'smooth':'instant'});
-}
 function mappGoCarouselWeek(weekId){
-  if(mappCarouselSwitching)return;
   const available=mappPublishedOwnWeeks();
-  const nextIndex=available.findIndex(w=>w.id===weekId);
-  if(nextIndex<0||state.week===weekId)return;
-  const oldIndex=available.findIndex(w=>w.id===state.week);
+  const to=available.findIndex(w=>w.id===weekId);
+  const from=available.findIndex(w=>w.id===state.week);
+  if(to<0||state.week===weekId||mappCarouselSwitching)return;
+  const direction=to>from?'left':'right';
+  const currentBox=[document.querySelector('#modernMatchContent'),document.querySelector('#modernHomeContent')].find(el=>el&&el.getClientRects().length);
+  const card=currentBox?.querySelector('.mapp-week-swipe-area');
+  const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   mappCarouselSwitching=true;
-  mappCarouselDirection=oldIndex<0?0:(nextIndex>oldIndex?1:-1);
-  // La renderizacion sustituye los nodos: conservar exactamente el desplazamiento previo.
-  for(const id of ['modernHomeContent','modernMatchContent']){
-    const nav=document.getElementById(id)?.querySelector('.mapp-week-carousel-nav');
-    if(nav)mappCarouselPositions[id]=nav.scrollLeft;
-  }
-  state.week=weekId;
-  try{localStorage.setItem('ctc_mapp_last_carousel_week',weekId)}catch(_){}
-  try{
+  const commit=()=>{
+    state.week=weekId;
+    try{localStorage.setItem('ctc_mapp_last_carousel_week',weekId)}catch(_){}
     renderAll();
-    for(const id of ['modernHomeContent','modernMatchContent']){
-      const box=document.getElementById(id);
-      const panel=box?.querySelector('.mapp-week-swipe-area');
-      if(panel&&mappCarouselDirection){
-        panel.classList.add(mappCarouselDirection>0?'mapp-week-slide-in-left':'mapp-week-slide-in-right');
-      }
-    }
-    // Esperar un frame evita el salto durante el redibujado.
-    requestAnimationFrame(()=>{
-      for(const id of ['modernHomeContent','modernMatchContent']){
-        const box=document.getElementById(id);
-        if(box?.getClientRects().length)mappCenterSelectedWeek(box,true);
-      }
-    });
-  }finally{mappCarouselSwitching=false;mappCarouselDirection=0}
+    const nextBox=[document.querySelector('#modernMatchContent'),document.querySelector('#modernHomeContent')].find(el=>el&&el.getClientRects().length);
+    const nextCard=nextBox?.querySelector('.mapp-week-swipe-area');
+    if(nextCard&&!reduceMotion)nextCard.classList.add('mapp-week-slide-in-'+direction);
+    mappCarouselSwitching=false;
+  };
+  if(!card||reduceMotion){commit();return;}
+  card.classList.add('mapp-week-slide-out-'+direction);
+  window.setTimeout(commit,240);
 }
 function mappWireWeekCarousel(box){
-  box.querySelectorAll('[data-mapp-carousel-week]').forEach(btn=>{
-    btn.addEventListener('click',()=>mappGoCarouselWeek(btn.dataset.mappCarouselWeek));
-  });
-  const nav=box.querySelector('.mapp-week-carousel-nav');
-  if(nav){
-    const key='ctc_prod_carousel_scroll_'+box.id;
-    let left=mappCarouselPositions[box.id];
-    if(!Number.isFinite(left)){
-      try{left=Number(sessionStorage.getItem(key))}catch(_){}
-    }
-    if(Number.isFinite(left)){
-      nav.style.scrollBehavior='auto';
-      nav.scrollLeft=left;
-      nav.style.scrollBehavior='';
-    }else mappCenterSelectedWeek(box,false);
-    mappCarouselPositions[box.id]=nav.scrollLeft;
-    nav.addEventListener('scroll',()=>{
-      mappCarouselPositions[box.id]=nav.scrollLeft;
-      try{sessionStorage.setItem(key,String(nav.scrollLeft))}catch(_){}
-    },{passive:true});
-  }
+  box.querySelectorAll('[data-mapp-carousel-week]').forEach(el=>el.addEventListener('click',()=>mappGoCarouselWeek(el.dataset.mappCarouselWeek)));
+  const chosen=box.querySelector('.mapp-week-carousel-chip.selected');
+  if(chosen)chosen.scrollIntoView({inline:'nearest',block:'nearest'});
   const card=box.querySelector('.mapp-week-swipe-area');
   if(!card||mappPublishedOwnWeeks().length<2)return;
   let x=null,y=null;
-  card.addEventListener('touchstart',e=>{
-    if(e.touches.length===1){x=e.touches[0].clientX;y=e.touches[0].clientY}
-  },{passive:true});
+  card.addEventListener('touchstart',e=>{if(e.touches.length===1){x=e.touches[0].clientX;y=e.touches[0].clientY}},{passive:true});
   card.addEventListener('touchend',e=>{
     if(x===null||!e.changedTouches.length)return;
     const dx=e.changedTouches[0].clientX-x,dy=e.changedTouches[0].clientY-y;
     x=null;y=null;
-    if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.25)return;
+    if(Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.35)return;
     const arr=mappPublishedOwnWeeks();
     const i=arr.findIndex(w=>w.id===state.week);
     const next=arr[i+(dx<0?1:-1)];
@@ -9304,12 +9109,13 @@ function mappRestoreCarouselWeek(){
 
 function renderModernHome(){
  const box=$('#modernHomeContent'); if(!box)return;
+ mappRestoreCarouselWeek();
  const m=mappPrimaryMatch(), frees=mappFreeSlots().slice(0,3);
  let hero='';
  if(m){
-   const bk=upcomingBookingFor(m.id), can=isOpen()&&isReservableInCurrentWeek(m.id)&&mappFreeSlots().length>0;
+   const bk=mappUpcomingBooking(m.id), can=isOpen()&&isReservableInCurrentWeek(m.id);
    hero=`<div class="mapp-card"><div class="mapp-card-pad">
-      <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Tu partido</div><span class="mapp-round mapp-round-with-dates">${mappCurrentRoundBadge()}</span></div>
+      <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Tu partido</div><span class="mapp-round">${mappEsc(mappCurrentRound())}</span></div>
       <div class="mapp-match-grid">
         <div>${mappAvatar(m.a)}<div class="mapp-player-name">${mappEsc(m.a)}</div></div>
         <div class="mapp-vs">VS</div>
@@ -9343,11 +9149,12 @@ function renderModernHome(){
 }
 function renderModernCourts(){
  const box=$('#modernCourtsContent');if(!box)return;
+ // El administrador conserva acceso histórico, incluso con la jornada cerrada.
  if(!isOpen()&&!isAdmin()){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">🔒 La disponibilidad de pistas está despublicada. El club todavía no ha abierto las reservas de esta jornada.</div></div>';
    return
  }
- const ss=slots().filter(s=>!slotHasFinished(s.date,s.time)).slice().sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
+ const ss=slots().filter(s=>isAdmin()||!mappIsPastDate(s.date,s.time)).sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
  if(!ss.length){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">No hay disponibilidad publicada para esta semana.</div></div>';
    return
@@ -9369,16 +9176,15 @@ function renderModernCourts(){
            const entry=Object.entries(data.bookings||{}).find(([,b])=>b.week===state.week&&b.slotId===s.id);
            const matchId=entry?.[0]||'';
            const bk=entry?.[1]||null;
-           const past=slotHasFinished(s.date,s.time);
-           const reserveEnabled=!past&&isOpen()&&!bk;
-           return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${reserveEnabled?`data-mapp-slot="${mappEsc(s.id)}"`:''}>
+           const historic=mappIsPastDate(s.date,s.time);
+           return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${bk||historic||!isOpen()?'':`data-mapp-slot="${mappEsc(s.id)}"`}>
              <div>
                <div class="time">${mappEsc(s.time)}</div>
                ${bk?`<div class="booking">${mappEsc(bk.a)} vs ${mappEsc(bk.b)}</div>`:''}
              </div>
-             ${bk&&isAdmin()&&!past
+             ${bk&&isAdmin()&&!historic
                ? `<button class="mapp-admin-clean" type="button" data-admin-release-booking="${mappEsc(matchId)}">Liberar</button>`
-               : `<div class="${bk?'mapp-busy':'mapp-free'}">${past?(bk?'HISTÓRICO':'PASADA'):(bk?'OCUPADA':(isOpen()?'LIBRE':'CERRADA'))}</div>`
+               : `<div class="${bk?'mapp-busy':'mapp-free'}">${historic?(bk?'RESERVADA · HISTÓRICO':'SIN RESERVA · HISTÓRICO'):(bk?'OCUPADA':'LIBRE')}</div>`
              }
              <div class="mapp-chevron">${bk?'':mappIcon('chevron')}</div>
            </div>`
@@ -9490,16 +9296,13 @@ async function ctOpenSmartProposal(mid){
 }
 function renderModernMatch(){
  const box=$('#modernMatchContent');if(!box)return;
+ mappRestoreCarouselWeek();
  const matches=mappOwnMatches();
- if(!matches.length){
-   box.innerHTML=mappWeekCarouselNav()+'<div class="mapp-week-swipe-area"><div class="mapp-card"><div class="mapp-empty">No tienes partido asignado en esta jornada.</div></div></div>';
-   mappWireWeekCarousel(box);
-   return;
- }
- box.innerHTML=mappWeekCarouselNav()+'<div class="mapp-week-swipe-area">'+matches.map(m=>{
-   const bk=upcomingBookingFor(m.id),r=resultFor(m.id),p=postponedInfo(m.id);
+ if(!matches.length){box.innerHTML=mappWeekCarouselNav()+'<div class="mapp-card"><div class="mapp-empty">No tienes partido en esta jornada.</div></div>';mappWireWeekCarousel(box);return}
+ box.innerHTML=mappWeekCarouselNav()+`<div class="mapp-week-swipe-area">`+matches.map(m=>{
+   const bk=mappUpcomingBooking(m.id),r=resultFor(m.id),p=postponedInfo(m.id);
    return `<div class="mapp-card"><div class="mapp-card-pad">
-    <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Mi partido</div><span class="mapp-round mapp-round-with-dates">${mappCurrentRoundBadge()}</span></div>
+    <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Mi partido</div><span class="mapp-round">${mappEsc(mappCurrentRound())}</span></div>
     <div class="mapp-match-grid">
       <div>${mappAvatar(m.a)}<div class="mapp-player-name">${mappEsc(m.a)}</div></div>
       <div class="mapp-vs">VS</div>
@@ -9518,7 +9321,7 @@ function renderModernMatch(){
    <div class="mapp-menu-row" data-match-result="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('trophy')}</div><div><div class="mapp-menu-title">${r?'Ver / gestionar resultado':'Subir resultado'}</div><div class="mapp-menu-sub">Resultado del encuentro</div></div><div>${mappIcon('chevron')}</div></div>
    ${p?`<div class="mapp-menu-row"><div class="mapp-menu-icon gray">${mappIcon('calendar')}</div><div><div class="mapp-menu-title">Partido retrasado</div><div class="mapp-menu-sub">${p.targetWeek?'Reprogramado para '+mappEsc(weeks.find(w=>w.id===p.targetWeek)?.label||p.targetWeek):'Pendiente de nueva semana'}</div></div></div>`:''}
    </div>`;
- }).join('')+'</div>';
+ }).join('')+`</div>`;
  mappWireWeekCarousel(box);
  box.querySelectorAll('[data-match-reserve]').forEach(x=>x.onclick=()=>openReserve(x.dataset.matchReserve));
  box.querySelectorAll('[data-match-proposal]').forEach(x=>{
@@ -9530,6 +9333,7 @@ function renderModernMatch(){
  box.querySelectorAll('[data-match-live]').forEach(x=>x.onclick=()=>{
    const m=matches.find(v=>String(v.id)===String(x.dataset.matchLive));
    if(!m)return;
+   // ID corto y estable, no contiene PIN ni credenciales.
    const input=String(m.id);let h1=2166136261,h2=2166136261;
    for(let i=0;i<input.length;i++){h1=Math.imul(h1^input.charCodeAt(i),16777619);h2=Math.imul(h2^(input.charCodeAt(i)+i),16777619)}
    const key='ct'+(h1>>>0).toString(16).padStart(8,'0')+(h2>>>0).toString(16).padStart(8,'0');
@@ -9537,6 +9341,8 @@ function renderModernMatch(){
    target.searchParams.set('id',key);
    target.searchParams.set('a',m.a);
    target.searchParams.set('b',m.b);
+   // La prueba no transmite credenciales de la liga al Worker LIVE.
+   // Abrir dentro de la PWA, manteniendo historial para regresar a Mi partido.
    location.assign(target.href);
  });
  box.querySelectorAll('[data-match-result]').forEach(x=>x.onclick=()=>openResultModal(x.dataset.matchResult));
@@ -9758,7 +9564,6 @@ function closeModernAdmin(){
 }
 
 function renderModernUI(){
-  if(document.getElementById('modernRanking')?.classList.contains('active'))rankProRender();
  if(!state.authenticated){
    document.body.classList.remove('modern-ui','modern-admin');
    return;
@@ -9781,16 +9586,15 @@ $('#modernTrophyIcon').innerHTML=mappIcon('trophy');
 $('#modernCalendarIcon').innerHTML=mappIcon('calendar');
 $('#modernChartIcon').innerHTML=mappIcon('chart');
 document.querySelectorAll('[data-modern-go]').forEach(b=>b.onclick=()=>mappShow(b.dataset.modernGo));
-$('#rankProCategory').onchange=e=>{rankProState.category=e.target.value;rankProState.gender=mappActiveGenders(e.target.value)[0]||'';rankProRender()};
-$('#rankProGender').onchange=e=>{rankProState.gender=e.target.value;rankProRender()};
-$('#resultsCategory').onchange=e=>{resultsViewState.category=e.target.value;resultsViewState.gender='all';renderModernResults()};
+$('#resultsCategory').onchange=e=>{resultsViewState.category=e.target.value;renderModernResults()};
 $('#resultsGender').onchange=e=>{resultsViewState.gender=e.target.value;renderModernResults()};
 $('#resultsWeek').onchange=e=>{resultsViewState.week=e.target.value;renderModernResults()};
+$('#rankProCategory').onchange=e=>{rankProState.category=e.target.value;rankProRender()};
+$('#rankProGender').onchange=e=>{rankProState.gender=e.target.value;rankProRender()};
 $('#modernTicker').onclick=()=>mappShow('results');
 $('#modernTicker').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();mappShow('results')}};
 
 $('#modernContextBtn').onclick=mappOpenSelector;
-$('#modernCatSelect').onchange=e=>{mappSetLeagueChoices(e.target,$('#modernGenderSelect'),e.target.value,'')};
 $('#modernSelectorClose').onclick=mappApplySelector;
 $('#modernSelectorSheet').onclick=e=>{if(e.target===$('#modernSelectorSheet'))$('#modernSelectorSheet').classList.remove('show')};
 $('#modernBellBtn').onclick=()=>{
@@ -9815,7 +9619,7 @@ $('#welcomePin').addEventListener('input',e=>{
 $('#welcomePin').addEventListener('keydown',e=>{if(e.key==='Enter')loginWithPinOnly()});
 
 $('#playerIdentity').onchange=e=>{if(!state.authenticated)state.player=e.target.value;$('#playerPin').value='';renderIdentity()};
-$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);ctcSelectCalendarWeekOnEntry();$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
+$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();mappRestoreTab();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
 $('#playerPin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});
 $('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(MAPP_LAST_TAB_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
 $$('.gender').forEach(b=>b.onclick=()=>{state.gender=b.dataset.gender;renderAll()});
@@ -9874,12 +9678,12 @@ $('#savePlayers').onclick=async()=>{
     renderIdentity(); renderAdmin();
     await saveStateOnline();
 
-    // Comprobar TODOS los participantes de la categoría, también los ya inscritos.
-    // La API crea únicamente las cuentas ausentes y respeta PIN y rol existentes.
+    // SOLO quienes acaban de incorporarse a esta categoría necesitan comprobar acceso.
+    // La API crea usuario+PIN si no existe.
     // Si ya existía (ADMIN, MIEMBRO o jugador), conserva exactamente PIN y rol.
     let createdUsers=0;
-    if(list.length){
-      const ensured=await apiRequest({action:'ensurePlayerUsers',names:list});
+    if(addedToThisCategory.length){
+      const ensured=await apiRequest({action:'ensurePlayerUsers',names:addedToThisCategory});
       const ensuredUsers=Array.isArray(ensured.users)?ensured.users:[];
       createdUsers=Number(ensured.created||0);
 
@@ -9992,8 +9796,7 @@ $('#toggleJourneySettings').onclick=()=>toggleJourneyPanel('#journeySettingsPane
 $('#journeyMoreBtn').onclick=()=>$('#journeyDangerMenu').classList.toggle('hidden');
 $('#journeyPrevBtn').onclick=()=>navigateJourney(-1);
 $('#journeyNextBtn').onclick=()=>navigateJourney(1);
-
-/* CT CAMPEADOR · PRODUCCIÓN · Importación JSON de liga con categoría automática y altas revisadas.
+/* CT CAMPEADOR · TEST · Importación JSON de liga con categoría automática y altas revisadas.
    No cambia fechas, publicación ni reemplaza partidos existentes. */
 async function importCompleteLeagueFile(file){
   if(!requireAdmin()||!file)return;
@@ -10113,7 +9916,7 @@ async function importCompleteLeagueFile(file){
     fixtureEditorDirty=false;playerEditorDirty=false;
     state.category=category;state.gender=gender;state.week=weeks[0].id;
     renderAll();renderModernAdminContext();
-    alert(`✅ Importación completada.\n\n${category} · ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas creadas automáticamente\n${newAccounts.length} usuarios nuevos con PIN\n${reusedFromOtherCategory.length} usuarios ya existentes reutilizados.\n\nRevisa los PIN nuevos en Administración → Usuarios antes de entregárselos a sus titulares.`);
+    alert(`✅ Importación completada en TEST.\n\n${category} · ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas creadas automáticamente\n${newAccounts.length} usuarios nuevos con PIN\n${reusedFromOtherCategory.length} usuarios ya existentes reutilizados.\n\nRevisa los PIN nuevos en Administración → Usuarios antes de entregárselos a sus titulares.`);
   }catch(e){
     if(!remoteSaved){weeks.splice(0,weeks.length,...backupWeeks);data=normalizeData(JSON.parse(backup));state.category=oldCategory;state.gender=oldGender;state.week=oldWeek;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
     renderAll();renderModernAdminContext();
@@ -10127,7 +9930,6 @@ $('#importCompleteLeagueFile').onchange=async function(){
 };
 
 if($('#addJourneyBtn'))$('#addJourneyBtn').onclick=addJourney;
-if($('#publishAllJourneysBtn'))$('#publishAllJourneysBtn').onclick=publishAllJourneysNow;
 
 if($('#futureFixturesBtn'))$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
 $('#importFixtures').onclick=()=>{if(!requireAdmin())return;const {pairs,unknown}=parseFixtureText($('#fixturePaste').value);if(!pairs.length){alert('No he encontrado enfrentamientos válidos en el texto.');return}let added=0;for(const [a,b] of pairs)if(addFixturePair(a,b,{silent:true}))added++;renderFixtureEditor();renderMatches();$('#fixtureImportStatus').textContent=`${added} partido${added===1?'':'s'} añadido${added===1?'':'s'}.`+(unknown.length?` ⚠ Nombres no encontrados exactamente en la lista: ${unknown.join(', ')}`:' Todos los nombres coinciden con la categoría.');};
@@ -10277,18 +10079,8 @@ $('#syncAccessUsers').onclick=async()=>{
   try{
     btn.disabled=true;btn.textContent='⏳ Sincronizando…';
     await loadAdminUsers();
-    // La sincronización también recupera cuentas ausentes de jugadores inscritos.
-    // ensurePlayerUsers es no destructiva: nunca cambia PIN ni roles existentes.
-    const players=categorizedPlayers();
-    const ensured=players.length
-      ? await apiRequest({action:'ensurePlayerUsers',names:players})
-      : {created:0};
-    await loadAdminUsers();
     renderAll();
-    const created=Number(ensured.created||0);
-    alert(created
-      ? `✅ Sincronización completada. Se han creado ${created} cuenta${created===1?'':'s'} con PIN. Los accesos existentes no se han modificado.`
-      : '✅ Usuarios sincronizados con Cloudflare. No faltaba ninguna cuenta.');
+    alert('✅ Usuarios sincronizados con Cloudflare.');
   }catch(e){
     alert('No se han podido sincronizar los usuarios.\n\n'+e.message);
   }finally{
@@ -10356,7 +10148,7 @@ async function bootstrapApp(){
     renderAll();
     const restored=await restoreSession();
     if(restored){
-      routePlayerToOwnCategory(state.player);ctcSelectCalendarWeekOnEntry();
+      routePlayerToOwnCategory(state.player);
       hidePinWelcome();
       connectRealtime();
     }else{
@@ -10406,7 +10198,7 @@ if('serviceWorker' in navigator){
     if(!url)return;
     try{
       const u=new URL(url,location.origin);
-      if(u.origin!==location.origin||!u.pathname.startsWith('/ct-campeador-liga/'))return;
+      if(u.origin!==location.origin||!u.pathname.startsWith('/ct-campeador-pruebas/'))return;
       // Conservamos el destino en memoria antes de tocar la URL para evitar
       // que iOS/PWA lo pierda durante focus/navigation.
       pendingPushDeepLink={
@@ -10426,7 +10218,7 @@ bootstrapApp();
 
 window.addEventListener('scroll',()=>{const a=document.getElementById('adminView');if(a)a.classList.toggle('adminScrolled',window.scrollY>(a.offsetTop+280));},{passive:true});
 
-/* V22.12 · Inicialización del importador de teléfonos */
+/* TEST V22.5 · Inicialización del importador de teléfonos */
 (function(){
   const input=document.getElementById('waPhoneCsv');
   if(input)input.addEventListener('change',async e=>{try{await waImportFile(e.target.files?.[0])}catch(err){alert('Error al leer CSV: '+err.message)}finally{e.target.value=''}});
