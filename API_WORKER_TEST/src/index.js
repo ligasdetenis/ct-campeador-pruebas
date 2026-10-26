@@ -820,7 +820,7 @@ var index_default = {
           const result=await bookingCall(env,{action:"proposeSlot",proposal});
           if (!result.ok) return json(result,409,corsHeaders);
           await broadcastRealtime(env,{type:"reservationProposalChanged",matchId},{recipients:[fixture.a,fixture.b],includeAdmins:true});
-          await sendTargetedPush(env,[target],"🎾 Propuesta de pista",`${me} propone jugar el ${slot.date} a las ${slot.time} en ${slot.court}. Entra en Mi partido para responder.`,{open:"match",week});
+          await sendTargetedPush(env,[target],"🎾 Propuesta de pista",`${me} propone jugar el ${slot.date} a las ${slot.time} en ${slot.court}. Entra en Mi partido para responder.`,{open:"proposal",matchId,week});
           return json(result,200,corsHeaders);
         }
         const before=await bookingCall(env,{action:"getProposal",matchId});
@@ -838,7 +838,7 @@ var index_default = {
         const result=await bookingCall(env,{action:response==="accept"?"acceptProposal":"rejectProposal",matchId,acceptedBy:me,expectedSlotId:proposal.slotId});
         if (!result.ok) return json(result,409,corsHeaders);
         await broadcastRealtime(env,{type:response==="accept"?"reservationChanged":"reservationProposalChanged",matchId,reservation:result.reservation||null},{recipients:[fixture.a,fixture.b],includeAdmins:true});
-        await sendTargetedPush(env,[proposal.from],response==="accept"?"✅ Propuesta aceptada":"↩️ Propuesta rechazada",response==="accept"?`${me} ha aceptado la propuesta. La pista ha quedado reservada.`:`${me} no puede jugar en el horario propuesto.`,{open:"match",week});
+        await sendTargetedPush(env,[proposal.from],response==="accept"?"✅ Propuesta aceptada":"↩️ Propuesta rechazada",response==="accept"?`${me} ha aceptado la propuesta. La pista ha quedado reservada.`:`${me} no puede jugar en el horario propuesto.`,{open:"proposal",matchId,week});
         return json(result,200,corsHeaders);
       }
       if (action === "reserve") {
