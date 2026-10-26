@@ -8817,6 +8817,16 @@ async function processPushDeepLink({force=false}={}){
       setTimeout(()=>mappShow('courts'),180);
     }else if(link.open==='match'){
       mappShow('match');
+    }else if(link.open==='proposal'){
+      // Enlace Push directo a la propuesta del partido, también desde otra jornada.
+      // Sincronizamos antes de abrir para recuperar el contexto actualizado.
+      await refreshOnline({silent:true,force:true});
+      if(link.matchId)routeContextFromMatch(link.matchId);
+      renderAll();
+      mappShow('match');
+      if(link.matchId && findFixtureById(link.matchId)){
+        setTimeout(()=>viewMatchProposal(link.matchId),160);
+      }
     }else if(link.open==='result'){
       // Al abrir desde una notificación Push, la PWA puede llevar minutos suspendida
       // y conservar en memoria el resultado anterior. Antes de abrir el modal,
