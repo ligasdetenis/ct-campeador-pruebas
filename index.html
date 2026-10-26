@@ -5917,10 +5917,11 @@ function base64UrlToUint8Array(base64String){
 }
 async function getPushPublicKey(){
   if(PUSH_VAPID_PUBLIC_KEY)return PUSH_VAPID_PUBLIC_KEY;
-  const r=await fetch(PUSH_URL+'/public-key',{cache:'no-store'});
-  let j={};try{j=await r.json()}catch(e){}
-  if(!r.ok||j.ok===false||!j.publicKey)throw new Error(j.error||'No se ha podido obtener la clave Push.');
-  PUSH_VAPID_PUBLIC_KEY=String(j.publicKey);
+  // TEST: obtener VAPID a traves de la API autenticada (Service Binding).
+  // Evita llamar a rutas inexistentes del Worker Push publico.
+  const j=await apiRequest({action:'getPushConfig'});
+  if(!j.vapidPublicKey)throw new Error('La API no ha devuelto la clave publica Push.');
+  PUSH_VAPID_PUBLIC_KEY=String(j.vapidPublicKey);
   return PUSH_VAPID_PUBLIC_KEY;
 }
 function getPushDeviceId(){
@@ -5957,20 +5958,13 @@ async function syncPushSubscription(sub,{force=false}={}){
       if(cached?.fingerprint===fp && Date.now()-Number(cached.syncedAt||0)<PUSH_RESYNC_MS)return true;
     }catch(_){}
   }
-  const r=await fetch(PUSH_URL+'/subscribe',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':'Bearer '+apiToken
-    },
-    body:JSON.stringify({
-      deviceId:getPushDeviceId(),
-      subscription:sub.toJSON?sub.toJSON():sub,
-      userName:state.player
-    })
+  // Registrar mediante API TEST: valida sesion y usa PUSH_SERVICE interno.
+  // Se conserva deviceId para compatibilidad futura.
+  await apiRequest({
+    action:'subscribePush',
+    deviceId:getPushDeviceId(),
+    subscription:sub.toJSON?sub.toJSON():sub
   });
-  let j={};try{j=await r.json()}catch(e){}
-  if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));
   if(fp){try{localStorage.setItem(PUSH_SYNC_CACHE_KEY,JSON.stringify({fingerprint:fp,syncedAt:Date.now()}))}catch(_){}}
   return true;
 }
