@@ -175,10 +175,16 @@ var BookingCoordinator = class extends DurableObject {
       const proposal = body.proposal;
       if (!proposal?.matchId || !proposal?.slotId) return doJson({ok:false,error:"Propuesta incompleta"},400);
       const now = new Date().toISOString();
+      const priorRow=this.sql.exec("SELECT payload FROM match_proposals WHERE match_id=?",proposal.matchId).toArray()[0];
+      let prior=null;
+      try{prior=priorRow?JSON.parse(priorRow.payload):null}catch(_){}
+      const history=Array.isArray(prior?.history)?prior.history.slice(-18):[];
+      if(prior){history.push({from:prior.from,to:prior.to,date:prior.reservation?.date,time:prior.reservation?.time,court:prior.reservation?.court,status:prior.status==='pending'?'sustituida':prior.status,at:prior.updatedAt||prior.createdAt})}
+      const next={...proposal,status:'pending',updatedAt:now,history:history.slice(-18)};
       this.sql.exec(`INSERT INTO match_proposals(match_id,payload,updated_at) VALUES(?,?,?)
         ON CONFLICT(match_id) DO UPDATE SET payload=excluded.payload,updated_at=excluded.updated_at`,
-        proposal.matchId,JSON.stringify({...proposal,status:'pending',updatedAt:now}),now);
-      return doJson({ok:true,proposal:{...proposal,status:'pending',updatedAt:now}});
+        proposal.matchId,JSON.stringify(next),now);
+      return doJson({ok:true,proposal:next});
     }
     if (action === "rejectProposal") {
       const matchId = String(body.matchId || "");
@@ -258,8 +264,26 @@ var BookingCoordinator = class extends DurableObject {
     if (action === "cancel") {
       const matchId = String(body.matchId || "");
       if (!matchId) return doJson({ ok: false, error: "Falta el partido" }, 400);
-      this.sql.exec("DELETE FROM reservations WHERE match_id = ?", matchId);
-      return doJson({ ok: true });
+      // La propuesta aceptada y la reserva forman una sola operación lógica.
+      const cancelledProposal = this.ctx.storage.transactionSync(() => {
+        const active = this.sql.exec("SELECT slot_id FROM reservations WHERE match_id = ?", matchId).toArray()[0];
+        this.sql.exec("DELETE FROM reservations WHERE match_id = ?", matchId);
+        if (!active) return null;
+        const row = this.sql.exec("SELECT payload FROM match_proposals WHERE match_id = ?", matchId).toArray()[0];
+        if (!row) return null;
+        let proposal;
+        try { proposal = JSON.parse(row.payload); } catch (_) { return null; }
+        // No alterar contrapropuestas nuevas ni propuestas ajenas a la reserva cancelada.
+        if (proposal.status !== "accepted" || String(proposal.slotId) !== String(active.slot_id)) return null;
+        const now = new Date().toISOString();
+        proposal.status = "cancelled";
+        proposal.cancelledAt = now;
+        proposal.cancelledBy = String(body.cancelledBy || "");
+        proposal.updatedAt = now;
+        this.sql.exec("UPDATE match_proposals SET payload = ?, updated_at = ? WHERE match_id = ?", JSON.stringify(proposal), now, matchId);
+        return proposal;
+      });
+      return doJson({ ok: true, proposal: cancelledProposal });
     }
     if (action === "replaceAllForTestRestore") {
       const reservations = body.reservations && typeof body.reservations === "object" ? body.reservations : {};
@@ -893,9 +917,13 @@ var index_default = {
         if (auth.session.role !== "admin" && normalize(reservation.a) !== normalize(auth.session.name) && normalize(reservation.b) !== normalize(auth.session.name)) {
           return json({ ok: false, error: "No puedes cancelar esta reserva." }, 403, corsHeaders);
         }
-        await bookingCall(env, { action: "cancel", matchId });
+        const cancelled = await bookingCall(env, { action: "cancel", matchId, cancelledBy: auth.session.name });
+        if (!cancelled.ok) return json({ ok: false, error: cancelled.error || "No se pudo cancelar la reserva." }, 500, corsHeaders);
         await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
-        return json({ ok: true }, 200, corsHeaders);
+        if (cancelled.proposal) {
+          await broadcastRealtime(env, { type: "proposalChanged", matchId, proposal: cancelled.proposal }, { recipients: [reservation.a, reservation.b], includeAdmins: true });
+        }
+        return json({ ok: true, proposal: cancelled.proposal || null }, 200, corsHeaders);
       }
       if (action === "submitResult") {
         const auth = await requireUser(request, body, env);
