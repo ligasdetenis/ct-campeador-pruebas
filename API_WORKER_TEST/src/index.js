@@ -1582,7 +1582,8 @@ const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-pruebas/";
 // Convierte YYYY-MM-DD + HH:mm de Europe/Madrid a UTC, respetando horario de verano.
 function spanishSlotTimeToUTC(dateValue, timeValue) {
   const date = String(dateValue || "").trim();
-  const time = String(timeValue || "").trim();
+  // Los horarios oficiales son franjas "18:00 - 19:00"; validar la HORA DE INICIO.
+  const time = String(timeValue || "").trim().split(/\s*[-–—]\s*/)[0].trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{1,2}:\d{2}$/.test(time)) return NaN;
   const [year, month, day] = date.split("-").map(Number);
   const [hour, minute] = time.split(":").map(Number);
