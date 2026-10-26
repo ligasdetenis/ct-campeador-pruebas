@@ -6477,6 +6477,15 @@ async function proposeSelectedSlot(){
    ctProposalCache.delete(mid);renderAll();ctLoadSmartProposal(mid,true);
  }catch(e){alert(e.message)}finally{button.disabled=false}
 }
+// Formato visual de fechas de propuestas: DD/MM/AAAA. No modifica datos de reserva ni API.
+function ctProposalDateES(value){
+ const raw=String(value??'').trim();
+ const iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+ if(iso)return `${iso[3]}/${iso[2]}/${iso[1]}`;
+ const local=raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+ if(local)return `${local[1].padStart(2,'0')}/${local[2].padStart(2,'0')}/${local[3]}`;
+ return raw;
+}
 // V22.7: tarjeta de propuestas con contrapropuesta sin rechazar prematuramente.
 function proposalChoiceDialog(p,info,canRespond){
  return new Promise(resolve=>{
@@ -6492,7 +6501,7 @@ function proposalChoiceDialog(p,info,canRespond){
     <div class="ct-proposal-content"><div class="ct-proposal-label">${safe(status)} · ${safe(p.from)} → ${safe(p.to)}</div>
       <div class="ct-proposal-slot">📅 ${safe(info)}</div>
       ${canRespond?`<p>¿Qué quieres hacer con la fecha propuesta por tu rival?</p>`:p.status==='pending'?'<p>En espera de respuesta de tu rival. La pista todavía no está reservada.</p>':'<p>Esta propuesta ya no está pendiente.</p>'}
-      ${history.length?`<details class="ct-proposal-history"><summary>Historial de propuestas (${history.length})</summary><ul>${history.slice(-12).reverse().map(h=>`<li>${safe(h.from)}: ${safe(h.date||'')} · ${safe(h.time||'')} · ${safe(h.court||'')} (${safe(h.status||'sustituida')})</li>`).join('')}</ul></details>`:''}
+      ${history.length?`<details class="ct-proposal-history"><summary>Historial de propuestas (${history.length})</summary><ul>${history.slice(-12).reverse().map(h=>`<li>${safe(h.from)}: ${safe(ctProposalDateES(h.date))} · ${safe(h.time||'')} · ${safe(h.court||'')} (${safe(h.status||'sustituida')})</li>`).join('')}</ul></details>`:''}
     </div>
     <div class="ct-proposal-buttons">
       ${canRespond?'<button type="button" class="btn gold" data-choice="accept">✅ Aceptar y reservar</button>':''}
@@ -6515,7 +6524,7 @@ async function viewMatchProposal(mid){
     if(confirm('No hay propuestas todavía. ¿Quieres proponer una fecha?')){routeContextFromMatch(mid);renderAll();openReserve(mid)}
     return;
   }
-  const info=`${p.reservation?.date||''} · ${p.reservation?.time||''} · ${p.reservation?.court||''}`;
+  const info=`${ctProposalDateES(p.reservation?.date)} · ${p.reservation?.time||''} · ${p.reservation?.court||''}`;
   const canRespond=p.status==='pending'&&String(p.to||'').trim().toLocaleLowerCase('es')===String(state.player||'').trim().toLocaleLowerCase('es');
   const choice=await proposalChoiceDialog(p,info,canRespond);
   if(choice==='counter'){
