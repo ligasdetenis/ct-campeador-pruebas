@@ -36,6 +36,11 @@ var BookingCoordinator = class extends DurableObject {
         updated_at TEXT NOT NULL
       )
     `);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS match_proposals (
+      match_id TEXT PRIMARY KEY,
+      payload TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )`);
     this.sql.exec(`
       CREATE TABLE IF NOT EXISTS login_guard (
         guard_key TEXT PRIMARY KEY,
@@ -161,6 +166,53 @@ var BookingCoordinator = class extends DurableObject {
         }
       }
       return doJson({ ok: true, reservation });
+    }
+    if (action === "getProposal") {
+      const row = this.sql.exec("SELECT payload FROM match_proposals WHERE match_id = ?", String(body.matchId || "")).toArray()[0];
+      return doJson({ok:true,proposal:row ? JSON.parse(row.payload) : null});
+    }
+    if (action === "proposeSlot") {
+      const proposal = body.proposal;
+      if (!proposal?.matchId || !proposal?.slotId) return doJson({ok:false,error:"Propuesta incompleta"},400);
+      const now = new Date().toISOString();
+      this.sql.exec(`INSERT INTO match_proposals(match_id,payload,updated_at) VALUES(?,?,?)
+        ON CONFLICT(match_id) DO UPDATE SET payload=excluded.payload,updated_at=excluded.updated_at`,
+        proposal.matchId,JSON.stringify({...proposal,status:'pending',updatedAt:now}),now);
+      return doJson({ok:true,proposal:{...proposal,status:'pending',updatedAt:now}});
+    }
+    if (action === "rejectProposal") {
+      const matchId = String(body.matchId || "");
+      const row=this.sql.exec("SELECT payload FROM match_proposals WHERE match_id=?",matchId).toArray()[0];
+      if (!row) return doJson({ok:false,error:"No hay propuesta pendiente"},404);
+      const proposal=JSON.parse(row.payload);
+      if (proposal.status!=='pending') return doJson({ok:false,error:"Esta propuesta ya no está pendiente"},409);
+      proposal.status='rejected';proposal.updatedAt=new Date().toISOString();
+      this.sql.exec("UPDATE match_proposals SET payload=?,updated_at=? WHERE match_id=?",JSON.stringify(proposal),proposal.updatedAt,matchId);
+      return doJson({ok:true,proposal});
+    }
+    if (action === "acceptProposal") {
+      const matchId=String(body.matchId||"");
+      try {
+        const result=this.ctx.storage.transactionSync(()=>{
+          const row=this.sql.exec("SELECT payload FROM match_proposals WHERE match_id=?",matchId).toArray()[0];
+          if (!row) throw new Error("No existe la propuesta");
+          const proposal=JSON.parse(row.payload);
+          if (body.expectedSlotId && proposal.slotId!==body.expectedSlotId) throw new Error("La propuesta ha cambiado. Vuelve a abrirla");
+          if (proposal.status!=='pending') throw new Error("La propuesta ya no está pendiente");
+          if (proposal.expiresAt && Date.parse(proposal.expiresAt)<=Date.now()) throw new Error("La propuesta ha caducado");
+          const occupied=this.sql.exec("SELECT match_id FROM reservations WHERE slot_id=?",proposal.slotId).toArray()[0];
+          if (occupied && occupied.match_id!==matchId) throw new Error("La pista ya ha sido reservada por otro partido");
+          const existing=this.sql.exec("SELECT match_id FROM reservations WHERE match_id=?",matchId).toArray()[0];
+          if (existing) throw new Error("Este partido ya tiene una reserva. Cancélala antes de aceptar otra propuesta");
+          const now=new Date().toISOString();
+          const reservation={...proposal.reservation,reservedBy:body.acceptedBy,reservedAt:now,updatedAt:now};
+          this.sql.exec("INSERT INTO reservations(match_id,slot_id,payload,updated_at) VALUES(?,?,?,?)",matchId,proposal.slotId,JSON.stringify(reservation),now);
+          proposal.status='accepted';proposal.acceptedBy=body.acceptedBy;proposal.updatedAt=now;
+          this.sql.exec("UPDATE match_proposals SET payload=?,updated_at=? WHERE match_id=?",JSON.stringify(proposal),now,matchId);
+          return {reservation,proposal};
+        });
+        return doJson({ok:true,...result});
+      } catch(e) {return doJson({ok:false,error:e?.message||String(e)},409)}
     }
     if (action === "reserve") {
       const matchId = String(body.matchId || "");
@@ -711,6 +763,81 @@ var index_default = {
           partial: pushJson.ok === false
         }, 200, corsHeaders);
       }
+      // Bizum TEST: registro de pagos independiente de reservas/resultados.
+      if (action === "paymentConfigRead" || action === "paymentConfigSave" || action === "paymentRead" || action === "paymentClaim" || action === "paymentAdminSet" || action === "paymentAdminList") {
+        const auth = await requireUser(request, body, env);
+        if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
+        const isAdminPay = auth.session.role === "admin";
+        const configKey = "ct-campeador:test:payment:config";
+        const paymentPrefix = "ct-campeador:test:payment:entry:";
+        const normalizePay = x => String(x || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ");
+        const config = JSON.parse(await env.DATA.get(configKey) || '{"amountCents":600,"recipientName":"","phone":""}');
+        const safeConfig = { amountCents: 600, recipientName: String(config.recipientName || ""), phone: String(config.phone || "") };
+        if (action === "paymentConfigRead") {
+          if (!isAdminPay) return json({ ok: false, error: "Solo administración." }, 403, corsHeaders);
+          return json({ ok: true, config: safeConfig }, 200, corsHeaders);
+        }
+        if (action === "paymentConfigSave") {
+          if (!isAdminPay) return json({ ok: false, error: "Solo administración." }, 403, corsHeaders);
+          const phone = String(body.phone || "").replace(/[\s-]/g, "").trim();
+          const recipientName = String(body.recipientName || "").trim().slice(0, 80);
+          if (!/^\+?[0-9]{9,15}$/.test(phone)) return json({ ok: false, error: "Número Bizum no válido." }, 400, corsHeaders);
+          if (!recipientName) return json({ ok: false, error: "Indica quién recibe los Bizum." }, 400, corsHeaders);
+          await env.DATA.put(configKey, JSON.stringify({ amountCents: 600, phone, recipientName }));
+          return json({ ok: true }, 200, corsHeaders);
+        }
+        if (action === "paymentAdminList") {
+          if (!isAdminPay) return json({ ok: false, error: "Solo administración." }, 403, corsHeaders);
+          const entries = []; let cursor;
+          do {
+            const page = await env.DATA.list({ prefix: paymentPrefix, cursor, limit: 1000 });
+            const values = await Promise.all(page.keys.map(k => env.DATA.get(k.name, "json")));
+            for (const item of values) if (item?.matchId && item?.player) entries.push(item);
+            if (page.list_complete) break;
+            cursor = page.cursor;
+          } while (cursor);
+          return json({ ok: true, config: safeConfig, entries: entries.sort((a,b)=>String(b.updatedAt||"").localeCompare(String(a.updatedAt||""))) }, 200, corsHeaders);
+        }
+        const matchId = String(body.matchId || "").trim().slice(0, 250);
+        const currentState = await getState(env);
+        const found = findFixture(currentState, matchId);
+        if (!found) return json({ ok: false, error: "Partido no encontrado." }, 404, corsHeaders);
+        const fixture = found.fixture;
+        const playerNames = [String(fixture.a || ""), String(fixture.b || "")];
+        const ownName = playerNames.find(name=>normalizePay(name)===normalizePay(auth.session.name));
+        if (!ownName && !isAdminPay) return json({ ok: false, error: "No perteneces a este partido." }, 403, corsHeaders);
+        // No crear pagos para partidos sin reserva; los pagos siguen asociados al partido si se cambia de pista.
+        const activeReservation = await bookingCall(env, { action: "get", matchId });
+        if (!activeReservation.reservation && action === "paymentClaim") return json({ ok:false, error:"Primero debe reservarse la pista." }, 409, corsHeaders);
+        const payKey = name => paymentPrefix + encodeURIComponent(matchId) + ":" + encodeURIComponent(normalizePay(name));
+        const getEntry = async name => await env.DATA.get(payKey(name), "json") || null;
+        if (action === "paymentRead") {
+          const items = await Promise.all(playerNames.map(getEntry));
+          return json({ ok: true, matchId, amountCents: 600, hasReservation: !!activeReservation.reservation,
+            config: safeConfig, payments: playerNames.map((player,i)=>({player,status:items[i]?.status||"pending",updatedAt:items[i]?.updatedAt||null})) }, 200, corsHeaders);
+        }
+        if (action === "paymentClaim") {
+          if (!ownName) return json({ ok:false,error:"Solo el jugador puede comunicar su propio Bizum." },403,corsHeaders);
+          const previous = await getEntry(ownName);
+          if (previous?.status === "confirmed") return json({ ok:false,error:"Este pago ya está confirmado." },409,corsHeaders);
+          const entry = {matchId,player:ownName,a:playerNames[0],b:playerNames[1],week:found.week,
+            amountCents:600,status:"claimed",updatedAt:new Date().toISOString(),claimedAt:new Date().toISOString(),confirmedAt:null,confirmedBy:null};
+          await env.DATA.put(payKey(ownName),JSON.stringify(entry));
+          return json({ok:true,payment:entry},200,corsHeaders);
+        }
+        if (action === "paymentAdminSet") {
+          if (!isAdminPay) return json({ok:false,error:"Solo administración."},403,corsHeaders);
+          const player = playerNames.find(n=>normalizePay(n)===normalizePay(body.player));
+          const status = String(body.status || "");
+          if (!player || !["pending","claimed","confirmed"].includes(status)) return json({ok:false,error:"Jugador o estado no válido."},400,corsHeaders);
+          const previous = await getEntry(player) || {};
+          const now = new Date().toISOString();
+          const entry = {...previous,matchId,player,a:playerNames[0],b:playerNames[1],week:found.week,amountCents:600,
+            status,updatedAt:now,confirmedAt:status==="confirmed"?now:null,confirmedBy:status==="confirmed"?auth.session.name:null};
+          await env.DATA.put(payKey(player),JSON.stringify(entry));
+          return json({ok:true,payment:entry},200,corsHeaders);
+        }
+      }
       if (action === "saveState") {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
@@ -731,6 +858,59 @@ var index_default = {
         await env.DATA.put(STATE_KEY, JSON.stringify(safeState));
         await broadcastRealtime(env, { type: "stateChanged", updatedAt: safeState.updatedAt });
         return json({ ok: true, state: safeState }, 200, corsHeaders);
+      }
+      if (["getMatchProposal","proposeMatchSlot","respondMatchProposal"].includes(action)) {
+        const auth=await requireUser(request,body,env);
+        if (!auth.ok) return json({ok:false,error:auth.error},auth.status,corsHeaders);
+        const matchId=String(body.matchId||"").trim();
+        const league=await getState(env);
+        const found=findFixture(league,matchId);
+        if (!found) return json({ok:false,error:"Partido no encontrado"},404,corsHeaders);
+        const {fixture,week,category,gender}=found;
+        const me=auth.session.name;
+        const participant=normalize(me)===normalize(fixture.a)||normalize(me)===normalize(fixture.b);
+        if (!participant && auth.session.role!=="admin") return json({ok:false,error:"No perteneces a este partido"},403,corsHeaders);
+        if (action==="getMatchProposal") {
+          const result=await bookingCall(env,{action:"getProposal",matchId});
+          return json(result,result.ok?200:500,corsHeaders);
+        }
+        if (!participant) return json({ok:false,error:"Solo los jugadores pueden proponer o responder"},403,corsHeaders);
+        if (league.results?.[matchId]?.status==="confirmed") return json({ok:false,error:"El partido está finalizado"},409,corsHeaders);
+        if (action==="proposeMatchSlot") {
+          if (!league.published?.[week]) return json({ok:false,error:"Las pistas de esta jornada todavía no están publicadas"},409,corsHeaders);
+          const slotId=String(body.slotId||"").trim();
+          const slot=(league.slots?.[week]||[]).find(x=>String(x.id)===slotId);
+          if (!slot) return json({ok:false,error:"La pista ya no está disponible"},409,corsHeaders);
+          const until=Date.parse(`${slot.date}T${slot.time}:00`);
+          if (!Number.isFinite(until)||until<=Date.now()) return json({ok:false,error:"La hora propuesta ya ha pasado"},409,corsHeaders);
+          const current=await bookingCall(env,{action:"get",matchId});
+          if (current.reservation) return json({ok:false,error:"El partido ya tiene una reserva"},409,corsHeaders);
+          const target=normalize(me)===normalize(fixture.a)?fixture.b:fixture.a;
+          const proposal={matchId,slotId,from:me,to:target,week,createdAt:new Date().toISOString(),expiresAt:new Date(until).toISOString(),
+            reservation:{week,slotId,a:fixture.a,b:fixture.b,day:slot.day,date:slot.date,time:slot.time,court:slot.court,category,gender}};
+          const result=await bookingCall(env,{action:"proposeSlot",proposal});
+          if (!result.ok) return json(result,409,corsHeaders);
+          await broadcastRealtime(env,{type:"reservationProposalChanged",matchId},{recipients:[fixture.a,fixture.b],includeAdmins:true});
+          await sendTargetedPush(env,[target],"🎾 Propuesta de pista",`${me} propone jugar el ${slot.date} a las ${slot.time} en ${slot.court}. Entra en Mi partido para responder.`,{open:"match",week});
+          return json(result,200,corsHeaders);
+        }
+        const before=await bookingCall(env,{action:"getProposal",matchId});
+        const proposal=before.proposal;
+        if (!proposal||proposal.status!=="pending") return json({ok:false,error:"No hay propuesta pendiente"},409,corsHeaders);
+        const response=String(body.response||"");
+        if (response!=="accept"&&response!=="reject") return json({ok:false,error:"Respuesta no válida"},400,corsHeaders);
+        if (normalize(proposal.to)!==normalize(me)) return json({ok:false,error:"Solo el rival puede responder a esta propuesta"},403,corsHeaders);
+        if (response==="accept") {
+          if (!league.published?.[proposal.week]) return json({ok:false,error:"La disponibilidad se ha cerrado"},409,corsHeaders);
+          const slot=(league.slots?.[proposal.week]||[]).find(x=>String(x.id)===proposal.slotId);
+          if (!slot||slot.date!==proposal.reservation?.date||slot.time!==proposal.reservation?.time||slot.court!==proposal.reservation?.court)
+            return json({ok:false,error:"La pista propuesta ya no está disponible"},409,corsHeaders);
+        }
+        const result=await bookingCall(env,{action:response==="accept"?"acceptProposal":"rejectProposal",matchId,acceptedBy:me,expectedSlotId:proposal.slotId});
+        if (!result.ok) return json(result,409,corsHeaders);
+        await broadcastRealtime(env,{type:response==="accept"?"reservationChanged":"reservationProposalChanged",matchId,reservation:result.reservation||null},{recipients:[fixture.a,fixture.b],includeAdmins:true});
+        await sendTargetedPush(env,[proposal.from],response==="accept"?"✅ Propuesta aceptada":"↩️ Propuesta rechazada",response==="accept"?`${me} ha aceptado la propuesta. La pista ha quedado reservada.`:`${me} no puede jugar en el horario propuesto.`,{open:"match",week});
+        return json(result,200,corsHeaders);
       }
       if (action === "reserve") {
         const auth = await requireUser(request, body, env);
