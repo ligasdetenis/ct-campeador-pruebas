@@ -807,8 +807,11 @@ var index_default = {
           const slotId=String(body.slotId||"").trim();
           const slot=(league.slots?.[week]||[]).find(x=>String(x.id)===slotId);
           if (!slot) return json({ok:false,error:"La pista ya no está disponible"},409,corsHeaders);
-          const until=Date.parse(`${slot.date}T${slot.time}:00`);
-          if (!Number.isFinite(until)||until<=Date.now()) return json({ok:false,error:"La hora propuesta ya ha pasado"},409,corsHeaders);
+          // Las pistas se publican en hora peninsular (Europe/Madrid), no UTC.
+          // Comparar fecha/hora local evita falsos avisos en los Workers de Cloudflare.
+          const until=spanishSlotTimeToUTC(slot.date,slot.time);
+          if (!Number.isFinite(until)) return json({ok:false,error:"La fecha u hora de la pista no tiene un formato válido"},409,corsHeaders);
+          if (until<=Date.now()) return json({ok:false,error:"La hora propuesta ya ha pasado. Elige una fecha y hora futuras."},409,corsHeaders);
           const current=await bookingCall(env,{action:"get",matchId});
           if (current.reservation) return json({ok:false,error:"El partido ya tiene una reserva"},409,corsHeaders);
           const target=normalize(me)===normalize(fixture.a)?fixture.b:fixture.a;
@@ -1575,6 +1578,30 @@ async function broadcastRealtime(env, event, options = {}) {
 __name(broadcastRealtime, "broadcastRealtime");
 
 const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-pruebas/";
+
+// Convierte YYYY-MM-DD + HH:mm de Europe/Madrid a UTC, respetando horario de verano.
+function spanishSlotTimeToUTC(dateValue, timeValue) {
+  const date = String(dateValue || "").trim();
+  const time = String(timeValue || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{1,2}:\d{2}$/.test(time)) return NaN;
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const naive = Date.UTC(year, month - 1, day, hour, minute);
+  if (new Date(naive).toISOString().slice(0, 10) !== date || hour > 23 || minute > 59) return NaN;
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  });
+  const madridParts = (timestamp) => {
+    const fields = Object.fromEntries(formatter.formatToParts(new Date(timestamp)).map(p => [p.type,p.value]));
+    return Date.UTC(Number(fields.year),Number(fields.month)-1,Number(fields.day),Number(fields.hour),Number(fields.minute));
+  };
+  // Refinar diferencia horaria; en el cambio estacional puede variar entre UTC+1 y UTC+2.
+  let utc = naive;
+  for (let i = 0; i < 3; i++) utc += naive - madridParts(utc);
+  return madridParts(utc) === naive ? utc : NaN;
+}
+
 function makeAppDeepLink(params = {}) {
   const u = new URL(APP_BASE_URL);
   for (const [key, value] of Object.entries(params || {})) {
