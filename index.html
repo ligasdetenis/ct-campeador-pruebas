@@ -6227,7 +6227,7 @@ function renderMatches(){const fs=viewFixtures(), box=$('#matches');const offici
  box.querySelectorAll('[data-confirm-result]').forEach(b=>b.onclick=()=>confirmResult(b.dataset.confirmResult));
  box.querySelectorAll('[data-delay-mid]').forEach(b=>b.onclick=()=>openDelayModal(b.dataset.delayMid));
 }
-async function cancelBooking(mid){const m=findFixtureById(mid);const bk=bookingFor(mid);if(!m||!bk)return;if(!canPlayerReserve(m)&&!isAdmin()){alert('Solo uno de los dos jugadores o un administrador puede cancelar la reserva.');return;}const ok=confirm(`¿Cancelar esta reserva?\n\n${m.a} vs ${m.b}\n${dayDateES(bk.date)} · ${bk.time} · ${bk.court}\n\nLa pista volverá a quedar libre.`);if(!ok)return;try{await apiRequest({action:'cancelReservation',matchId:mid});delete data.bookings[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();alert('✅ Reserva cancelada. La pista vuelve a estar disponible.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
+async function cancelBooking(mid){const m=findFixtureById(mid);const bk=bookingFor(mid);if(!m||!bk)return;if(!canPlayerReserve(m)&&!isAdmin()){alert('Solo uno de los dos jugadores o un administrador puede cancelar la reserva.');return;}const ok=confirm(`¿Cancelar esta reserva?\n\n${m.a} vs ${m.b}\n${dayDateES(bk.date)} · ${bk.time} · ${bk.court}\n\nLa pista volverá a quedar libre.`);if(!ok)return;try{await apiRequest({action:'cancelReservation',matchId:mid});delete data.bookings[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));ctProposalCache?.delete(mid);renderAll();ctLoadSmartProposal(mid,true);alert('✅ Reserva cancelada. La pista vuelve a estar disponible.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
 function openDelayModal(mid){if(!isAdmin())return;const rec=fixtureRecord(mid);if(!rec)return;state.delayMatchId=mid;const p=postponedInfo(mid);$('#delayMatch').textContent=`${rec.m.a} vs ${rec.m.b}`;$('#delayOrigin').textContent=`Jornada oficial: ${weeks.find(w=>w.id===rec.week)?.label||rec.week} · ${rec.category} ${rec.gender}`;const originIdx=weeks.findIndex(w=>w.id===rec.week);const options=['<option value="">Retrasado · todavía sin nueva semana</option>'];weeks.forEach((w,i)=>{if(i>originIdx)options.push(`<option value="${w.id}">${w.label}</option>`)});$('#delayTargetWeek').innerHTML=options.join('');$('#delayTargetWeek').value=p?.targetWeek||'';$('#restoreDelayBtn').classList.toggle('hidden',!p);$('#delayModal').classList.add('show')}
 async function saveDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;const target=$('#delayTargetWeek').value;data.postponed=data.postponed||{};data.postponed[mid]={originalWeek:rec.week,targetWeek:target||'',status:target?'reprogrammed':'delayed',updatedAt:new Date().toISOString(),updatedBy:state.player};localStorage.setItem(STORAGE_KEY,JSON.stringify(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert(target?`✅ Partido reprogramado a ${weeks.find(w=>w.id===target)?.label||target}.`:'✅ Partido marcado como retrasado. Queda pendiente de asignar una nueva semana.')}catch(e){alert('El cambio se ha guardado localmente, pero no se pudo guardar online.\n\n'+e.message)}}
 async function restoreDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;if(!confirm(`¿Devolver ${rec.m.a} vs ${rec.m.b} a su jornada oficial?`))return;delete data.postponed[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert('✅ Partido devuelto a su jornada oficial.')}catch(e){alert(e.message)}}
@@ -6494,7 +6494,7 @@ function proposalChoiceDialog(p,info,canRespond){
   overlay.id='ctProposalChoiceOverlay';
   overlay.className='ct-proposal-overlay';
   const safe=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const status=p.status==='accepted'?'Aceptada':p.status==='rejected'?'Rechazada':'Pendiente';
+  const status=p.status==='accepted'?'Aceptada':p.status==='rejected'?'Rechazada':p.status==='cancelled'?'Reserva cancelada':'Pendiente';
   const history=Array.isArray(p.history)?p.history:[];
   overlay.innerHTML=`<section class="ct-proposal-dialog" role="dialog" aria-modal="true" aria-labelledby="ctPropTitle">
     <div class="ct-proposal-header"><h3 id="ctPropTitle">🎾 Propuestas de pista</h3><button type="button" data-choice="close" class="ct-proposal-close" aria-label="Cerrar">✕</button></div>
@@ -9255,6 +9255,7 @@ const ctProposalRequests=new Map();
 function ctProposalStatus(p){
  if(!p)return ['Proponer fecha al rival','Elige día, hora y pista para enviárselo'];
  if(p.status==='rejected')return ['Proponer nueva fecha','La anterior fue rechazada; plantea otra opción'];
+ if(p.status==='cancelled')return ['Proponer nueva fecha','La reserva anterior se canceló; puedes acordar otro horario'];
  if(p.status==='accepted')return ['Propuesta aceptada','Consulta la reserva acordada'];
  if(p.status==='pending'){
   const me=String(state.player||'').trim().toLocaleLowerCase('es');
@@ -9283,9 +9284,9 @@ async function ctOpenSmartProposal(mid){
  try{
   const j=await apiRequest({action:'getMatchProposal',matchId:mid});
   const p=j.proposal||null;ctProposalCache.set(mid,p);ctPaintSmartProposal(mid);
-  if(!p||p.status==='rejected'){
+  if(!p||p.status==='rejected'||p.status==='cancelled'){
    routeContextFromMatch(mid);renderAll();openReserve(mid);
-   if(p?.status==='rejected')$('#modalMode').textContent='PROPONER NUEVA FECHA';
+   if(p?.status==='rejected'||p?.status==='cancelled')$('#modalMode').textContent='PROPONER NUEVA FECHA';
    return;
   }
   await viewMatchProposal(mid);
