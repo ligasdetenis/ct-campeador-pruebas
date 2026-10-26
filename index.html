@@ -1910,63 +1910,7 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .mapp-week-carousel-chip{appearance:none;flex:0 0 auto;scroll-snap-align:center;border:1px solid #d9c8cb;background:white;color:#651c29;border-radius:99px;padding:10px 17px;font:800 13px Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 1px 4px #360d1414}
 .mapp-week-carousel-chip.selected{background:#b90020;color:white;border-color:#b90020;box-shadow:0 3px 12px #bb001e33}
 .mapp-week-swipe-area{touch-action:pan-y;}
-/* Transición de tarjeta de jornada: deslizamiento y fundido suaves. */
-.mapp-week-swipe-area{will-change:transform,opacity;transition:transform .24s cubic-bezier(.22,1,.36,1),opacity .24s ease;}
-.mapp-week-swipe-area.mapp-week-slide-out-left{transform:translate3d(-38px,0,0) scale(.985);opacity:0;}
-.mapp-week-swipe-area.mapp-week-slide-out-right{transform:translate3d(38px,0,0) scale(.985);opacity:0;}
-.mapp-week-swipe-area.mapp-week-slide-in-left{animation:mappWeekSlideInLeft .42s cubic-bezier(.2,.8,.2,1) both;}
-.mapp-week-swipe-area.mapp-week-slide-in-right{animation:mappWeekSlideInRight .42s cubic-bezier(.2,.8,.2,1) both;}
-@keyframes mappWeekSlideInLeft{from{transform:translate3d(38px,0,0) scale(.985);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
-@keyframes mappWeekSlideInRight{from{transform:translate3d(-38px,0,0) scale(.985);opacity:0}to{transform:translate3d(0,0,0) scale(1);opacity:1}}
-@media(prefers-reduced-motion:reduce){.mapp-week-swipe-area{transition:none!important}.mapp-week-swipe-area.mapp-week-slide-in-left,.mapp-week-swipe-area.mapp-week-slide-in-right{animation:none!important}}
 
-
-/* TEST · Clasificación PRO: tabla accesible, nombre fijo y foto */
-.rankProCard{background:#fff;border:1px solid #e8e9ec;border-radius:17px;margin-bottom:16px;box-shadow:0 6px 20px #250e1410;overflow:hidden}
-.rankProHeader{padding:15px;display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.rankProHeader h3{font-size:17px;margin:0;color:#24262c;font-weight:950}
-.rankProFilters{display:flex;gap:8px;padding:0 14px 12px}
-.rankProFilters select{flex:1;min-width:0;max-width:100%;font-size:12px;padding:9px;background:#f6f7f9;color:#252830;border-color:#e1e3e7}
-.rankProScroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;max-width:100%}
-.rankProTable{border-spacing:0;border-collapse:separate;min-width:745px;width:100%;font-size:11px;color:#252830}
-.rankProTable th,.rankProTable td{padding:11px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #edeef0;background:#fff}
-.rankProTable th{font-size:9px;font-weight:950;color:#787d86;background:#f7f8fa;position:sticky;top:0;z-index:1}
-.rankProTable th:nth-child(1),.rankProTable td:nth-child(1){position:sticky;left:0;z-index:2;min-width:47px;width:47px}
-.rankProTable th:nth-child(2),.rankProTable td:nth-child(2){position:sticky;left:47px;z-index:2;min-width:171px;width:171px;text-align:left;box-shadow:5px 0 9px -10px #222}
-.rankProTable th:nth-child(-n+2){z-index:3;background:#f7f8fa}
-.rankProTable tr.rankProMine td{background:#fff0f2;border-bottom-color:#ead3d6}
-.rankProTable tr.rankProMine td:first-child{box-shadow:inset 3px 0 #b90024}
-.rankProPos{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#eef0f2;color:#4f555f;font-weight:950}
-.rankProPos.gold{background:#d1a02e;color:white}.rankProPos.silver{background:#a7aeba;color:white}.rankProPos.bronze{background:#b77b4e;color:white}
-.rankProIdentity{display:flex;align-items:center;gap:8px;min-width:0;background:none;border:0;color:inherit;padding:0;cursor:pointer;text-align:left}
-.rankProAvatar{flex:0 0 34px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eceef0;color:#7a0018;font-weight:950;font-size:10px;background-size:cover;background-position:center}
-.rankProName{font-size:11px;max-width:117px;overflow:hidden;text-overflow:ellipsis;font-weight:900}
-.rankProForm{display:flex;gap:4px;margin-top:5px}.rankProDot{display:block;flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:#ced2d8}.rankProDot.w{background:#19ad68}.rankProDot.l{background:#e34757}
-.rankProPts{font-weight:950;color:#078a4d;font-size:13px}.rankProEmpty{padding:19px;text-align:center;font-size:12px;color:#777d87}
-.rankProDetails{position:fixed;inset:0;background:#1119;z-index:9500;display:flex;align-items:center;justify-content:center;padding:15px}.rankProDetailsPanel{background:#fff;color:#24262b;border-radius:17px;padding:21px;width:min(390px,100%);box-shadow:0 12px 50px #0004}.rankProDetailsPanel button{background:#780013;color:#fff;border:0;border-radius:9px;padding:10px 14px;margin-top:15px;width:100%}
-
-/* CT CAMPEADOR TEST V21.2 · Barra inferior de 6 pestañas */
-.mapp-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important}
-.mapp-nav-btn{min-width:0!important;padding:5px 0!important}
-.mapp-nav-btn>span:last-child{font-size:clamp(7px,1.85vw,10px)!important;letter-spacing:-.02em;text-overflow:clip!important}
-.mapp-nav-btn svg{width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important}
-.mapp-nav-btn.active:after{width:29px!important}
-#modernRanking .rankProCard{margin-bottom:8px}
-@media(max-width:365px){.mapp-nav-btn>span:last-child{font-size:7px!important}}
-
-/* TEST V22.5 · WhatsApp asistido (solo admin) */
-.waAccessPanel{margin:13px 0;padding:13px;border:1px solid #dee3e9;border-radius:13px;background:#f9fafb;color:#252a32;display:grid;gap:9px}
-.waAccessTitle{font-weight:900;font-size:14px}
-.waAccessTools{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
-.waAccessTools input[type=file]{flex:1 1 190px;min-width:0;max-width:100%;font-size:11px}
-.waAccessTools .btn{font-size:11px!important;min-height:38px!important}
-.waAction{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px}
-.waAction button{border:1px solid #cdd8d1;background:#eff8f1;color:#17643c;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:850;cursor:pointer}
-.waAction button:disabled{opacity:.4;cursor:not-allowed}
-.waAction .waMark{background:#fff;border-color:#dce0e5;color:#51565e}
-.waAction .waDelivered{background:#e7f6ed;color:#18663e;border-color:#b5dbc4}
-.waPhone{font-size:10px;color:#66707c;font-weight:650}
-.waStatus{font-size:9px;font-weight:850;color:#66707c}
 </style>
 
 <link rel="manifest" href="manifest-test.webmanifest">
@@ -4122,88 +4066,9 @@ body.modern-admin .courtsProEmptyActions .btn{
 }
 </style>
 <style id="pwa-test-marker">#testVersionRibbon{position:fixed;left:0;right:0;top:0;z-index:99999;background:#ffcd24;color:#111;text-align:center;font:bold 12px system-ui;padding:5px;pointer-events:none}body{padding-top:24px}</style>
-<style id="ct-test-v213-header-compacto">
-/* TEST V21.3 · Cabecera más compacta, sin afectar al menú ni al contenido */
-#modernApp .mapp-header{min-height:0!important;padding-top:10px!important}
-#modernApp .mapp-brand{min-height:106px!important;gap:10px!important}
-#modernApp .mapp-logo{width:118px!important;height:100px!important;flex:0 0 118px!important}
-#modernApp .mapp-context-item{padding-top:9px!important;padding-bottom:9px!important}
-@media(max-width:520px){
- #modernApp .mapp-header{padding:9px 12px 0!important}
- #modernApp .mapp-brand{min-height:93px!important;gap:8px!important}
- #modernApp .mapp-logo{width:105px!important;height:90px!important;flex:0 0 105px!important}
- #modernApp .mapp-brand-title{font-size:18px!important}
- #modernApp .mapp-brand-sub{font-size:13px!important}
- #modernApp .mapp-context-item{padding:8px 6px!important}
-}
-</style>
-
-<style id="v22-1-jornadas-responsive">
-/* V22.1 · Evita que importar liga / nueva jornada salgan fuera de la pantalla */
-body.modern-admin .journeyNavigatorSection,
-body.modern-admin .journeyNavigatorHead,
-body.modern-admin .journeyNavigatorActions{min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
-body.modern-admin .journeyNavigatorActions{
-  display:flex!important;
-  flex-flow:row wrap!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  gap:8px!important;
-}
-body.modern-admin .journeyNavigatorHint{
-  flex:1 1 100%!important;
-  min-width:0!important;
-}
-body.modern-admin .journeyNavigatorActions .journeyAddBtn{
-  flex:0 1 auto!important;
-  max-width:100%!important;
-  min-width:0!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere!important;
-  line-height:1.25!important;
-  text-align:center!important;
-  min-height:38px!important;
-}
-body.modern-admin .journeyNavigator{
-  display:flex!important;
-  flex-wrap:nowrap!important;
-  width:100%!important;
-  min-width:0!important;
-  max-width:100%!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  overscroll-behavior-x:contain!important;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-x!important;
-  scrollbar-width:thin!important;
-  scrollbar-color:#9a9da4 #edf0f3;
-  padding-bottom:12px!important;
-}
-body.modern-admin .journeyNavigator .journeyJump{flex-shrink:0!important}
-body.modern-admin .journeyNavigator::-webkit-scrollbar{height:6px}
-body.modern-admin .journeyNavigator::-webkit-scrollbar-thumb{background:#9a9da4;border-radius:6px}
-body.modern-admin .journeyNavigator::-webkit-scrollbar-track{background:#edf0f3;border-radius:6px}
-@media(max-width:600px){
-  body.modern-admin .journeyNavigatorActions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important}
-  body.modern-admin .journeyNavigatorHint{grid-column:1/-1!important}
-  body.modern-admin #importCompleteLeagueBtn{grid-column:1/-1!important}
-  body.modern-admin #addJourneyBtn{grid-column:1/-1!important}
-  body.modern-admin .journeyNavigatorActions .journeyAddBtn{width:100%!important;padding:9px 10px!important;font-size:11px!important}
-}
-</style>
-<style id="test-v224-journey-scroll-stable">
-/* La barra solo se mueve si el usuario la desplaza. */
-body.modern-admin #journeyNavigator{
-  scroll-snap-type:none!important;
-  scroll-behavior:auto!important;
-  overflow-x:auto!important;
-  overscroll-behavior-x:contain!important;
-}
-body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!important}
-</style>
 </head>
 <body>
-<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V22.5 · WHATSAPP ASISTIDO</div>
+<div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V20</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -4535,8 +4400,6 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
           </div>
           <div class="journeyNavigatorActions">
             <div class="journeyNavigatorHint">Toca una jornada para editarla.</div>
-            <button class="btn secondary journeyAddBtn" id="importCompleteLeagueBtn" type="button">⇧ Importar liga JSON · categoría automática</button>
-            <input type="file" id="importCompleteLeagueFile" accept=".json,application/json" style="display:none" aria-label="Seleccionar archivo de liga">
             <button class="btn secondary journeyAddBtn" id="addJourneyBtn" type="button">＋ Nueva jornada</button>
           </div>
         </div>
@@ -4649,14 +4512,6 @@ Pablo Ruiz"></textarea>
       <div class="adminSubsectionBody"><div class="tiny">Genera PIN de 4 cifras automáticamente para todos los jugadores cargados. Puedes regenerar uno concreto si fuera necesario. Los PIN se guardan online en Cloudflare junto con los usuarios.</div>
 <div class="quickActions"><button class="btn gold" id="generatePins">Generar PIN que falten</button><button class="btn secondary" id="showPins">Mostrar / ocultar PIN</button><button class="btn danger" id="resetPins">Regenerar todos</button><button class="btn dangerBtn" id="deleteSelectedUsers" disabled>🗑️ Eliminar seleccionados</button><button class="btn secondary" id="syncAccessUsers" type="button">🔄 Sincronizar usuarios</button></div>
 <div class="tiny" id="selectedUsersInfo" style="margin-top:7px">Selecciona uno o varios usuarios para eliminarlos rápidamente.</div>
-
-<div id="waAccessPanel" class="waAccessPanel">
-  <div class="waAccessTitle">🧪 TEST · Accesos por WhatsApp · envío asistido</div>
-  <div class="tiny">Importa un CSV con columnas <b>nombre;telefono</b> (o nombre,telefono). Se relacionará con usuarios ya creados, sin modificar PIN ni enviar mensajes automáticamente.</div>
-  <div class="waAccessTools"><input type="file" id="waPhoneCsv" accept=".csv,.txt,text/csv" aria-label="Seleccionar CSV de teléfonos"><button type="button" class="btn secondary" id="waCsvTemplate">Descargar plantilla CSV</button><button type="button" class="btn secondary" id="waExportLog">Exportar seguimiento</button></div>
-  <div id="waAccessSummary" class="tiny" aria-live="polite"></div>
-  <div class="tiny">Los teléfonos y el registro de envíos se guardan <b>solo en este navegador</b>, no se sincronizan entre administradores. «Preparado» no significa enviado: marca la entrega después de pulsar Enviar en WhatsApp. Utiliza únicamente números facilitados para esta finalidad.</div>
-</div>
 <div class="schedule accessUsersSchedule accessUsersDesktop" style="margin-top:10px"><table class="accessUsersTable"><thead><tr><th style="width:42px"><input id="selectAllUsers" type="checkbox" aria-label="Seleccionar todos"></th><th>Usuario</th><th>PIN</th><th>Mensaje</th><th>Acciones</th></tr></thead><tbody id="pinTable"></tbody></table></div>
 <div class="accessUsersMobile" id="pinCardsMobile" aria-label="Usuarios"></div></div>
     </div>
@@ -4774,15 +4629,6 @@ Pablo Ruiz"></textarea>
       <div class="mapp-screen-heading">Mi partido</div>
       <div id="modernMatchContent"></div>
     </section>
-    <section class="mapp-screen" id="modernRanking">
-      <div class="mapp-screen-heading">Clasificación</div>
-      <div class="mapp-subheading">Clasificación por categoría · 2 puntos por victoria</div>
-      <div class="rankProCard" id="rankProCard">
-        <div class="rankProHeader"><h3>🏆 Clasificación</h3><span style="font-size:10px;color:#7c8088">2 puntos por victoria</span></div>
-        <div class="rankProFilters"><select id="rankProCategory" aria-label="Categoría de clasificación"></select><select id="rankProGender" aria-label="Género de clasificación"></select></div>
-        <div class="rankProScroll" id="rankProContent"></div>
-      </div>
-    </section>
     <section class="mapp-screen" id="modernResults">
       <div class="mapp-screen-heading">Resultados</div>
       <div class="mapp-subheading">Solo se muestran resultados confirmados.</div>
@@ -4808,8 +4654,7 @@ Pablo Ruiz"></textarea>
   <nav class="mapp-nav">
     <button class="mapp-nav-btn active" data-modern-go="home" type="button"><span data-icon="home"></span><span>Inicio</span></button>
     <button class="mapp-nav-btn" data-modern-go="courts" type="button"><span data-icon="court"></span><span>Pistas</span></button>
-    <button class="mapp-nav-btn" data-modern-go="match" type="button"><span data-icon="calendar"></span><span>Mi partido</span></button>
-    <button class="mapp-nav-btn" data-modern-go="ranking" type="button"><span data-icon="trophy"></span><span>Clasificación</span></button>
+    <button class="mapp-nav-btn" data-modern-go="match" type="button"><span data-icon="trophy"></span><span>Mi partido</span></button>
     <button class="mapp-nav-btn" data-modern-go="results" type="button"><span data-icon="chart"></span><span>Resultados</span></button>
     <button class="mapp-nav-btn" data-modern-go="profile" type="button"><span data-icon="user"></span><span>Mi perfil</span></button>
   </nav>
@@ -4827,7 +4672,7 @@ Pablo Ruiz"></textarea>
   </div>
 </div>
 <nav class="bottomNav"><button class="navBtn active" data-go="home"><span>🎾</span>Partidos</button><button class="navBtn" data-go="courts"><span>🏟️</span>Pistas</button><button class="navBtn hidden" data-go="admin" id="adminNavBtn"><span>⚙️</span>Configuración</button><button class="navBtn" id="refreshBtn"><span>🔄</span>Actualizar</button></nav>
-<div class="modal" id="reserveModal"><div class="sheet"><div class="sheetHead"><div><div class="tiny" id="modalMode">RESERVAR PARTIDO</div><h3 id="modalMatch"></h3></div><button class="close" id="closeModal">✕</button></div><div class="sheetBody"><div class="tiny" id="modalCat"></div><div class="reserveCurrent hidden" id="reserveCurrent"></div><div class="noSlots hidden" id="reserveNoSlots">No quedan huecos disponibles para esta semana.</div><div class="reserveForm" id="reserveForm"><div class="reserveField"><label>Día</label><select id="reserveDay"></select></div><div class="reserveField"><label>Franja horaria</label><select id="reserveTime"></select></div><div class="reserveField"><label>Pista</label><select id="reserveCourt"></select></div><div class="reserveActions"><button class="btn gold" id="confirmReserve">✅ Confirmar reserva</button><button class="btn dangerBtn hidden" id="cancelReserveModal">Cancelar reserva actual</button></div></div></div></div></div>
+<div class="modal" id="reserveModal"><div class="sheet"><div class="sheetHead"><div><div class="tiny" id="modalMode">RESERVAR PARTIDO</div><h3 id="modalMatch"></h3></div><button class="close" id="closeModal">✕</button></div><div class="sheetBody"><div class="tiny" id="modalCat"></div><div class="reserveCurrent hidden" id="reserveCurrent"></div><div class="noSlots hidden" id="reserveNoSlots">No quedan huecos disponibles para esta semana.</div><div class="reserveForm" id="reserveForm"><div class="reserveField"><label>Día</label><select id="reserveDay"></select></div><div class="reserveField"><label>Franja horaria</label><select id="reserveTime"></select></div><div class="reserveField"><label>Pista</label><select id="reserveCourt"></select></div><div class="reserveActions"><button class="btn gold" id="confirmReserve">✅ Confirmar reserva</button><button class="btn secondary" type="button" id="proposeReserve">✉️ Proponer al rival</button><button class="btn dangerBtn hidden" id="cancelReserveModal">Cancelar reserva actual</button></div></div></div></div></div>
 <div class="modal" id="delayModal"><div class="sheet"><div class="sheetHead"><div><div class="tiny">GESTIONAR PARTIDO RETRASADO</div><h3 id="delayMatch"></h3></div><button class="close" id="closeDelayModal">✕</button></div><div class="sheetBody"><div class="tiny" id="delayOrigin"></div><div class="reserveField"><label>Nueva semana</label><select id="delayTargetWeek"></select></div><div class="resultHint">El partido seguirá perteneciendo a su jornada oficial. Si eliges una semana posterior, aparecerá también allí como <b>reprogramado</b> y podrá reservar una pista de esa semana.</div><div class="reserveActions"><button class="btn gold" id="saveDelayBtn">💾 Guardar retraso</button><button class="btn dangerBtn" id="restoreDelayBtn">↩️ Devolver a jornada original</button></div></div></div></div>
 <div class="modal" id="resultModal"><div class="sheet"><div class="sheetHead"><div><div class="tiny" id="resultModalMode">RESULTADO DEL PARTIDO</div><h3 id="resultModalMatch"></h3></div><button class="close" id="closeResultModal">✕</button></div><div class="sheetBody">
 <div class="tiny" id="resultModalCat"></div>
@@ -5308,32 +5153,12 @@ function goToJourney(weekId){
   ['#quickFixturePanel','#pasteFixturePanel','#journeySettingsPanel'].forEach(sel=>$(sel)?.classList.add('hidden'));
   renderAll();
   renderModernAdminContext();
-  // No centrar la jornada ni modificar desplazamientos al cambiarla.
+  requestAnimationFrame(()=>document.querySelector('.journeyManagerTop')?.scrollIntoView({behavior:'smooth',block:'nearest'}));
 }
 
-// TEST V22.4 · Posición independiente del DOM y sin scroll-snap al redibujar.
-const JOURNEY_NAV_SCROLL_KEY='ctcampeador-test-journey-navigator-scroll-v224';
-let journeyNavScrollPosition=(()=>{try{return Math.max(0,Number(localStorage.getItem(JOURNEY_NAV_SCROLL_KEY))||0)}catch(_){return 0}})();
-let journeyNavIsRestoring=false;
-let journeyNavRestoreEpoch=0;
 function renderJourneyNavigator(){
   const box=$('#journeyNavigator');
   if(!box)return;
-  // Capturar el desplazamiento antes de tocar el contenido.
-  if(box.dataset.scrollMemoryReady==='1' && !journeyNavIsRestoring){
-    journeyNavScrollPosition=box.scrollLeft;
-  }
-  if(!box.dataset.scrollMemoryReady){
-    box.dataset.scrollMemoryReady='1';
-    box.addEventListener('scroll',()=>{
-      if(journeyNavIsRestoring)return;
-      journeyNavScrollPosition=box.scrollLeft;
-      try{localStorage.setItem(JOURNEY_NAV_SCROLL_KEY,String(journeyNavScrollPosition))}catch(_){}
-    },{passive:true});
-  }
-  const target=journeyNavScrollPosition;
-  journeyNavIsRestoring=true;
-  const epoch=++journeyNavRestoreEpoch;
   box.innerHTML=weeks.map((w,i)=>{
     const arr=data.fixtures?.[fixtureKeyForWeek(w.id)]||[];
     const visible=journeyFixturesArePublic(w.id);
@@ -5347,20 +5172,8 @@ function renderJourneyNavigator(){
     </button>`;
   }).join('');
   box.querySelectorAll('[data-journey-jump]').forEach(btn=>btn.onclick=()=>goToJourney(btn.dataset.journeyJump));
-  // Restaurar tras calcular el ancho real y después del siguiente render.
-  const restore=()=>{if(epoch===journeyNavRestoreEpoch && box.isConnected)box.scrollLeft=target};
-  restore();
-  requestAnimationFrame(()=>{
-    restore();
-    requestAnimationFrame(()=>{
-      restore();
-      if(epoch===journeyNavRestoreEpoch){
-        journeyNavIsRestoring=false;
-        // Solo persistir la posición intencionada, nunca el cero temporal del repintado.
-        try{localStorage.setItem(JOURNEY_NAV_SCROLL_KEY,String(box.scrollLeft))}catch(_){}
-      }
-    });
-  });
+  const active=box.querySelector('.journeyJump.active');
+  if(active)active.scrollIntoView({behavior:'auto',block:'nearest',inline:'center'});
 }
 
 function renderFutureJourneysPreview(){
@@ -6304,7 +6117,7 @@ function renderSchedule(){
  // Si el admin ha despublicado la disponibilidad, las franjas siguen guardadas
  // internamente para poder corregirlas y volver a publicarlas, pero NO deben
  // mostrarse en la vista pública de ocupación.
- if(!isOpen()&&!isAdmin()) {
+ if(!isOpen()) {
    const hadSlots=!!(data.slots&&data.slots[weekKey()]&&data.slots[weekKey()].length);
    box.innerHTML=`<div class="empty">${hadSlots?'📴 La disponibilidad de esta semana está despublicada. Las pistas no son visibles para los jugadores hasta que el administrador vuelva a publicarlas.':'🔒 El club todavía no ha publicado la disponibilidad de pistas para esta semana.'}</div>`;
    return;
@@ -6314,7 +6127,7 @@ function renderSchedule(){
    box.innerHTML='<div class="empty">El club todavía no ha publicado franjas para esta semana.</div>';
    return;
  }
- box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk||mappIsPastDate(s.date,s.time)||!isOpen()?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
+ box.innerHTML=`<table><thead><tr><th>Día</th><th>Hora</th><th>Pista</th><th>Estado</th><th>Partido</th></tr></thead><tbody>${ss.map(s=>{const bk=slotBooking(s.id);return `<tr ${bk?'':`class="freeSlotRow" data-free-slot="${mappEsc(s.id)}" tabindex="0" role="button" aria-label="Reservar ${mappEsc(dayDateES(s.date))}, ${mappEsc(s.time)}, ${mappEsc(s.court)}"`}><td><b>${mappEsc(dayDateES(s.date))}</b></td><td>${mappEsc(s.time)}</td><td>${mappEsc(s.court)}</td><td class="${bk?'slotBusy':'slotFree'}">${bk?'OCUPADA':'LIBRE'}</td><td>${bk?`${mappEsc(bk.a)} vs ${mappEsc(bk.b)}`:'—'}</td></tr>`}).join('')}</tbody></table>`;
  box.querySelectorAll('[data-free-slot]').forEach(row=>{
    const go=()=>reserveFromOccupancy(row.dataset.freeSlot);
    row.onclick=go;
@@ -6432,6 +6245,33 @@ function openReserve(mid,preferredSlotId=''){
    }
  }
  $('#reserveModal').classList.add('show');
+}
+// Propuestas de pista: el envío no ocupa la pista. Solo la aceptación la reserva.
+async function proposeSelectedSlot(){
+ const mid=state.reserveMatchId,sid=$('#reserveCourt').value;
+ if(!mid||!sid)return alert('Selecciona una pista disponible.');
+ const button=$('#proposeReserve');button.disabled=true;
+ try{await apiRequest({action:'proposeMatchSlot',matchId:mid,slotId:sid});
+   $('#reserveModal').classList.remove('show');alert('✅ Propuesta enviada. Tu rival recibirá un aviso. La pista todavía NO está reservada.');
+   renderAll();
+ }catch(e){alert(e.message)}finally{button.disabled=false}
+}
+async function viewMatchProposal(mid){
+ try{
+  const {proposal:p}=await apiRequest({action:'getMatchProposal',matchId:mid});
+  if(!p)return alert('Todavía no hay propuesta para este partido. Usa Reservar pista → Proponer al rival.');
+  const info=`${p.reservation?.date||''} · ${p.reservation?.time||''} · ${p.reservation?.court||''}`;
+  if(p.status!=='pending')return alert(`Última propuesta: ${p.status==='accepted'?'Aceptada':'Rechazada'}\n${info}`);
+  if(String(p.to||'').trim().toLocaleLowerCase('es')!==String(state.player||'').trim().toLocaleLowerCase('es'))return alert(`Propuesta enviada a ${p.to}\n${info}\nPendiente de respuesta. La pista NO está bloqueada.`);
+  if(confirm(`🎾 ${p.from} te propone jugar:\n\n${info}\n\n¿ACEPTAR y reservar la pista automáticamente?`)){
+   const result=await apiRequest({action:'respondMatchProposal',matchId:mid,response:'accept'});
+   if(result.reservation){data.bookings[mid]=result.reservation;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
+   alert('✅ Propuesta aceptada. Pista reservada.');
+  }else if(confirm('¿Quieres RECHAZAR la propuesta? Pulsa Cancelar para dejarla pendiente.')){
+   await apiRequest({action:'respondMatchProposal',matchId:mid,response:'reject'});alert('Propuesta rechazada. Puedes enviar una nueva desde Reservar pista.');
+  }
+  await refreshOnline({silent:true,force:true});
+ }catch(e){alert(e.message)}
 }
 async function book(mid,sid){
  if(reservationPending)return;
@@ -7132,121 +6972,6 @@ function pushStatusDotHtml(name){
   return `<span class="pushStatusDot ${st.state}" title="${mappEsc(st.label)}" aria-label="${mappEsc(st.label)}"></span>`;
 }
 
-
-/* TEST V22.5 · Datos de WhatsApp locales al navegador del administrador.
-   No se escriben ni en el estado público ni en el servidor. */
-const WA_ACCESS_KEY='ctcampeador_test_wa_access_v1';
-function waGetData(){
-  try{const x=JSON.parse(localStorage.getItem(WA_ACCESS_KEY)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}
-  catch(e){return {}}
-}
-function waPutData(x){localStorage.setItem(WA_ACCESS_KEY,JSON.stringify(x))}
-function waCanonical(name){return normalizeName(String(name||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim()}
-function waPhone(raw){
-  const v=String(raw||'').replace(/[\s().-]/g,'');
-  if(/^\+34[67]\d{8}$/.test(v))return v.slice(1);
-  if(/^0034[67]\d{8}$/.test(v))return v.slice(2);
-  if(/^34[67]\d{8}$/.test(v))return v;
-  if(/^[67]\d{8}$/.test(v))return '34'+v;
-  if(/^\+\d{10,15}$/.test(v))return v.slice(1);
-  return '';
-}
-function waUserRecord(name){return waGetData()[waCanonical(name)]||{}}
-function waUserActions(name){
-  const rec=waUserRecord(name), hasPhone=!!waPhone(rec.phone), hasPin=!!data.pins[name];
-  const label=rec.deliveredAt?'✅ Entregado '+new Date(rec.deliveredAt).toLocaleDateString('es-ES'):rec.openedAt?'⏳ Preparado, pendiente de confirmar':'Pendiente';
-  const safe=mappEsc(name);
-  return `<div class="waAction"><span class="waPhone">${rec.phone?mappEsc(rec.phone):'Sin teléfono'}</span><span class="waStatus">${label}</span><button type="button" data-wa-open="${safe}" ${hasPhone&&hasPin?'':'disabled'}>WhatsApp ↗</button><button type="button" class="waMark ${rec.deliveredAt?'waDelivered':''}" data-wa-mark="${safe}" ${hasPhone?'':'disabled'}>${rec.deliveredAt?'Desmarcar entrega':'Marcar entregado'}</button><button type="button" data-wa-edit="${safe}">Editar teléfono</button></div>`;
-}
-function waEditFor(name){
-  if(!requireAdmin())return;
-  const records=waGetData(), key=waCanonical(name), rec=records[key]||{};
-  const raw=prompt('Teléfono de '+name+' (puedes escribir 9 dígitos o +34):',String(rec.phone||''));
-  if(raw===null)return;
-  const phone=raw.trim()?waPhone(raw):'';
-  if(raw.trim()&&!phone){alert('Número no válido. Usa un móvil español de 9 cifras o el prefijo +34.');return}
-  records[key]={...rec,phone,openedAt:'',deliveredAt:''};
-  waPutData(records);
-  renderPins();
-}
-function waMessage(name,pin){return `Hola ${name}. 🎾\n\nTu PIN personal para acceder a la Liga CT Campeador es: ${pin}.\n\nAccede aquí: https://ligasdetenis.github.io/ct-campeador-liga-test/\n\nNo compartas este PIN con otras personas.`}
-function waOpenFor(name){
-  if(!requireAdmin())return;
-  const x=waGetData(), k=waCanonical(name), rec=x[k]||{}, phone=waPhone(rec.phone), pin=String(data.pins[name]||'');
-  if(!phone||!pin){alert('Falta teléfono válido o PIN para este jugador.');return}
-  if(!confirm(`Se abrirá WhatsApp para ${name} (${phone}) con su PIN en el texto.\n\nComprueba el destinatario antes de pulsar Enviar. ¿Continuar?`))return;
-  const url='https://wa.me/'+phone+'?text='+encodeURIComponent(waMessage(name,pin));
-  const win=window.open(url,'_blank','noopener,noreferrer');
-  if(!win){alert('El navegador ha bloqueado la apertura de WhatsApp. Permite ventanas emergentes para este sitio.');return}
-  x[k]={...rec,phone,openedAt:new Date().toISOString()};waPutData(x);renderPins();
-}
-function waMarkFor(name){
-  if(!requireAdmin())return;
-  const x=waGetData(),k=waCanonical(name),rec=x[k]||{};
-  if(!waPhone(rec.phone))return;
-  if(!rec.deliveredAt&&!confirm(`¿Confirmas que has enviado el acceso de ${name} por WhatsApp?\n\nLa aplicación NO puede comprobar si el mensaje se envió o recibió.`))return;
-  x[k]={...rec,deliveredAt:rec.deliveredAt?'':new Date().toISOString()};waPutData(x);renderPins();
-}
-function waCsvCells(line,separator){
-  const cells=[];let out='',quoted=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i];
-    if(c==='"'){if(quoted&&line[i+1]==='"'){out+='"';i++}else quoted=!quoted}
-    else if(c===separator&&!quoted){cells.push(out.trim());out=''}
-    else out+=c;
-  }
-  cells.push(out.trim());return cells;
-}
-async function waImportFile(file){
-  if(!requireAdmin()||!file)return;
-  if(file.size>1024*1024){alert('Archivo demasiado grande. Límite: 1 MB.');return}
-  const raw=(await file.text()).replace(/^\uFEFF/,'');
-  const lines=raw.split(/\r?\n/).filter(x=>x.trim());
-  if(lines[0]&&/^sep=./i.test(lines[0]))lines.shift();
-  if(lines.length<2){alert('Archivo vacío. Usa las columnas nombre;telefono.');return}
-  const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?';':',';
-  const headers=waCsvCells(lines.shift(),sep).map(x=>waCanonical(x));
-  const ni=headers.findIndex(x=>['nombre','jugador','name'].includes(x));
-  const ti=headers.findIndex(x=>['telefono','movil','phone','whatsapp'].includes(x));
-  if(ni<0||ti<0){alert('El CSV necesita columnas nombre y telefono.');return}
-  const identities=allIdentities().filter(n=>!accessIsExcluded(n));
-  const byName=new Map(identities.map(n=>[waCanonical(n),n]));
-  const existing=waGetData(), add={}, missing=[], invalid=[], duplicated=[];
-  for(const line of lines){
-    const cols=waCsvCells(line,sep),n=String(cols[ni]||'').trim(),p=waPhone(cols[ti]);
-    if(!n)continue;
-    const match=byName.get(waCanonical(n));
-    if(!match){missing.push(n);continue}
-    if(!p){invalid.push(n);continue}
-    const k=waCanonical(match);
-    if(add[k]){duplicated.push(n);continue}
-    const old=existing[k]||{};
-    add[k]={...old,phone:p, ...(old.phone===p?{}:{openedAt:'',deliveredAt:''})};
-  }
-  const n=Object.keys(add).length;
-  const summary=`${n} teléfonos válidos; ${missing.length} nombres sin coincidencia; ${invalid.length} teléfonos inválidos; ${duplicated.length} duplicados.`;
-  const detail=[missing.length?'Sin coincidencia: '+missing.slice(0,12).join(', '):'',invalid.length?'Teléfonos inválidos: '+invalid.slice(0,12).join(', '):''].filter(Boolean).join('\n');
-  if(!n){alert(summary+'\n'+detail);return}
-  if(!confirm(`Importación de teléfonos (no de PIN):\n${summary}\n\n${detail}\n\n¿Guardar los ${n} teléfonos SOLO en este navegador?`))return;
-  waPutData({...existing,...add});renderPins();alert('Guardados '+n+' teléfonos en este navegador.\n'+summary);
-}
-function waUpdateSummary(){
-  const el=document.getElementById('waAccessSummary');if(!el)return;
-  const records=waGetData(), names=allIdentities().filter(x=>!accessIsExcluded(x));
-  let phones=0,delivered=0,ready=0;
-  for(const name of names){const r=records[waCanonical(name)]||{};if(waPhone(r.phone)){phones++;if(r.deliveredAt)delivered++;else if(r.openedAt)ready++}}
-  el.textContent=`Usuarios: ${names.length} · Con teléfono: ${phones} · Marcados entregados: ${delivered} · Abiertos, sin confirmar: ${ready} · Sin teléfono: ${names.length-phones}`;
-}
-function waDownloadFile(filename,text,type){
-  const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function waExportLog(){if(!requireAdmin())return;
-  const records=waGetData();const q=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
-  const out=[['nombre','telefono','estado','fecha_preparacion','fecha_entrega'].map(q).join(';')];
-  allIdentities().filter(x=>!accessIsExcluded(x)).forEach(n=>{const r=records[waCanonical(n)]||{};out.push([n,r.phone||'',r.deliveredAt?'marcado_entregado':r.openedAt?'preparado':'pendiente',r.openedAt||'',r.deliveredAt||''].map(q).join(';'))});
-  waDownloadFile('ctcampeador_seguimiento_whatsapp.csv','\uFEFF'+out.join('\r\n'),'text/csv;charset=utf-8');
-}
-
 function renderPins(){
   const tb=$('#pinTable');
   const cards=$('#pinCardsMobile');
@@ -7256,7 +6981,6 @@ function renderPins(){
     if(tb)tb.innerHTML='<tr><td colspan="5">No hay usuarios cargados.</td></tr>';
     if(cards)cards.innerHTML='<div class="accessMobileEmpty">No hay usuarios cargados.</div>';
     updateSelectedUsersUI();
-    waUpdateSummary();
     return;
   }
 
@@ -7272,7 +6996,7 @@ function renderPins(){
       <td><div class="accessDesktopNameLine"><b>${mappEsc(p)}</b>${pushStatusDotHtml(p)}</div><div class="accessRolePill ${roleClass}">${roleLabel}</div></td>
       <td><span class="mono">${shown}</span></td>
       <td><button class="btn secondary" data-copy-pin="${safe}">Copiar acceso</button></td>
-      <td><div class="matchActions"><button class="btn secondary" data-regenerate-pin="${safe}">♻ Nuevo PIN</button><button class="btn dangerBtn" data-delete-user="${safe}" ${protectedSelf?'disabled':''}>Eliminar</button></div>${waUserActions(p)}</td>
+      <td><div class="matchActions"><button class="btn secondary" data-regenerate-pin="${safe}">♻ Nuevo PIN</button><button class="btn dangerBtn" data-delete-user="${safe}" ${protectedSelf?'disabled':''}>Eliminar</button></div></td>
     </tr>`;
   }).join('');
 
@@ -7305,7 +7029,6 @@ function renderPins(){
           <button class="btn secondary accessMobileBtn" type="button" data-regenerate-pin="${safe}">♻ Nuevo PIN</button>
         </div>
 
-        ${waUserActions(p)}
         ${protectedSelf
           ? `<div class="accessMobileProtected">Administrador con la sesión iniciada</div>`
           : `<button class="btn dangerBtn accessMobileDelete" type="button" data-delete-user="${safe}">Eliminar usuario</button>`
@@ -7317,9 +7040,6 @@ function renderPins(){
   document.querySelectorAll('#pinTable [data-copy-pin],#pinCardsMobile [data-copy-pin]').forEach(b=>b.onclick=()=>copyPinMessage(b.dataset.copyPin));
   document.querySelectorAll('#pinTable [data-regenerate-pin],#pinCardsMobile [data-regenerate-pin]').forEach(b=>b.onclick=()=>regeneratePinFor(b.dataset.regeneratePin));
   document.querySelectorAll('#pinTable [data-delete-user],#pinCardsMobile [data-delete-user]').forEach(b=>b.onclick=()=>deleteAccessUsers([b.dataset.deleteUser]));
-  document.querySelectorAll('#pinTable [data-wa-open],#pinCardsMobile [data-wa-open]').forEach(b=>b.onclick=()=>waOpenFor(b.dataset.waOpen));
-  document.querySelectorAll('#pinTable [data-wa-mark],#pinCardsMobile [data-wa-mark]').forEach(b=>b.onclick=()=>waMarkFor(b.dataset.waMark));
-  document.querySelectorAll('#pinTable [data-wa-edit],#pinCardsMobile [data-wa-edit]').forEach(b=>b.onclick=()=>waEditFor(b.dataset.waEdit));
 
   document.querySelectorAll('#pinTable [data-user-select],#pinCardsMobile [data-user-select]').forEach(c=>c.onchange=()=>{
     const name=c.dataset.userSelect;
@@ -7331,7 +7051,6 @@ function renderPins(){
   });
 
   updateSelectedUsersUI();
-  waUpdateSummary();
 }
 async function deleteAccessUsers(names){
   if(!requireAdmin())return;
@@ -8367,32 +8086,7 @@ function mappOwnMatches(){
 }
 function mappPrimaryMatch(){return mappOwnMatches()[0]||null}
 function mappOpponent(m){if(!m)return'';return m.a===state.player?m.b:m.a}
-// Fecha local del dispositivo: evitar UTC para que ayer no reaparezca por huso horario.
-function mappLocalTodayISO(){
- const d=new Date();
- return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-// Considerar fecha Y hora de finalización de la franja (ej.: 18:00 - 19:30).
-// Las franjas de hoy permanecen visibles mientras sigan en curso.
-function mappIsPastDate(value, time=''){
- const str=String(value||'').slice(0,10);
- if(!/^\d{4}-\d{2}-\d{2}$/.test(str))return false;
- const today=mappLocalTodayISO();
- if(str<today)return true;
- if(str>today)return false;
- // Hora de FIN: no ocultar la reserva hasta acabar su franja.
- const matches=String(time||'').match(/(?:[01]?\d|2[0-3]):[0-5]\d/g);
- if(!matches?.length)return false; // Datos incompletos: no caducar por error.
- const end=matches[matches.length-1].split(':').map(Number);
- const now=new Date();
- return now.getHours()*60+now.getMinutes()>=end[0]*60+end[1];
-}
-// Solo filtra la presentación. El historial de reservas sigue intacto en la API.
-function mappUpcomingBooking(mid){
- const booking=bookingFor(mid);
- return booking&&!mappIsPastDate(booking.date,booking.time)?booking:null;
-}
-function mappFreeSlots(){return isOpen()?slots().filter(s=>!mappIsPastDate(s.date,s.time)&&!slotBooking(s.id)):[]}
+function mappFreeSlots(){return isOpen()?slots().filter(s=>!slotBooking(s.id)):[]}
 function mappWeekShort(){const w=weeks.find(x=>x.id===state.week);const n=String(w?.id||'').replace(/\D/g,'');return n?`Jornada ${n}`:(w?.label||state.week)}
 function mappCurrentRound(){return fixtureRound()||'Jornada'}
 
@@ -8516,73 +8210,7 @@ async function adminReleaseBookingDirect(matchId,reservation){
   }
 }
 
-
-/* Clasificación TEST · solo lectura, sin alterar resultados ni datos */
-const rankProState={category:null,gender:null};
-function rankProCompute(category,gender){
-  const players=new Map();
-  function entry(name){
-    const key=normalizeName(name);
-    if(!key)return null;
-    if(!players.has(key))players.set(key,{name,pj:0,pg:0,pp:0,sg:0,sp:0,jg:0,jp:0,form:[]});
-    return players.get(key);
-  }
-  (data.playerLists?.[`${category}|${gender}`]||[]).forEach(entry);
-  const matches=confirmedResultsAll().filter(x=>x.category===category&&x.gender===gender).sort((a,b)=>String(a.when||a.week).localeCompare(String(b.when||b.week)));
-  for(const match of matches){
-    const r=match.result||{};
-    if(r.type==='not_played')continue; // Sin ganador no se puede adjudicar una derrota.
-    const a=entry(match.a),b=entry(match.b);
-    if(!a||!b||a===b)continue;
-    let winner=String(r.winner||'');
-    const sets=Array.isArray(r.sets)?r.sets:[];
-    let aw=0,bw=0;
-    for(let i=0;i<sets.length;i++){
-      const one=Number(sets[i]?.a),two=Number(sets[i]?.b);
-      if(!Number.isFinite(one)||!Number.isFinite(two)||one<0||two<0||one===two)continue;
-      if(one>two)aw++;else bw++;
-      a.sg+=(one>two?1:0);a.sp+=(two>one?1:0);
-      b.sg+=(two>one?1:0);b.sp+=(one>two?1:0);
-      // El super tie decisivo cuenta como set, pero NO como juegos (10-8, etc.).
-      const isSuper=i===2 && Math.max(one,two)>=10;
-      if(!isSuper){a.jg+=one;a.jp+=two;b.jg+=two;b.jp+=one;}
-    }
-    if(!winner&&aw!==bw)winner=aw>bw?match.a:match.b;
-    if(!winner || ![normalizeName(match.a),normalizeName(match.b)].includes(normalizeName(winner)))continue;
-    const aWins=normalizeName(winner)===normalizeName(match.a);
-    a.pj++;b.pj++;
-    if(aWins){a.pg++;b.pp++;}else{b.pg++;a.pp++;}
-    a.form.push({win:aWins,when:match.when});b.form.push({win:!aWins,when:match.when});
-  }
-  return [...players.values()].sort((a,b)=>2*(b.pg-a.pg)||b.sg-a.sg||a.sp-b.sp||b.jg-a.jg||a.jp-b.jp||a.name.localeCompare(b.name,'es'));
-}
-function rankProRender(){
-  const root=document.getElementById('rankProContent'),cat=document.getElementById('rankProCategory'),gender=document.getElementById('rankProGender');
-  if(!root||!cat||!gender)return;
-  rankProState.category=rankProState.category||state.category;
-  rankProState.gender=rankProState.gender||state.gender;
-  cat.innerHTML=CATEGORIES.map(c=>`<option value="${mappEsc(c)}">${mappEsc(c)}</option>`).join('');
-  gender.innerHTML=['Masculino','Femenino'].map(g=>`<option value="${g}">${g}</option>`).join('');
-  if(!CATEGORIES.includes(rankProState.category))rankProState.category=CATEGORIES[0];
-  cat.value=rankProState.category;gender.value=rankProState.gender;
-  const standings=rankProCompute(rankProState.category,rankProState.gender);
-  if(!standings.length){root.innerHTML='<div class="rankProEmpty">Todavía no hay jugadores inscritos en esta categoría.</div>';return;}
-  root.innerHTML=`<table class="rankProTable"><thead><tr>${['POS','JUGADOR','PJ','PG','PP','SG','SP','JG','JP','PTS'].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>`+standings.map((p,i)=>{
-    const photo=mappPhoto(p.name),style=photo?` style="background-image:url('${photo.replace(/'/g,'%27')}')"`:'';
-    const own=state.authenticated&&normalizeName(state.player)===normalizeName(p.name);
-    const dots=Array(5).fill(null);p.form.slice(-5).forEach((v,j)=>dots[5-Math.min(5,p.form.length)+j]=v);
-    return `<tr class="${own?'rankProMine':''}"><td><span class="rankProPos ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span></td><td><button class="rankProIdentity" data-rank-player="${mappEsc(p.name)}"><span class="rankProAvatar"${style}>${photo?'':mappEsc(mappInitials(p.name))}</span><span><span class="rankProName" style="display:block">${mappEsc(p.name)}</span><span class="rankProForm">${dots.map(v=>`<span class="rankProDot ${v?(v.win?'w':'l'):''}"></span>`).join('')}</span></span></button></td>${[p.pj,p.pg,p.pp,p.sg,p.sp,p.jg,p.jp].map(v=>`<td>${v}</td>`).join('')}<td class="rankProPts">${p.pg*2}</td></tr>`;
-  }).join('')+'</tbody></table>';
-  root.querySelectorAll('[data-rank-player]').forEach(b=>b.onclick=()=>{
-    const p=standings.find(x=>x.name===b.dataset.rankPlayer);if(!p)return;
-    const modal=document.createElement('div');modal.className='rankProDetails';
-    modal.innerHTML=`<div class="rankProDetailsPanel"><h3 style="margin:0 0 10px">${mappEsc(p.name)}</h3><p>Partidos: ${p.pj} · Victorias: ${p.pg} · Derrotas: ${p.pp}</p><p>Sets: ${p.sg} ganados / ${p.sp} perdidos</p><p>Juegos: ${p.jg} ganados / ${p.jp} perdidos</p><strong>${p.pg*2} puntos</strong><button type="button">Cerrar</button></div>`;
-    modal.querySelector('button').onclick=()=>modal.remove();modal.onclick=e=>{if(e.target===modal)modal.remove()};document.body.appendChild(modal);
-  });
-}
-
 function renderModernResults(){
-  rankProRender();
   const box=$('#modernResultsContent');if(!box)return;
   renderResultsFilters();
   const rows=confirmedResultsAll().filter(x=>
@@ -8750,28 +8378,14 @@ function queuePushDeepLink(){
   if(state.authenticated&&apiToken)setTimeout(()=>processPushDeepLink(),80);
 }
 
-// TEST V21.1 · recordar la última pestaña del jugador en este dispositivo.
-const MAPP_LAST_TAB_KEY='ct_campeador_test_last_tab_v1';
-function mappSavedTab(){
- try{
-  const view=localStorage.getItem(MAPP_LAST_TAB_KEY)||'home';
-  return ['home','courts','match','ranking','results','profile'].includes(view)?view:'home';
- }catch(_){return 'home'}
-}
-function mappRestoreTab(){
- if(state.authenticated&&!document.body.classList.contains('modern-admin'))mappShow(mappSavedTab());
-}
 function mappShow(view){
- const map={home:'modernHome',courts:'modernCourts',match:'modernMatch',ranking:'modernRanking',results:'modernResults',profile:'modernProfile'};
- if(!Object.prototype.hasOwnProperty.call(map,view))return;
- try{localStorage.setItem(MAPP_LAST_TAB_KEY,view)}catch(_){}
+ const map={home:'modernHome',courts:'modernCourts',match:'modernMatch',results:'modernResults',profile:'modernProfile'};
  Object.values(map).forEach(id=>$('#'+id)?.classList.remove('active'));
  $('#'+map[view])?.classList.add('active');
  document.querySelectorAll('[data-modern-go]').forEach(b=>b.classList.toggle('active',b.dataset.modernGo===view));
  if(view==='profile')renderModernProfile();
  if(view==='courts')renderModernCourts();
  if(view==='match')renderModernMatch();
- if(view==='ranking')rankProRender();
  if(view==='results')renderModernResults();
  if(view==='home')renderModernHome();
  window.scrollTo({top:0,behavior:'smooth'});
@@ -8871,29 +8485,12 @@ function mappWeekCarouselNav(){
       `<button type="button" class="mapp-week-carousel-chip ${state.week===w.id?'selected':''}" data-mapp-carousel-week="${mappEsc(w.id)}" aria-pressed="${state.week===w.id}">${mappEsc(journeyDisplayName(w.id,`${w.id}|${state.category}|${state.gender}`)||w.label||w.id)}</button>`
     ).join('')}</div>`;
 }
-let mappCarouselSwitching=false;
 function mappGoCarouselWeek(weekId){
-  const available=mappPublishedOwnWeeks();
-  const to=available.findIndex(w=>w.id===weekId);
-  const from=available.findIndex(w=>w.id===state.week);
-  if(to<0||state.week===weekId||mappCarouselSwitching)return;
-  const direction=to>from?'left':'right';
-  const currentBox=[document.querySelector('#modernMatchContent'),document.querySelector('#modernHomeContent')].find(el=>el&&el.getClientRects().length);
-  const card=currentBox?.querySelector('.mapp-week-swipe-area');
-  const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  mappCarouselSwitching=true;
-  const commit=()=>{
-    state.week=weekId;
-    try{localStorage.setItem('ctc_mapp_last_carousel_week',weekId)}catch(_){}
-    renderAll();
-    const nextBox=[document.querySelector('#modernMatchContent'),document.querySelector('#modernHomeContent')].find(el=>el&&el.getClientRects().length);
-    const nextCard=nextBox?.querySelector('.mapp-week-swipe-area');
-    if(nextCard&&!reduceMotion)nextCard.classList.add('mapp-week-slide-in-'+direction);
-    mappCarouselSwitching=false;
-  };
-  if(!card||reduceMotion){commit();return;}
-  card.classList.add('mapp-week-slide-out-'+direction);
-  window.setTimeout(commit,240);
+  if(!mappPublishedOwnWeeks().some(w=>w.id===weekId))return;
+  if(state.week===weekId)return;
+  state.week=weekId;
+  try{localStorage.setItem('ctc_mapp_last_carousel_week',weekId)}catch(_){}
+  renderAll();
 }
 function mappWireWeekCarousel(box){
   box.querySelectorAll('[data-mapp-carousel-week]').forEach(el=>el.addEventListener('click',()=>mappGoCarouselWeek(el.dataset.mappCarouselWeek)));
@@ -8925,7 +8522,7 @@ function renderModernHome(){
  const m=mappPrimaryMatch(), frees=mappFreeSlots().slice(0,3);
  let hero='';
  if(m){
-   const bk=mappUpcomingBooking(m.id), can=isOpen()&&isReservableInCurrentWeek(m.id);
+   const bk=bookingFor(m.id), can=isOpen()&&isReservableInCurrentWeek(m.id);
    hero=`<div class="mapp-card"><div class="mapp-card-pad">
       <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Tu partido</div><span class="mapp-round">${mappEsc(mappCurrentRound())}</span></div>
       <div class="mapp-match-grid">
@@ -8961,12 +8558,11 @@ function renderModernHome(){
 }
 function renderModernCourts(){
  const box=$('#modernCourtsContent');if(!box)return;
- // El administrador conserva acceso histórico, incluso con la jornada cerrada.
- if(!isOpen()&&!isAdmin()){
+ if(!isOpen()){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">🔒 La disponibilidad de pistas está despublicada. El club todavía no ha abierto las reservas de esta jornada.</div></div>';
    return
  }
- const ss=slots().filter(s=>isAdmin()||!mappIsPastDate(s.date,s.time)).sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
+ const ss=slots().slice().sort((a,b)=>(a.date+a.court+a.time).localeCompare(b.date+b.court+b.time));
  if(!ss.length){
    box.innerHTML='<div class="mapp-card"><div class="mapp-empty">No hay disponibilidad publicada para esta semana.</div></div>';
    return
@@ -8988,15 +8584,14 @@ function renderModernCourts(){
            const entry=Object.entries(data.bookings||{}).find(([,b])=>b.week===state.week&&b.slotId===s.id);
            const matchId=entry?.[0]||'';
            const bk=entry?.[1]||null;
-           const historic=mappIsPastDate(s.date,s.time);
-           return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${bk||historic||!isOpen()?'':`data-mapp-slot="${mappEsc(s.id)}"`}>
+           return `<div class="mapp-court-slot ${bk?'is-busy':'is-free'} ${bk&&isAdmin()?'admin-busy':''}" ${bk?'':`data-mapp-slot="${mappEsc(s.id)}"`}>
              <div>
                <div class="time">${mappEsc(s.time)}</div>
                ${bk?`<div class="booking">${mappEsc(bk.a)} vs ${mappEsc(bk.b)}</div>`:''}
              </div>
-             ${bk&&isAdmin()&&!historic
+             ${bk&&isAdmin()
                ? `<button class="mapp-admin-clean" type="button" data-admin-release-booking="${mappEsc(matchId)}">Liberar</button>`
-               : `<div class="${bk?'mapp-busy':'mapp-free'}">${historic?(bk?'RESERVADA · HISTÓRICO':'SIN RESERVA · HISTÓRICO'):(bk?'OCUPADA':'LIBRE')}</div>`
+               : `<div class="${bk?'mapp-busy':'mapp-free'}">${bk?'OCUPADA':'LIBRE'}</div>`
              }
              <div class="mapp-chevron">${bk?'':mappIcon('chevron')}</div>
            </div>`
@@ -9020,7 +8615,7 @@ function renderModernMatch(){
  const matches=mappOwnMatches();
  if(!matches.length){box.innerHTML=mappWeekCarouselNav()+'<div class="mapp-card"><div class="mapp-empty">No tienes partido en esta jornada.</div></div>';mappWireWeekCarousel(box);return}
  box.innerHTML=mappWeekCarouselNav()+`<div class="mapp-week-swipe-area">`+matches.map(m=>{
-   const bk=mappUpcomingBooking(m.id),r=resultFor(m.id),p=postponedInfo(m.id);
+   const bk=bookingFor(m.id),r=resultFor(m.id),p=postponedInfo(m.id);
    return `<div class="mapp-card"><div class="mapp-card-pad">
     <div class="mapp-section-title"><div class="left"><span class="mapp-title-icon">${mappIcon('trophy')}</span>Mi partido</div><span class="mapp-round">${mappEsc(mappCurrentRound())}</span></div>
     <div class="mapp-match-grid">
@@ -9036,6 +8631,7 @@ function renderModernMatch(){
     </div>
    </div>
    <div class="mapp-menu-row" data-match-reserve="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('calendar')}</div><div><div class="mapp-menu-title">${bk?'Cambiar pista':'Reservar pista'}</div><div class="mapp-menu-sub">${bk?'Modifica tu reserva actual':'Elige día, hora y pista'}</div></div><div>${mappIcon('chevron')}</div></div>
+   <div class="mapp-menu-row" data-match-proposal="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('calendar')}</div><div><div class="mapp-menu-title">Propuestas de pista</div><div class="mapp-menu-sub">Ver propuesta, aceptar o rechazar · No bloquea pista hasta aceptar</div></div><div>${mappIcon('chevron')}</div></div>
    <div class="mapp-menu-row" data-match-live="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('activity')}</div><div><div class="mapp-menu-title">🎾 Marcador LIVE (TEST)</div><div class="mapp-menu-sub">Controlar puntos o seguir en directo · Sin resultado oficial</div></div><div>${mappIcon('chevron')}</div></div>
    <div class="mapp-menu-row" data-match-result="${mappEsc(m.id)}"><div class="mapp-menu-icon">${mappIcon('trophy')}</div><div><div class="mapp-menu-title">${r?'Ver / gestionar resultado':'Subir resultado'}</div><div class="mapp-menu-sub">Resultado del encuentro</div></div><div>${mappIcon('chevron')}</div></div>
    ${p?`<div class="mapp-menu-row"><div class="mapp-menu-icon gray">${mappIcon('calendar')}</div><div><div class="mapp-menu-title">Partido retrasado</div><div class="mapp-menu-sub">${p.targetWeek?'Reprogramado para '+mappEsc(weeks.find(w=>w.id===p.targetWeek)?.label||p.targetWeek):'Pendiente de nueva semana'}</div></div></div>`:''}
@@ -9043,6 +8639,7 @@ function renderModernMatch(){
  }).join('')+`</div>`;
  mappWireWeekCarousel(box);
  box.querySelectorAll('[data-match-reserve]').forEach(x=>x.onclick=()=>openReserve(x.dataset.matchReserve));
+ box.querySelectorAll('[data-match-proposal]').forEach(x=>x.onclick=()=>viewMatchProposal(x.dataset.matchProposal));
  box.querySelectorAll('[data-match-live]').forEach(x=>x.onclick=()=>{
    const m=matches.find(v=>String(v.id)===String(x.dataset.matchLive));
    if(!m)return;
@@ -9302,8 +8899,6 @@ document.querySelectorAll('[data-modern-go]').forEach(b=>b.onclick=()=>mappShow(
 $('#resultsCategory').onchange=e=>{resultsViewState.category=e.target.value;renderModernResults()};
 $('#resultsGender').onchange=e=>{resultsViewState.gender=e.target.value;renderModernResults()};
 $('#resultsWeek').onchange=e=>{resultsViewState.week=e.target.value;renderModernResults()};
-$('#rankProCategory').onchange=e=>{rankProState.category=e.target.value;rankProRender()};
-$('#rankProGender').onchange=e=>{rankProState.gender=e.target.value;rankProRender()};
 $('#modernTicker').onclick=()=>mappShow('results');
 $('#modernTicker').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();mappShow('results')}};
 
@@ -9332,9 +8927,9 @@ $('#welcomePin').addEventListener('input',e=>{
 $('#welcomePin').addEventListener('keydown',e=>{if(e.key==='Enter')loginWithPinOnly()});
 
 $('#playerIdentity').onchange=e=>{if(!state.authenticated)state.player=e.target.value;$('#playerPin').value='';renderIdentity()};
-$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();mappRestoreTab();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
+$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
 $('#playerPin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});
-$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(MAPP_LAST_TAB_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
+$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
 $$('.gender').forEach(b=>b.onclick=()=>{state.gender=b.dataset.gender;renderAll()});
 $('#weekSelect').onchange=e=>{state.week=e.target.value;renderAll()};
 function openNativeDatePicker(inputId){
@@ -9509,139 +9104,6 @@ $('#toggleJourneySettings').onclick=()=>toggleJourneyPanel('#journeySettingsPane
 $('#journeyMoreBtn').onclick=()=>$('#journeyDangerMenu').classList.toggle('hidden');
 $('#journeyPrevBtn').onclick=()=>navigateJourney(-1);
 $('#journeyNextBtn').onclick=()=>navigateJourney(1);
-/* CT CAMPEADOR · TEST · Importación JSON de liga con categoría automática y altas revisadas.
-   No cambia fechas, publicación ni reemplaza partidos existentes. */
-async function importCompleteLeagueFile(file){
-  if(!requireAdmin()||!file)return;
-  if(fixtureEditorDirty||playerEditorDirty){alert('Guarda primero los cambios pendientes antes de importar.');return;}
-  if(file.size>1024*1024){alert('El archivo supera 1 MB.');return;}
-  let doc;
-  try{doc=JSON.parse(await file.text())}catch(e){alert('El archivo no contiene JSON válido.');return;}
-  if(!doc||doc.formato!=='ct-campeador-liga'||doc.version!==1||!Array.isArray(doc.jornadas)||!doc.jornadas.length||!Array.isArray(doc.jugadores)){
-    alert('Formato no reconocido: se requiere ct-campeador-liga, versión 1.');return;
-  }
-  if(doc.jornadas.length>50||doc.jugadores.length>250){alert('El archivo supera los límites de seguridad.');return;}
-
-  // La categoría es un destino exacto y controlado por el JSON, nunca por la selección anterior.
-  const rawCat=normalizeName(doc.categoria);
-  const catMatches=CATEGORIES.filter(c=>rawCat===normalizeName(c)||rawCat.startsWith(normalizeName(c)+' ' )||rawCat.startsWith(normalizeName(c)+'-'));
-  if(catMatches.length!==1){alert(`No puedo reconocer con seguridad la categoría «${doc.categoria||''}».\nCategorías disponibles: ${CATEGORIES.join(', ')}.\nNo se ha importado nada.`);return;}
-  const category=catMatches[0];
-  const genderNorm=normalizeName(doc.genero);
-  const genderMap={'masculino':'Masculino','hombre':'Masculino','femenino':'Femenino','mujer':'Femenino'};
-  const gender=genderMap[genderNorm];
-  if(!gender){alert(`Género no reconocido en el archivo: ${doc.genero||'(vacío)'}. No se ha importado nada.`);return;}
-  const destKey=`${category}|${gender}`;
-
-  // Los jugadores de otras categorías siguen siendo el MISMO usuario si el nombre coincide.
-  const globalNames=new Map(allIdentities().map(n=>[normalizeName(n),n]));
-  const targetPlayers=Array.isArray(data.playerLists[destKey])?data.playerLists[destKey]:[];
-  const categoryNames=new Set(targetPlayers.map(normalizeName));
-  const names=new Map(), roster=[];
-  for(const raw of doc.jugadores){
-    if(typeof raw!=='string'||!raw.trim()||raw.length>150){alert('Nombre inválido en el archivo.');return;}
-    const original=raw.trim(), n=normalizeName(original);
-    if(names.has(n)){alert('Jugador duplicado: '+original);return;}
-    const actual=globalNames.get(n)||original;
-    names.set(n,actual);roster.push(actual);
-  }
-  if(!roster.length){alert('El archivo no contiene jugadores.');return;}
-
-  const schedule=[], allPairs=new Set();
-  for(let i=0;i<doc.jornadas.length;i++){
-    const round=doc.jornadas[i];
-    if(!round||Number(round.numero)!==i+1||!Array.isArray(round.enfrentamientos)||!round.enfrentamientos.length||round.enfrentamientos.length>500){
-      alert(`Jornada ${i+1} inválida. Se requiere numeración consecutiva desde 1.`);return;
-    }
-    const pairs=[], played=new Set();
-    for(const match of round.enfrentamientos){
-      const a=normalizeName(match?.jugadorA),b=normalizeName(match?.jugadorB);
-      if(!a||!b||a===b||!names.has(a)||!names.has(b)){
-        alert(`Enfrentamiento inválido en jornada ${i+1}: deben constar los dos jugadores en el archivo.`);return;
-      }
-      if(played.has(a)||played.has(b)){alert(`Un jugador se repite en la jornada ${i+1}.`);return;}
-      played.add(a);played.add(b);
-      const pair=[a,b].sort().join('|');
-      if(allPairs.has(pair)){alert(`Enfrentamiento duplicado entre jornadas: ${match.jugadorA} / ${match.jugadorB}.`);return;}
-      allPairs.add(pair);pairs.push([names.get(a),names.get(b)]);
-    }
-    schedule.push(pairs);
-  }
-  // Planificar jornadas faltantes SIN modificar el estado hasta confirmar.
-  // Los identificadores siguen W1, W2... y las fechas son rangos orientativos,
-  // calculados al final de la última jornada existente, no tomados del PDF.
-  const currentWeeks=[...weeks].sort((a,b)=>weekNumber(a.id)-weekNumber(b.id));
-  const missingCount=Math.max(0,schedule.length-currentWeeks.length);
-  const plannedWeeks=[...currentWeeks];
-  if(missingCount){
-    let last=currentWeeks[currentWeeks.length-1];
-    let nextN=Math.max(0,...currentWeeks.map(w=>weekNumber(w.id)))+1;
-    for(let j=0;j<missingCount;j++){
-      const start=last?.end?isoAddDays(last.end,1):isoAddDays(new Date().toISOString().slice(0,10),1);
-      const end=isoAddDays(start,6),id=`W${nextN++}`;
-      const next={id,start,end,label:''};
-      next.label=makeWeekLabel(next);
-      plannedWeeks.push(next);last=next;
-    }
-  }
-  const conflicts=[];
-  for(let i=0;i<schedule.length;i++){
-    const key=`${plannedWeeks[i].id}|${category}|${gender}`;
-    if((data.fixtures?.[key]||[]).length)conflicts.push(journeyDisplayName(plannedWeeks[i].id));
-  }
-  if(conflicts.length){
-    alert(`Importación cancelada: ya hay enfrentamientos en ${category} / ${gender}:\n${conflicts.join(', ')}.\nNo se reemplazará ningún partido.`);return;
-  }
-
-  const newAccounts=roster.filter(n=>!globalNames.has(normalizeName(n)));
-  const addedToCategory=roster.filter(n=>!categoryNames.has(normalizeName(n)));
-  const reusedFromOtherCategory=addedToCategory.filter(n=>globalNames.has(normalizeName(n)));
-  const total=schedule.reduce((n,p)=>n+p.length,0);
-  const sample=newAccounts.length?`\n\nALTAS NUEVAS (${newAccounts.length}):\n${newAccounts.slice(0,18).join('\n')}${newAccounts.length>18?'\n…':''}`:'';
-  const ok=confirm(`VISTA PREVIA · IMPORTAR LIGA\n\n${doc.competicion||'Liga'}\nDestino detectado: ${category} / ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas nuevas que se crearán automáticamente\n${roster.length} jugadores\n\n${newAccounts.length} cuentas nuevas con PIN automático\n${reusedFromOtherCategory.length} usuarios reutilizados de otras categorías\n${addedToCategory.length} incorporaciones a esta categoría${sample}\n\nNo sustituye enfrentamientos ni modifica las fechas de jornadas existentes. Las nuevas jornadas se crean ocultas con fechas orientativas posteriores a la última. Las jornadas ya públicas seguirán visibles.\n\n¿Confirmas el alta de usuarios y la importación?`);
-  if(!ok)return;
-  const btn=$('#importCompleteLeagueBtn'), oldLabel=btn?.textContent;
-  if(btn){btn.disabled=true;btn.textContent='Importando…';}
-  const backup=JSON.stringify(data),backupWeeks=weeks.map(w=>({...w})),oldCategory=state.category,oldGender=state.gender,oldWeek=state.week;
-  let remoteSaved=false;
-  try{
-    if(!apiToken)throw new Error('Falta la conexión de administrador con Cloudflare.');
-    // Crear todas las jornadas necesarias en memoria antes de guardar una sola vez.
-    data.weekRanges=data.weekRanges||{};
-    for(const w of plannedWeeks.slice(currentWeeks.length)){
-      weeks.push({...w});
-      data.weekRanges[w.id]={start:w.start,end:w.end};
-      setJourneyName(w.id,`Jornada ${weekNumber(w.id)}`);
-      // No se marca como publicada: solo se crean jornada y enfrentamientos.
-    }
-    weeks.sort((a,b)=>weekNumber(a.id)-weekNumber(b.id));
-    data.playerLists[destKey]=targetPlayers.concat(addedToCategory);
-    for(const newName of newAccounts){if(!data.roles[newName])data.roles[newName]='jugador';}
-    data.fixtures=data.fixtures||{};
-    for(let i=0;i<schedule.length;i++){
-      const key=`${plannedWeeks[i].id}|${category}|${gender}`;
-      data.fixtures[key]=schedule[i].map(([a,b])=>({id:`${key}|${slug(a)}|${slug(b)}`,a,b}));
-    }
-    ensurePins();syncWeeksIntoData();
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-    await saveStateOnline();remoteSaved=true;
-    await saveUsersOnline();
-    fixtureEditorDirty=false;playerEditorDirty=false;
-    state.category=category;state.gender=gender;state.week=weeks[0].id;
-    renderAll();renderModernAdminContext();
-    alert(`✅ Importación completada en TEST.\n\n${category} · ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas creadas automáticamente\n${newAccounts.length} usuarios nuevos con PIN\n${reusedFromOtherCategory.length} usuarios ya existentes reutilizados.\n\nRevisa los PIN nuevos en Administración → Usuarios antes de entregárselos a sus titulares.`);
-  }catch(e){
-    if(!remoteSaved){weeks.splice(0,weeks.length,...backupWeeks);data=normalizeData(JSON.parse(backup));state.category=oldCategory;state.gender=oldGender;state.week=oldWeek;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
-    renderAll();renderModernAdminContext();
-    alert((remoteSaved?'Los partidos ya se guardaron, pero falló la sincronización de usuarios. No repitas la importación; revisa Usuarios.':'No se completó la importación y se recuperaron los datos locales anteriores.')+'\n\n'+(e.message||e));
-  }finally{if(btn){btn.disabled=false;btn.textContent=oldLabel;}}
-}
-$('#importCompleteLeagueBtn').onclick=()=>{if(requireAdmin())$('#importCompleteLeagueFile').click()};
-$('#importCompleteLeagueFile').onchange=async function(){
-  const file=this.files?.[0];this.value='';
-  if(file)await importCompleteLeagueFile(file);
-};
-
 if($('#addJourneyBtn'))$('#addJourneyBtn').onclick=addJourney;
 
 if($('#futureFixturesBtn'))$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
@@ -9838,6 +9300,7 @@ $('#resetTournamentName').onclick=async()=>{
 $('#copyWhats').onclick=async()=>{if(!requireAdmin())return;renderWhats();const text=$('#whatsPreview').value;const ok=await copyTextRobust(text);if(ok){alert('📋 Mensaje copiado.');return}$('#whatsPreview').focus();$('#whatsPreview').select();alert('No se ha podido copiar automáticamente. El texto queda seleccionado para copiarlo manualmente.');};
 $('#reserveDay').onchange=()=>fillReserveTimes(state.reserveMatchId,'');
 $('#reserveTime').onchange=()=>fillReserveCourts(state.reserveMatchId,'');
+$('#proposeReserve').onclick=proposeSelectedSlot;
 $('#confirmReserve').onclick=()=>{if(reservationPending)return;const sid=$('#reserveCourt').value;if(!sid){alert('Selecciona una pista disponible.');return}book(state.reserveMatchId,sid)};
 $('#cancelReserveModal').onclick=()=>{const mid=state.reserveMatchId;$('#reserveModal').classList.remove('show');cancelBooking(mid)};
 $('#closeModal').onclick=()=>$('#reserveModal').classList.remove('show');$('#reserveModal').onclick=e=>{if(e.target===$('#reserveModal'))$('#reserveModal').classList.remove('show')};
@@ -9867,7 +9330,6 @@ async function bootstrapApp(){
       showPinWelcome('PIN personal de 6 cifras · los PIN antiguos de 4 siguen funcionando',false);
     }
     renderAll();
-    if(restored)mappRestoreTab();
     queuePushDeepLink();
     document.documentElement.classList.remove('app-booting');
     document.documentElement.classList.add('app-ready');
@@ -9928,15 +9390,94 @@ if('serviceWorker' in navigator){
 bootstrapApp();
 
 window.addEventListener('scroll',()=>{const a=document.getElementById('adminView');if(a)a.classList.toggle('adminScrolled',window.scrollY>(a.offsetTop+280));},{passive:true});
-
-/* TEST V22.5 · Inicialización del importador de teléfonos */
-(function(){
-  const input=document.getElementById('waPhoneCsv');
-  if(input)input.addEventListener('change',async e=>{try{await waImportFile(e.target.files?.[0])}catch(err){alert('Error al leer CSV: '+err.message)}finally{e.target.value=''}});
-  const template=document.getElementById('waCsvTemplate');
-  if(template)template.onclick=()=>{if(!requireAdmin())return;waDownloadFile('ctcampeador_plantilla_telefonos.csv','\uFEFFnombre;telefono\r\n"Nombre Apellido";"612345678"\r\n'.replace(/\uFEFF/g,'\uFEFF').replace(/\r/g,'\r').replace(/\n/g,'\n'),'text/csv;charset=utf-8')};
-  const exp=document.getElementById('waExportLog');if(exp)exp.onclick=waExportLog;
-})();
 </script>
 
+<style>
+.ctpay-card{margin-top:12px;border:1px solid var(--app-line,#e2dedc);border-radius:16px;padding:14px;background:var(--app-surface,#fff);color:inherit}
+.ctpay-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900;margin-bottom:10px}
+.ctpay-chip{padding:5px 9px;border-radius:40px;background:#f4e8b9;color:#5b380c;font-size:12px;font-weight:800}
+.ctpay-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--app-line,#eee);font-size:13px}
+.ctpay-btn{background:#ad1636;color:white;border:0;border-radius:11px;padding:12px;font-weight:850;width:100%;margin-top:9px;cursor:pointer}
+.ctpay-btn:disabled{opacity:.45;cursor:default}.ctpay-secondary{background:#e9d4a0;color:#4a2030}
+.ctpay-note{font-size:12px;line-height:1.5;opacity:.8;margin-top:8px}
+.ctpay-admin-panel{position:fixed;inset:0;z-index:150000;background:rgba(20,8,15,.75);display:flex;justify-content:center;align-items:center;padding:14px}
+.ctpay-admin-inner{background:#fff;color:#251c20;width:min(650px,100%);max-height:90vh;overflow:auto;border-radius:19px;padding:18px}
+.ctpay-admin-inner label{display:block;font-size:12px;font-weight:800;margin:9px 0 4px}.ctpay-admin-inner input,.ctpay-admin-inner select{width:100%;padding:10px;border:1px solid #bbb;border-radius:10px;color:#241820;background:#fff}
+.ctpay-admin-row{padding:12px 0;border-bottom:1px solid #eee}.ctpay-admin-controls{display:flex;gap:6px;align-items:center;margin-top:8px}.ctpay-admin-controls select{flex:1}
+</style>
+<script>
+(function(){
+ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let paymentCache={};
+ const label={pending:'Pendiente',claimed:'Bizum comunicado',confirmed:'Confirmado'};
+ async function readAndShow(mid,holder){
+  if(!holder.isConnected)return;
+  try{
+   const r=await apiRequest({action:'paymentRead',matchId:mid});
+   if(!holder.isConnected||holder.dataset.match!==mid)return;
+   const own=r.payments.find(x=>normalizeName(x.player)===normalizeName(state.player));
+   const canClaim=!!r.hasReservation && own?.status==='pending' && !!r.config.phone;
+   holder.innerHTML=`<div class="ctpay-title">💳 Pago de pista <span class="ctpay-chip">6 € por jugador</span></div>
+     ${r.payments.map(x=>`<div class="ctpay-row"><strong>${esc(x.player)}</strong><span>${esc(label[x.status]||'Pendiente')}</span></div>`).join('')}
+     ${r.hasReservation?`<div class="ctpay-note">${r.config.phone?`Envía 6 € mediante Bizum a <strong>${esc(r.config.recipientName)}</strong> · <strong>${esc(r.config.phone)}</strong>. Concepto: pista ${esc(mid.slice(-10))}.`:'El administrador todavía debe configurar el destinatario Bizum.'}</div>`:'<div class="ctpay-note">El pago se activa al reservar la pista. No bloquea la reserva ni el resultado.</div>'}
+     ${canClaim?'<button class="ctpay-btn" type="button" data-ctpay-claim>Ya he enviado mis 6 € por Bizum</button>':''}
+     ${own?.status==='claimed'?'<div class="ctpay-note">✅ Has comunicado el Bizum. Pendiente de comprobación por administración.</div>':''}`;
+   holder.querySelector('[data-ctpay-claim]')?.addEventListener('click',async()=>{
+     if(!confirm('¿Confirmas que has enviado tus 6 € por Bizum? Esta acción NO realiza el pago.'))return;
+     try { await apiRequest({action:'paymentClaim',matchId:mid});await readAndShow(mid,holder); }
+     catch(e){alert('No se ha podido comunicar el Bizum: '+e.message)}
+   });
+  }catch(e){if(holder.isConnected)holder.innerHTML='<div class="ctpay-note">No se pudo consultar el pago: '+esc(e.message)+'</div>'}
+ }
+ function attach(){
+   if(!state.authenticated)return;
+   const containers=['#modernHomeContent','#modernMatchContent'];
+   for(const selector of containers){
+     const box=document.querySelector(selector);if(!box)continue;
+     for(const match of (typeof mappOwnMatches==='function'?mappOwnMatches():[])){
+       if(selector==='#modernHomeContent' && match.id!==mappPrimaryMatch()?.id)continue;
+       if(!box.querySelector('[data-match-live]') && selector==='#modernMatchContent')continue;
+       const reservation=bookingFor(match.id);
+       if(!reservation)continue;
+       if(box.querySelector('.ctpay-card[data-match="'+CSS.escape(String(match.id))+'"]'))continue;
+       const holder=document.createElement('section');holder.className='ctpay-card';holder.dataset.match=String(match.id);
+       holder.innerHTML='<div class="ctpay-note">Consultando el estado del pago…</div>';
+       const target=selector==='#modernHomeContent'?box.querySelector('.mapp-week-swipe-area .mapp-card'):Array.from(box.querySelectorAll('[data-match-live]')).find(el=>el.dataset.matchLive===String(match.id))?.closest('.mapp-card');
+       if(target){target.appendChild(holder);readAndShow(String(match.id),holder)}
+     }
+   }
+   if(isAdmin()){
+     const profile=document.querySelector('#modernProfileContent');
+     if(profile&&!profile.querySelector('#ctpay-open-admin')){
+       const b=document.createElement('button');b.id='ctpay-open-admin';b.type='button';b.className='ctpay-btn';b.textContent='💳 Administración · Control de pagos Bizum';b.onclick=openAdmin;profile.appendChild(b)
+     }
+   }
+ }
+ async function openAdmin(){
+  const panel=document.createElement('div');panel.className='ctpay-admin-panel';panel.innerHTML='<div class="ctpay-admin-inner"><div style="display:flex;justify-content:space-between;gap:10px"><h2>💳 Control Bizum · TEST</h2><button type="button" data-close>✕ Cerrar</button></div><div id="ctpay-admin-body">Cargando…</div></div>';
+  document.body.appendChild(panel);panel.querySelector('[data-close]').onclick=()=>panel.remove();
+  const el=panel.querySelector('#ctpay-admin-body');
+  try{
+   const r=await apiRequest({action:'paymentAdminList'});if(!panel.isConnected)return;
+   el.innerHTML=`<label>Nombre de quien recibe Bizum</label><input id="ctpay-name" value="${esc(r.config.recipientName)}" autocomplete="off">
+      <label>Número de teléfono Bizum</label><input id="ctpay-phone" value="${esc(r.config.phone)}" inputmode="tel" autocomplete="off">
+      <div class="ctpay-note">Importe fijo: 6 € por jugador. Este número se muestra únicamente a jugadores autenticados con partido.</div>
+      <button class="ctpay-btn" id="ctpay-save-config">Guardar destinatario</button>
+      <h3 style="margin:18px 0 5px">Seguimiento de pagos</h3>
+      ${r.entries.length?r.entries.map(x=>`<div class="ctpay-admin-row"><strong>${esc(x.player)}</strong> · 6 €<div class="ctpay-note">${esc(x.a)} vs ${esc(x.b)} · Jornada ${esc(x.week)} · ${esc(x.matchId)}</div><div class="ctpay-admin-controls"><select data-payment-status="${esc(x.matchId)}" data-player="${esc(x.player)}"><option value="pending" ${x.status==='pending'?'selected':''}>Pendiente</option><option value="claimed" ${x.status==='claimed'?'selected':''}>Comunicado</option><option value="confirmed" ${x.status==='confirmed'?'selected':''}>Confirmado</option></select><button class="ctpay-btn" style="width:auto;margin:0" data-pay-save>Guardar</button></div></div>`).join(''):'<p class="ctpay-note">Aún no hay pagos comunicados. Los jugadores aparecerán aquí cuando comuniquen su Bizum.</p>'}`;
+   el.querySelector('#ctpay-save-config').onclick=async()=>{
+    try{await apiRequest({action:'paymentConfigSave',recipientName:el.querySelector('#ctpay-name').value,phone:el.querySelector('#ctpay-phone').value});alert('Destinatario Bizum guardado.')}catch(e){alert(e.message)}
+   };
+   el.querySelectorAll('[data-pay-save]').forEach(b=>b.onclick=async()=>{
+    const s=b.parentElement.querySelector('select');
+    try{await apiRequest({action:'paymentAdminSet',matchId:s.dataset.paymentStatus,player:s.dataset.player,status:s.value});alert('Estado guardado correctamente.')}catch(e){alert(e.message)}
+   });
+  }catch(e){el.textContent='No se pudieron cargar los pagos: '+e.message}
+ }
+ if(typeof renderModernHome==='function'){const orig=renderModernHome;renderModernHome=function(){orig();attach()}}
+ if(typeof renderModernMatch==='function'){const orig=renderModernMatch;renderModernMatch=function(){orig();attach()}}
+ if(typeof renderModernProfile==='function'){const orig=renderModernProfile;renderModernProfile=function(...args){const result=orig(...args);attach();return result}}
+ setTimeout(attach,200);
+})();
+</script>
 </body></html>
