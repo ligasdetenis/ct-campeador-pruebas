@@ -185,6 +185,7 @@ var BookingCoordinator = class extends DurableObject {
       const row=this.sql.exec("SELECT payload FROM match_proposals WHERE match_id=?",matchId).toArray()[0];
       if (!row) return doJson({ok:false,error:"No hay propuesta pendiente"},404);
       const proposal=JSON.parse(row.payload);
+      if (body.expectedSlotId && proposal.slotId!==body.expectedSlotId) return doJson({ok:false,error:'La propuesta ha cambiado'},409);
       if (proposal.status!=='pending') return doJson({ok:false,error:"Esta propuesta ya no está pendiente"},409);
       proposal.status='rejected';proposal.updatedAt=new Date().toISOString();
       this.sql.exec("UPDATE match_proposals SET payload=?,updated_at=? WHERE match_id=?",JSON.stringify(proposal),proposal.updatedAt,matchId);
@@ -197,7 +198,7 @@ var BookingCoordinator = class extends DurableObject {
           const row=this.sql.exec("SELECT payload FROM match_proposals WHERE match_id=?",matchId).toArray()[0];
           if (!row) throw new Error("No existe la propuesta");
           const proposal=JSON.parse(row.payload);
-          if (body.expectedSlotId && proposal.slotId!==body.expectedSlotId) throw new Error("La propuesta ha cambiado. Vuelve a abrirla");
+          if (body.expectedSlotId && proposal.slotId!==body.expectedSlotId) throw new Error('La propuesta ha cambiado. Vuelve a abrirla');
           if (proposal.status!=='pending') throw new Error("La propuesta ya no está pendiente");
           if (proposal.expiresAt && Date.parse(proposal.expiresAt)<=Date.now()) throw new Error("La propuesta ha caducado");
           const occupied=this.sql.exec("SELECT match_id FROM reservations WHERE slot_id=?",proposal.slotId).toArray()[0];
@@ -762,81 +763,6 @@ var index_default = {
           delivered: Array.isArray(pushJson.delivered) ? pushJson.delivered : [],
           partial: pushJson.ok === false
         }, 200, corsHeaders);
-      }
-      // Bizum TEST: registro de pagos independiente de reservas/resultados.
-      if (action === "paymentConfigRead" || action === "paymentConfigSave" || action === "paymentRead" || action === "paymentClaim" || action === "paymentAdminSet" || action === "paymentAdminList") {
-        const auth = await requireUser(request, body, env);
-        if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
-        const isAdminPay = auth.session.role === "admin";
-        const configKey = "ct-campeador:test:payment:config";
-        const paymentPrefix = "ct-campeador:test:payment:entry:";
-        const normalizePay = x => String(x || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ");
-        const config = JSON.parse(await env.DATA.get(configKey) || '{"amountCents":600,"recipientName":"","phone":""}');
-        const safeConfig = { amountCents: 600, recipientName: String(config.recipientName || ""), phone: String(config.phone || "") };
-        if (action === "paymentConfigRead") {
-          if (!isAdminPay) return json({ ok: false, error: "Solo administración." }, 403, corsHeaders);
-          return json({ ok: true, config: safeConfig }, 200, corsHeaders);
-        }
-        if (action === "paymentConfigSave") {
-          if (!isAdminPay) return json({ ok: false, error: "Solo administración." }, 403, corsHeaders);
-          const phone = String(body.phone || "").replace(/[\s-]/g, "").trim();
-          const recipientName = String(body.recipientName || "").trim().slice(0, 80);
-          if (!/^\+?[0-9]{9,15}$/.test(phone)) return json({ ok: false, error: "Número Bizum no válido." }, 400, corsHeaders);
-          if (!recipientName) return json({ ok: false, error: "Indica quién recibe los Bizum." }, 400, corsHeaders);
-          await env.DATA.put(configKey, JSON.stringify({ amountCents: 600, phone, recipientName }));
-          return json({ ok: true }, 200, corsHeaders);
-        }
-        if (action === "paymentAdminList") {
-          if (!isAdminPay) return json({ ok: false, error: "Solo administración." }, 403, corsHeaders);
-          const entries = []; let cursor;
-          do {
-            const page = await env.DATA.list({ prefix: paymentPrefix, cursor, limit: 1000 });
-            const values = await Promise.all(page.keys.map(k => env.DATA.get(k.name, "json")));
-            for (const item of values) if (item?.matchId && item?.player) entries.push(item);
-            if (page.list_complete) break;
-            cursor = page.cursor;
-          } while (cursor);
-          return json({ ok: true, config: safeConfig, entries: entries.sort((a,b)=>String(b.updatedAt||"").localeCompare(String(a.updatedAt||""))) }, 200, corsHeaders);
-        }
-        const matchId = String(body.matchId || "").trim().slice(0, 250);
-        const currentState = await getState(env);
-        const found = findFixture(currentState, matchId);
-        if (!found) return json({ ok: false, error: "Partido no encontrado." }, 404, corsHeaders);
-        const fixture = found.fixture;
-        const playerNames = [String(fixture.a || ""), String(fixture.b || "")];
-        const ownName = playerNames.find(name=>normalizePay(name)===normalizePay(auth.session.name));
-        if (!ownName && !isAdminPay) return json({ ok: false, error: "No perteneces a este partido." }, 403, corsHeaders);
-        // No crear pagos para partidos sin reserva; los pagos siguen asociados al partido si se cambia de pista.
-        const activeReservation = await bookingCall(env, { action: "get", matchId });
-        if (!activeReservation.reservation && action === "paymentClaim") return json({ ok:false, error:"Primero debe reservarse la pista." }, 409, corsHeaders);
-        const payKey = name => paymentPrefix + encodeURIComponent(matchId) + ":" + encodeURIComponent(normalizePay(name));
-        const getEntry = async name => await env.DATA.get(payKey(name), "json") || null;
-        if (action === "paymentRead") {
-          const items = await Promise.all(playerNames.map(getEntry));
-          return json({ ok: true, matchId, amountCents: 600, hasReservation: !!activeReservation.reservation,
-            config: safeConfig, payments: playerNames.map((player,i)=>({player,status:items[i]?.status||"pending",updatedAt:items[i]?.updatedAt||null})) }, 200, corsHeaders);
-        }
-        if (action === "paymentClaim") {
-          if (!ownName) return json({ ok:false,error:"Solo el jugador puede comunicar su propio Bizum." },403,corsHeaders);
-          const previous = await getEntry(ownName);
-          if (previous?.status === "confirmed") return json({ ok:false,error:"Este pago ya está confirmado." },409,corsHeaders);
-          const entry = {matchId,player:ownName,a:playerNames[0],b:playerNames[1],week:found.week,
-            amountCents:600,status:"claimed",updatedAt:new Date().toISOString(),claimedAt:new Date().toISOString(),confirmedAt:null,confirmedBy:null};
-          await env.DATA.put(payKey(ownName),JSON.stringify(entry));
-          return json({ok:true,payment:entry},200,corsHeaders);
-        }
-        if (action === "paymentAdminSet") {
-          if (!isAdminPay) return json({ok:false,error:"Solo administración."},403,corsHeaders);
-          const player = playerNames.find(n=>normalizePay(n)===normalizePay(body.player));
-          const status = String(body.status || "");
-          if (!player || !["pending","claimed","confirmed"].includes(status)) return json({ok:false,error:"Jugador o estado no válido."},400,corsHeaders);
-          const previous = await getEntry(player) || {};
-          const now = new Date().toISOString();
-          const entry = {...previous,matchId,player,a:playerNames[0],b:playerNames[1],week:found.week,amountCents:600,
-            status,updatedAt:now,confirmedAt:status==="confirmed"?now:null,confirmedBy:status==="confirmed"?auth.session.name:null};
-          await env.DATA.put(payKey(player),JSON.stringify(entry));
-          return json({ok:true,payment:entry},200,corsHeaders);
-        }
       }
       if (action === "saveState") {
         const admin = await requireAdmin(request, body, env);
