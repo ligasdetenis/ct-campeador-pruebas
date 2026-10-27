@@ -180,9 +180,6 @@ body.match-finished #scoreSection{grid-column:1/-1}
 #summarySection.statsExporting .summaryPlayerCard.winner {
   border:2px solid #d8ad47!important;
 }
-#summarySection.statsExporting .summaryAvatar {
-  box-shadow:none!important;
-}
 </style></head><body>
 <div class="top"><div class="liveTopActions"><button id="backToApp" class="goBack" type="button">← Mi partido</button><div><small>CT CAMPEADOR · ENTORNO TEST</small><h1>MARCADOR <em>LIVE</em></h1></div></div><span class="pill" id="connection">Conectando…</span></div><main class="pageShell">
 <div class="landscapeTools"><button id="landscapeBtn" type="button">⛶ Ver apaisado</button><span id="orientationHint"></span></div>
@@ -306,6 +303,31 @@ async function captureSummaryPng(){
   const source=$('summarySection');
   if(!source||source.classList.contains('hidden'))throw Error('El resumen no está visible.');
   const library=await loadStatsCaptureLibrary();
+  // Dibujar previamente los retratos en un PNG local evita que html2canvas pierda
+  // imagenes data:image o SVG al duplicar el documento y aplicar CSS de exportación.
+  const photoCopies=await Promise.all([0,1].map(async i=>{
+    const real=$('summaryAvatar'+i);
+    const backup=$('avatar'+i);
+    const original=real?.currentSrc||real?.src||backup?.currentSrc||backup?.src||'';
+    if(!original)return '';
+    try {
+      const photo=new Image();
+      photo.crossOrigin='anonymous';
+      await new Promise((resolve,reject)=>{
+        photo.onload=resolve;photo.onerror=reject;photo.src=original;
+        if(photo.complete&&photo.naturalWidth)resolve();
+      });
+      const c=document.createElement('canvas');c.width=320;c.height=320;
+      const ctx=c.getContext('2d');
+      const side=Math.min(photo.naturalWidth,photo.naturalHeight);
+      const sx=(photo.naturalWidth-side)/2,sy=(photo.naturalHeight-side)/2;
+      ctx.drawImage(photo,sx,sy,side,side,0,0,320,320);
+      return c.toDataURL('image/png');
+    } catch(err){
+      // Si el PNG no puede dibujarse, preservamos la imagen original sin ocultarla.
+      return original;
+    }
+  }));
   const prevScrollX=window.scrollX,prevScrollY=window.scrollY;
   // La captura no altera el marcador real; el clon usa anchura constante (como la TV).
   const canvas=await library(source,{
@@ -316,6 +338,10 @@ async function captureSummaryPng(){
       node?.classList.add('statsExporting');
       if(node){node.style.width='1100px';node.style.maxWidth='none';node.style.height='auto';node.style.overflow='visible';}
       doc.querySelectorAll('#summarySection .summaryActions').forEach(n=>n.style.display='none');
+      photoCopies.forEach((src,i)=>{
+        const img=doc.getElementById('summaryAvatar'+i);
+        if(img&&src){img.src=src;img.style.setProperty('display','block','important');img.style.setProperty('visibility','visible','important');img.style.setProperty('opacity','1','important');}
+      });
       // Evita el fallo conocido de html2canvas con sombras inset (rectángulo dorado sobre el ganador).
       doc.querySelectorAll('#summarySection .summaryPlayerCard').forEach(n=>{
         n.style.setProperty('box-shadow','none','important');
