@@ -173,7 +173,7 @@ const $=id=>document.getElementById(id);const q=new URL(location.href).searchPar
 const matchParam=q.get('id')||'demo-ctcampeador';$('matchKey').value=matchParam;
 const suggested=[q.get('a')||'Jugador A',q.get('b')||'Jugador B'];
 let id='',ws=null,state=null,pending=false,reconnectTimer=0,canControl=false;
-const TOKEN_KEY='ctcampeador_api_token';
+const TOKEN_KEY='ctcampeador_test_api_token';
 const LEAGUE_API='https://ct-campeador-api-test.ligasdetenis.workers.dev/';
 
 const APP_HOME='https://ligasdetenis.github.io/ct-campeador-pruebas/?open=matches';
