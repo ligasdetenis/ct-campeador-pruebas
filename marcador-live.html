@@ -158,6 +158,16 @@ body.match-finished #controlsSection{display:none}
 body.match-finished #scoreSection{grid-column:1/-1}
 @media (max-width:900px){.summaryHero{grid-template-columns:1fr;gap:14px}.summaryCenter{order:-1}.summaryPlayerCard{min-height:auto}.statRow{grid-template-columns:1fr;gap:10px}.statSide,.statSide.right{align-items:flex-start;text-align:left}.statBar{order:2}}
 
+
+/* Captura completa del resumen sin recortar estadísticas */
+#summarySection.statsExporting{width:1100px!important;max-width:none!important;overflow:visible!important;box-shadow:none!important;margin:0!important;border-radius:24px!important}
+#summarySection.statsExporting .summaryActions{display:none!important}
+#summarySection.statsExporting .summaryHero{grid-template-columns:minmax(180px,1fr) auto minmax(180px,1fr)!important}
+#summarySection.statsExporting .summaryCenter{order:0!important}
+#summarySection.statsExporting .statRow{grid-template-columns:minmax(108px,.9fr) minmax(150px,.95fr) minmax(108px,.9fr)!important}
+#summarySection.statsExporting .statSide.right{align-items:flex-end!important;text-align:right!important}
+#summarySection.statsExporting .statSide:not(.right){align-items:flex-start!important;text-align:left!important}
+#summarySection.statsExporting .summaryPlayerCard{min-height:220px!important}
 </style></head><body>
 <div class="top"><div class="liveTopActions"><button id="backToApp" class="goBack" type="button">← Mi partido</button><div><small>CT CAMPEADOR · ENTORNO TEST</small><h1>MARCADOR <em>LIVE</em></h1></div></div><span class="pill" id="connection">Conectando…</span></div><main class="pageShell">
 <div class="landscapeTools"><button id="landscapeBtn" type="button">⛶ Ver apaisado</button><span id="orientationHint"></span></div>
@@ -165,7 +175,7 @@ body.match-finished #scoreSection{grid-column:1/-1}
 <section id="joinSection"><label for="matchKey"><small>Identificador de partido</small></label><input id="matchKey" autocomplete="off" maxlength="80" placeholder="Partido de prueba"><p class="help">Abre el enlace desde «Mi partido», o comparte esta página para que otros sigan el marcador.</p><button id="join">Conectar al partido</button> <button class="secondary" id="share">Compartir enlace</button></section>
 <section id="scoreSection"><div class="scoreHeading"><div><span class="eyebrow">CENTRE COURT · CT CAMPEADOR</span><h2>ENCUENTRO EN DIRECTO</h2></div><span class="scoreLiveFlag"><span class="pulseDot"></span> LIVE SCORE</span></div><div class="grid"><div><small>JUGADORES</small></div><div><small>SET 1</small></div><div><small>SET 2</small></div><div><small>JUEGOS</small></div><div><small>PUNTOS</small></div><div class="player"><img class="playerAvatar" id="avatar0" alt="Foto jugador A"><span class="serveBall" id="serveBall0" aria-label="Al servicio" title="Al servicio"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false"><defs><clipPath id="ballClip0"><circle cx="16" cy="16" r="13"/></clipPath></defs><circle cx="16" cy="16" r="13" fill="#d8ed36" stroke="#fff5ad" stroke-width="1.2"/><g clip-path="url(#ballClip0)" fill="none" stroke="#fffcef" stroke-width="2.2" stroke-linecap="round"><path d="M8 -1C21 9 21 23 8 33"/><path d="M24 -1C11 9 11 23 24 33"/></g></svg></span><span class="playerName" id="name0">Jugador A</span></div><div class="score" id="s01">—</div><div class="score" id="s02">—</div><div class="score" id="game0">0</div><div class="score" id="current0">0</div><div class="player"><img class="playerAvatar" id="avatar1" alt="Foto jugador B"><span class="serveBall" id="serveBall1" aria-label="Al servicio" title="Al servicio"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false"><defs><clipPath id="ballClip1"><circle cx="16" cy="16" r="13"/></clipPath></defs><circle cx="16" cy="16" r="13" fill="#d8ed36" stroke="#fff5ad" stroke-width="1.2"/><g clip-path="url(#ballClip1)" fill="none" stroke="#fffcef" stroke-width="2.2" stroke-linecap="round"><path d="M8 -1C21 9 21 23 8 33"/><path d="M24 -1C11 9 11 23 24 33"/></g></svg></span><span class="playerName" id="name1">Jugador B</span></div><div class="score" id="s11">—</div><div class="score" id="s12">—</div><div class="score" id="game1">0</div><div class="score" id="current1">0</div></div><div class="matchMeta"><p id="phase" class="help">Esperando conexión…</p><p id="updated" class="help"></p></div></section>
 <section id="controlsSection"><div class="controlHeading"><span class="eyebrow">MATCH CONTROL</span><b>Control del marcador</b></div><p class="help" id="permissionMessage">Comprobando tu sesión de CT Campeador…</p><div id="startArea"><p>Elegir quién comienza sacando:</p><div class="twos"><button class="secondary" id="start0">Empieza jugador A</button><button class="secondary" id="start1">Empieza jugador B</button></div></div><div id="pointsArea" class="hidden"><div class="twos"><button id="point0">+ Punto A</button><button id="point1">+ Punto B</button></div><p><button class="danger" id="undo">↶ Deshacer último punto</button></p></div><div id="resetArea" class="hidden"><button id="resetMatch" type="button" class="danger" style="width:100%;min-height:44px;border:1px solid #c68d97">↻ Reiniciar partido</button><p class="help">Borra el tanteo LIVE de este partido (no afecta a resultados oficiales).</p></div><p class="help" id="actionsInfo">Conecta al partido para comenzar.</p></section>
-<section id="summarySection" class="summarySection hidden"><div class="summaryInner"><div class="summaryTop"><div class="summaryTitle"><small>MATCH STATISTICS · CT CAMPEADOR</small><b>Resumen final del partido</b></div><div class="summaryPill" id="summaryDuration">Duración no disponible</div></div><div class="summaryHero"><div class="summaryPlayerCard" id="summaryCard0"><img class="summaryAvatar" id="summaryAvatar0" alt="Jugador 1"><div class="summaryPlayerName" id="summaryName0">Jugador A</div><div class="summaryRating"><div class="summaryRatingValue" id="summaryRating0">—</div><div class="summaryRatingLabel">MATCH RATING</div></div></div><div class="summaryCenter"><div class="summaryVs">VS</div><div class="summaryResult" id="summarySetsResult">2-1</div><div class="summaryScoreline" id="summaryScoreline">6-4 · 3-6 · 10-7</div><div class="summaryWinner" id="summaryWinnerText">Partido finalizado</div></div><div class="summaryPlayerCard" id="summaryCard1"><img class="summaryAvatar" id="summaryAvatar1" alt="Jugador 2"><div class="summaryPlayerName" id="summaryName1">Jugador B</div><div class="summaryRating"><div class="summaryRatingValue" id="summaryRating1">—</div><div class="summaryRatingLabel">MATCH RATING</div></div></div></div><div class="statsTable" id="statsTable"></div><div class="summaryFooter"><div class="summaryNote">Estadísticas generadas automáticamente a partir de los puntos del marcador LIVE. No modifican el resultado oficial de la liga.</div><div class="summaryActions"><button type="button" id="shareStats">Compartir estadísticas</button><button type="button" class="secondary" id="backToTopStats">Ver arriba</button></div></div></div></section><p class="foot">Reglas: juegos con ventaja; tie-break a 7 en 6-6; si se reparten los dos primeros sets, supertie-break a 10 y diferencia de dos. Los espectadores reciben actualizaciones por WebSocket.</p></main>
+<section id="summarySection" class="summarySection hidden"><div class="summaryInner"><div class="summaryTop"><div class="summaryTitle"><small>MATCH STATISTICS · CT CAMPEADOR</small><b>Resumen final del partido</b></div><div class="summaryPill" id="summaryDuration">Duración no disponible</div></div><div class="summaryHero"><div class="summaryPlayerCard" id="summaryCard0"><img class="summaryAvatar" id="summaryAvatar0" alt="Jugador 1"><div class="summaryPlayerName" id="summaryName0">Jugador A</div><div class="summaryRating"><div class="summaryRatingValue" id="summaryRating0">—</div><div class="summaryRatingLabel">MATCH RATING</div></div></div><div class="summaryCenter"><div class="summaryVs">VS</div><div class="summaryResult" id="summarySetsResult">2-1</div><div class="summaryScoreline" id="summaryScoreline">6-4 · 3-6 · 10-7</div><div class="summaryWinner" id="summaryWinnerText">Partido finalizado</div></div><div class="summaryPlayerCard" id="summaryCard1"><img class="summaryAvatar" id="summaryAvatar1" alt="Jugador 2"><div class="summaryPlayerName" id="summaryName1">Jugador B</div><div class="summaryRating"><div class="summaryRatingValue" id="summaryRating1">—</div><div class="summaryRatingLabel">MATCH RATING</div></div></div></div><div class="statsTable" id="statsTable"></div><div class="summaryFooter"><div class="summaryNote">Estadísticas generadas automáticamente a partir de los puntos del marcador LIVE. No modifican el resultado oficial de la liga.</div><div class="summaryActions"><button type="button" id="shareImageStats">📸 Compartir imagen</button><button type="button" id="saveImageStats" class="secondary">↓ Guardar PNG</button><button type="button" id="shareStats" class="secondary">Compartir texto</button><button type="button" class="secondary" id="backToTopStats">Ver arriba</button></div></div></div></section><p class="foot">Reglas: juegos con ventaja; tie-break a 7 en 6-6; si se reparten los dos primeros sets, supertie-break a 10 y diferencia de dos. Los espectadores reciben actualizaciones por WebSocket.</p></main>
 <script>
 (()=>{'use strict';
 const API='https://ct-campeador-live-test.ligasdetenis.workers.dev';
@@ -253,6 +263,72 @@ async function checkPermissions(){
 }
 async function join(){const next=$('matchKey').value.trim();if(!/^[a-zA-Z0-9_-]{1,80}$/.test(next)){alert('Identificador inválido');return}id=next;const u=new URL(location.href);u.searchParams.set('id',id);history.replaceState(null,'',u.toString());state=null;canControl=false;status('Conectando…');try{await refresh();connect();await checkPermissions();await loadPlayerPhotos()}catch(e){status('Error');setText('actionsInfo','No se pudo conectar: '+e.message)}}
 async function action(data){if(pending)return;const token=localStorage.getItem(TOKEN_KEY)||'';if(!canControl||!token){alert('Solo los dos jugadores pueden controlar su partido después de entrar con su PIN habitual.');return}pending=true;render();try{const r=await fetch(url(),{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token},body:JSON.stringify(data)});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Error');state=j.state;render();setText('actionsInfo','Acción sincronizada con espectadores.')}catch(e){setText('actionsInfo','Error: '+e.message)}finally{pending=false;render()}}
+
+
+// Captura el panel real (no recrea la tarjeta) y genera un PNG de todas las filas.
+let statsExportBusy=false;
+async function loadStatsCaptureLibrary(){
+  if(window.html2canvas) return window.html2canvas;
+  if(!window.__ctStatsCapturePromise){
+    window.__ctStatsCapturePromise=new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      script.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      script.async=true;
+      script.onload=()=>window.html2canvas?resolve(window.html2canvas):reject(new Error('Biblioteca de captura no disponible'));
+      script.onerror=()=>reject(new Error('No se ha podido cargar el generador de imagen. Comprueba tu conexión.'));
+      document.head.appendChild(script);
+    }).catch(e=>{window.__ctStatsCapturePromise=null;throw e;});
+  }
+  return window.__ctStatsCapturePromise;
+}
+function safeStatsFileName(){
+  const names=state?.names||suggested;
+  const cleaned=names.map(name=>String(name||'jugador').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,25));
+  return `CT-Campeador-Stats-${cleaned.join('-vs-')}.png`;
+}
+async function captureSummaryPng(){
+  if(state?.status!=='finished')throw Error('Finaliza el partido para compartir sus estadísticas.');
+  const source=$('summarySection');
+  if(!source||source.classList.contains('hidden'))throw Error('El resumen no está visible.');
+  const library=await loadStatsCaptureLibrary();
+  const prevScrollX=window.scrollX,prevScrollY=window.scrollY;
+  // La captura no altera el marcador real; el clon usa anchura constante (como la TV).
+  const canvas=await library(source,{
+    backgroundColor:'#08192d',scale:2,useCORS:true,allowTaint:false,logging:false,
+    width:1100,windowWidth:1400,scrollX:0,scrollY:-window.scrollY,
+    onclone:(doc)=>{
+      const node=doc.getElementById('summarySection');
+      node?.classList.add('statsExporting');
+      if(node){node.style.width='1100px';node.style.maxWidth='none';node.style.height='auto';node.style.overflow='visible';}
+      doc.querySelectorAll('#summarySection .summaryActions').forEach(n=>n.style.display='none');
+    }
+  });
+  window.scrollTo(prevScrollX,prevScrollY);
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('No se pudo crear la imagen PNG')),'image/png'));
+}
+function downloadStatsPng(blob){
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=u;a.download=safeStatsFileName();document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),15000);
+}
+async function exportStatsImage(share){
+  if(statsExportBusy)return;
+  statsExportBusy=true;
+  const btns=[$('shareImageStats'),$('saveImageStats')].filter(Boolean);
+  btns.forEach(b=>b.disabled=true);
+  try{
+    const blob=await captureSummaryPng();
+    const file=new File([blob],safeStatsFileName(),{type:'image/png'});
+    if(share && navigator.share && navigator.canShare?.({files:[file]})){
+      try{await navigator.share({files:[file],title:'CT Campeador · Estadísticas del partido'});return;}
+      catch(e){if(e?.name==='AbortError')return;}
+    }
+    downloadStatsPng(blob);
+    if(share)alert('Imagen PNG guardada. Puedes enviarla desde WhatsApp o la galería.');
+  }catch(e){alert('No se pudo generar la imagen: '+(e?.message||e)+'\nSi las fotos proceden de servidores externos, puede ser necesario que permitan CORS.');}
+  finally{statsExportBusy=false;btns.forEach(b=>b.disabled=false);}
+}
+$('shareImageStats').onclick=()=>exportStatsImage(true);
+$('saveImageStats').onclick=()=>exportStatsImage(false);
 
 $('backToTopStats').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 $('shareStats').onclick=async()=>{
