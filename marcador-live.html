@@ -168,6 +168,21 @@ body.match-finished #scoreSection{grid-column:1/-1}
 #summarySection.statsExporting .statSide.right{align-items:flex-end!important;text-align:right!important}
 #summarySection.statsExporting .statSide:not(.right){align-items:flex-start!important;text-align:left!important}
 #summarySection.statsExporting .summaryPlayerCard{min-height:220px!important}
+
+/* html2canvas interpreta incorrectamente el gran inset box-shadow del ganador.
+   Solo en la copia de exportación: usamos borde real, sin sombras internas. */
+#summarySection.statsExporting .summaryPlayerCard,
+#summarySection.statsExporting .summaryPlayerCard.winner {
+  box-shadow:none!important;
+  background:#1a304c!important;
+  border:2px solid rgba(255,255,255,.10)!important;
+}
+#summarySection.statsExporting .summaryPlayerCard.winner {
+  border:2px solid #d8ad47!important;
+}
+#summarySection.statsExporting .summaryAvatar {
+  box-shadow:none!important;
+}
 </style></head><body>
 <div class="top"><div class="liveTopActions"><button id="backToApp" class="goBack" type="button">← Mi partido</button><div><small>CT CAMPEADOR · ENTORNO TEST</small><h1>MARCADOR <em>LIVE</em></h1></div></div><span class="pill" id="connection">Conectando…</span></div><main class="pageShell">
 <div class="landscapeTools"><button id="landscapeBtn" type="button">⛶ Ver apaisado</button><span id="orientationHint"></span></div>
@@ -301,6 +316,12 @@ async function captureSummaryPng(){
       node?.classList.add('statsExporting');
       if(node){node.style.width='1100px';node.style.maxWidth='none';node.style.height='auto';node.style.overflow='visible';}
       doc.querySelectorAll('#summarySection .summaryActions').forEach(n=>n.style.display='none');
+      // Evita el fallo conocido de html2canvas con sombras inset (rectángulo dorado sobre el ganador).
+      doc.querySelectorAll('#summarySection .summaryPlayerCard').forEach(n=>{
+        n.style.setProperty('box-shadow','none','important');
+        n.style.setProperty('background','#1a304c','important');
+        n.style.setProperty('border',n.classList.contains('winner')?'2px solid #d8ad47':'2px solid rgba(255,255,255,.10)','important');
+      });
     }
   });
   window.scrollTo(prevScrollX,prevScrollY);
