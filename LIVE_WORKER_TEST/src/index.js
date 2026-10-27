@@ -13,12 +13,12 @@ export default {
     // Solo las acciones mutantes requieren permiso. Lectura/WebSocket son públicos.
     if (req.method === 'POST' && !m[2]) {
       const bearer = (req.headers.get('Authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
-      if (!bearer) return json({error:'Entra en la liga oficial con tu PIN para controlar el marcador.'},401);
-      const boundApi = env.API_TEST || env.API_PRODUCCION;
-      if (!boundApi) return json({error:'Falta Service Binding API_TEST/API_PRODUCCION en LIVE Worker.'},503);
+      if (!bearer) return json({error:'Entra en la liga TEST con tu PIN para controlar el marcador.'},401);
+      // TEST usa solo LIVE_MATCH: la autorización se consulta con HTTPS a la API TEST.
+      // Nunca se aceptan puntos si esa comprobación falla.
       let permission;
       try {
-        const resp = await boundApi.fetch('https://api.internal/', {
+        const resp = await fetch('https://ct-campeador-api-test.ligasdetenis.workers.dev/', {
           method:'POST',
           headers:{'content-type':'application/json','authorization':'Bearer '+bearer},
           body:JSON.stringify({action:'liveAuthorization',matchKey:m[1]})
@@ -26,8 +26,8 @@ export default {
         permission = await resp.json();
         if (!resp.ok || !permission.ok) return json({error:permission.error||'Sesión no válida'},resp.status===401?401:403);
         if (!permission.canControl) return json({error:'Solo los dos jugadores de este partido pueden modificar el tanteo.'},403);
-      } catch(e) { return json({error:'No se pudo validar la sesión del entorno LIVE.'},503); }
-      // Identidad de los participantes obtenida exclusivamente de la API de producción.
+      } catch(e) { return json({error:'La API TEST no pudo validar tu sesión. Revisa el enlace HTTPS desde Cloudflare; no se permite jugar sin autorización.'},503); }
+      // Identidad de los participantes obtenida exclusivamente de la API TEST.
       let body;
       try {body=await req.json()}catch{return json({error:'JSON inválido'},400)}
       if (body.action==='start') body.names=permission.names;
