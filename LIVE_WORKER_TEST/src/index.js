@@ -7,18 +7,17 @@ export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null,{status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'GET,POST,OPTIONS','access-control-allow-headers':'content-type,authorization'}});
-    if(url.pathname === '/health') return json({ok:true,service:'ct-campeador-live-test',websocket:true,stats:true});
+    if(url.pathname === '/health') return json({ok:true,service:'ct-campeador-live-test',websocket:true});
     const m = url.pathname.match(/^\/api\/match\/([^/]+)(\/ws)?$/);
     if(!m || !validId(m[1])) return json({error:'Ruta no encontrada'},404);
     // Solo las acciones mutantes requieren permiso. Lectura/WebSocket son públicos.
     if (req.method === 'POST' && !m[2]) {
       const bearer = (req.headers.get('Authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
       if (!bearer) return json({error:'Entra en la liga TEST con tu PIN para controlar el marcador.'},401);
-      // TEST usa solo LIVE_MATCH: la autorización se consulta con HTTPS a la API TEST.
-      // Nunca se aceptan puntos si esa comprobación falla.
+      if (!env.API_TEST) return json({error:'Falta Service Binding API_TEST en LIVE Worker.'},503);
       let permission;
       try {
-        const resp = await fetch('https://ct-campeador-api-test.ligasdetenis.workers.dev/', {
+        const resp = await env.API_TEST.fetch('https://api.internal/', {
           method:'POST',
           headers:{'content-type':'application/json','authorization':'Bearer '+bearer},
           body:JSON.stringify({action:'liveAuthorization',matchKey:m[1]})
@@ -26,7 +25,7 @@ export default {
         permission = await resp.json();
         if (!resp.ok || !permission.ok) return json({error:permission.error||'Sesión no válida'},resp.status===401?401:403);
         if (!permission.canControl) return json({error:'Solo los dos jugadores de este partido pueden modificar el tanteo.'},403);
-      } catch(e) { return json({error:'La API TEST no pudo validar tu sesión. Revisa el enlace HTTPS desde Cloudflare; no se permite jugar sin autorización.'},503); }
+      } catch(e) { return json({error:'No se pudo validar la sesión de TEST.'},503); }
       // Identidad de los participantes obtenida exclusivamente de la API TEST.
       let body;
       try {body=await req.json()}catch{return json({error:'JSON inválido'},400)}
@@ -89,7 +88,6 @@ function completeSet(s,w){
   s.tbPointsPlayed=0;
   if(s.phase==='super'){s.tiebreakFirstServer=s.server;}
 }
-
 const gameplaySnapshot = s => ({status:s.status, server:s.server, sets:s.sets, games:s.games, points:s.points, phase:s.phase, winner:s.winner, tiebreakFirstServer:s.tiebreakFirstServer ?? null, tbPointsPlayed:s.tbPointsPlayed ?? 0});
 const sameGameplay = (a,b) => JSON.stringify(gameplaySnapshot(a)) === JSON.stringify(gameplaySnapshot(b));
 const totalGamesByPlayer = s => [0,1].map(i => (s.sets?.[i]||[]).reduce((acc,v)=>acc+Number(v||0),0) + Number(s.games?.[i]||0));
@@ -215,7 +213,7 @@ export class LiveMatch extends DurableObject {
   async getState(){return (await this.ctx.storage.get('state'))||initial();}
   async save(s){s.version++;s.updatedAt=new Date().toISOString();await this.ctx.storage.put('state',s);this.broadcast(s);}
   broadcast(s){ const payload=JSON.stringify({type:'state',state:this.publicState(s)});for(const ws of this.ctx.getWebSockets()){try{ws.send(payload)}catch{}} }
-  publicState(s){const {history,...publicData}=s;const stats=computeStats(s);return {...publicData,pointLabels:s.phase==='normal'?[pointsText(s.points[0],s.points[1]),pointsText(s.points[1],s.points[0])]:s.points,matchStats:stats};}
+  publicState(s){const {history,...publicData}=s;return {...publicData,pointLabels:s.phase==='normal'?[pointsText(s.points[0],s.points[1]),pointsText(s.points[1],s.points[0])]:s.points,matchStats:computeStats(s)};}
   async fetch(req){
     const url=new URL(req.url);const ws=url.pathname.endsWith('/ws');
     if(ws){
@@ -246,7 +244,7 @@ export class LiveMatch extends DurableObject {
         }else if(body.action==='point'){
           if(body.who!==0&&body.who!==1)throw Error('Jugador inválido');
           if(s.history.length>=10000)throw Error('Historial completo');
-          s.history.push(clone({...s,history:[]}));advance(s,body.who);if(s.status==='finished' && !s.finishedAt) s.finishedAt=new Date().toISOString();
+          s.history.push(clone({...s,history:[]}));advance(s,body.who);if(s.status==='finished'&&!s.finishedAt)s.finishedAt=new Date().toISOString();
         }else if(body.action==='undo'){
           if(s.history.length===0)throw Error('No hay puntos que deshacer');
           const before=s.history.pop();const history=s.history;Object.assign(s,before,{history});
