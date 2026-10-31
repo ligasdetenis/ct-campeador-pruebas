@@ -1975,6 +1975,23 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .waPhone{font-size:10px;color:#66707c;font-weight:650}
 .waStatus{font-size:9px;font-weight:850;color:#66707c}
 .mapp-proposal-cta{display:flex;align-items:center;gap:12px;margin:12px 14px;padding:15px 13px;border-radius:15px;background:linear-gradient(120deg,#f9e8d1,#fff6e9);border:2px solid #c79b42;color:#491d24;cursor:pointer;box-shadow:0 4px 13px rgba(60,20,18,.13)}.mapp-proposal-cta:focus-visible{outline:3px solid #b12236;outline-offset:3px}.mapp-proposal-cta-icon{font-size:25px}.mapp-proposal-cta strong{display:block;font-weight:950;font-size:14px;line-height:1.2}.mapp-proposal-cta small{display:block;font-size:12px;margin-top:5px;line-height:1.35}
+
+/* TEST · asuntos pendientes V3: indicador Push independiente de la campana de asuntos. */
+.mapp-brand .mapp-bell{flex:0 0 42px}
+.mapp-brand #modernBellBtn .mapp-bell-dot{display:none!important}
+.ct-push-indicator{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  flex:0 0 auto;min-width:77px;padding:6px 8px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.23);background:rgba(25,0,6,.48);
+  color:#e9d9d9;font:750 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.015em;white-space:nowrap}
+.ct-push-led{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#9ca3af}
+.ct-push-indicator.on{border-color:rgba(89,228,155,.42);background:rgba(0,96,50,.28);color:#beffda}
+.ct-push-indicator.on .ct-push-led{background:#55e19b;box-shadow:0 0 0 2px rgba(85,225,155,.14)}
+.ct-push-indicator.off{border-color:rgba(255,209,114,.39);color:#ffdfa1}
+.ct-push-indicator.off .ct-push-led{background:#ffc95d}
+.ct-push-indicator.blocked{border-color:rgba(252,128,143,.36);color:#ffbec7}
+.ct-push-indicator.blocked .ct-push-led{background:#ff8092}
+@media(max-width:420px){.mapp-brand{gap:7px}.ct-push-indicator{min-width:68px;padding:6px 5px;font-size:9px}}
+@media(max-width:365px){.ct-push-indicator{min-width:auto}.mapp-brand-title{font-size:20px}}
 </style>
 
 <link rel="manifest" href="manifest-test.webmanifest">
@@ -4782,6 +4799,7 @@ Pablo Ruiz"></textarea>
       <button class="mapp-bell" id="modernBellBtn" type="button" aria-label="Avisos">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="mapp-bell-dot" id="modernBellDot"></span>
       </button>
+      <span class="ct-push-indicator checking" id="ctPushIndicator" title="Estado de las notificaciones Push. Se configuran en Mi perfil" aria-label="Comprobando notificaciones Push"><span class="ct-push-led" aria-hidden="true"></span><span class="ct-push-text">PUSH ···</span></span>
     </div>
     <div class="mapp-context" id="modernContextBtn">
       <div class="mapp-context-item">
@@ -8979,40 +8997,39 @@ function mappApplySelector(){
  renderAll();
 }
 
+function ctSetPushIndicator(status){
+  const pill=document.getElementById('ctPushIndicator');
+  if(!pill)return;
+  const states={
+    on:['PUSH ON','Notificaciones Push activadas en este dispositivo'],
+    off:['PUSH OFF','Notificaciones Push sin activar. Configúralas en Mi perfil'],
+    blocked:['BLOQ.','Notificaciones Push bloqueadas o no compatibles en este dispositivo'],
+    checking:['PUSH ···','Comprobando notificaciones Push…']
+  };
+  const [label,description]=states[status]||states.checking;
+  pill.className='ct-push-indicator '+status;
+  pill.querySelector('.ct-push-text').textContent=label;
+  pill.title=description;
+  pill.setAttribute('aria-label',description);
+}
 async function mappRefreshBellState(){
-  const btn=$('#modernBellBtn'),dot=$('#modernBellDot');
-  if(!btn||!dot)return;
+  const btn=$('#modernBellBtn');
+  if(!btn)return;
   btn.classList.remove('push-on','push-off','push-blocked');
-
+  ctSetPushIndicator('checking');
   if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
-    btn.classList.add('push-blocked');
-    btn.title='Abrir asuntos pendientes';
-    dot.style.display='block';
+    ctSetPushIndicator('blocked');
     return;
   }
-
   if(Notification.permission==='denied'){
-    btn.classList.add('push-blocked');
-    btn.title='Avisos bloqueados';
-    dot.style.display='block';
+    ctSetPushIndicator('blocked');
     return;
   }
-
   try{
     const sub=await currentPushSubscription();
-    if(sub && Notification.permission==='granted'){
-      btn.classList.add('push-on');
-      btn.title='Avisos activados';
-      dot.style.display='none';
-    }else{
-      btn.classList.add('push-off');
-      btn.title='Avisos pendientes de activar';
-      dot.style.display='block';
-    }
+    ctSetPushIndicator(sub&&Notification.permission==='granted'?'on':'off');
   }catch(_){
-    btn.classList.add('push-off');
-    btn.title='Configurar avisos';
-    dot.style.display='block';
+    ctSetPushIndicator('off');
   }
 }
 
