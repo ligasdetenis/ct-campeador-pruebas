@@ -8986,7 +8986,7 @@ async function mappRefreshBellState(){
 
   if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
     btn.classList.add('push-blocked');
-    btn.title='Avisos no compatibles en este dispositivo';
+    btn.title='Abrir asuntos pendientes';
     dot.style.display='block';
     return;
   }
@@ -9597,10 +9597,7 @@ $('#modernTicker').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefau
 $('#modernContextBtn').onclick=mappOpenSelector;
 $('#modernSelectorClose').onclick=mappApplySelector;
 $('#modernSelectorSheet').onclick=e=>{if(e.target===$('#modernSelectorSheet'))$('#modernSelectorSheet').classList.remove('show')};
-$('#modernBellBtn').onclick=()=>{
-  mappShow('profile');
-  setTimeout(()=>$('#mappPushRow')?.scrollIntoView({behavior:'smooth',block:'center'}),120);
-};
+$('#modernBellBtn').onclick=async()=>{ctPendingOpen();await ctPendingScan()};
 $('#modernAdminBack').onclick=closeModernAdmin;
 $('#modernAdminBack2').onclick=closeModernAdmin;
 $('#adminCategorySelect').onchange=applyModernAdminContext;
@@ -10187,10 +10184,12 @@ async function ctPendingFetchProposals(matches){
  await Promise.all(Array.from({length:Math.min(4,eligible.length)},()=>worker()));
  return output;
 }
-function ctPendingElements(){return {modal:document.getElementById('ctPendingModal'),bell:document.getElementById('ctPendingBell'),badge:document.getElementById('ctPendingBadge'),list:document.getElementById('ctPendingList')}}
+function ctPendingElements(){return {modal:document.getElementById('ctPendingModal'),bell:document.getElementById('modernBellBtn'),badge:document.getElementById('ctPendingBadge'),list:document.getElementById('ctPendingList')}}
 function ctPendingRender(){
  const {modal,bell,badge,list}=ctPendingElements();if(!modal)return;
- bell.hidden=!state.authenticated||!apiToken;
+ bell.classList.toggle('ctp-has-pending',!!ctPendingItems.length&&!!state.authenticated);
+ bell.setAttribute('aria-label',ctPendingItems.length?`${ctPendingItems.length} asuntos pendientes`:'Abrir asuntos pendientes');
+ bell.title='Asuntos pendientes';
  badge.textContent=String(ctPendingItems.length);
  badge.hidden=!ctPendingItems.length;
  list.replaceChildren();
@@ -10246,21 +10245,29 @@ async function ctPendingEntry(){
 function ctPendingInstallUI(){
  if(document.getElementById('ctPendingModal'))return;
  const style=document.createElement('style');style.id='ctPendingStyles';style.textContent=`
- #ctPendingBell{position:fixed;right:14px;bottom:83px;z-index:8500;width:50px;height:50px;border:2px solid #d9aa55;border-radius:50%;background:#641e30;color:#fff;box-shadow:0 8px 22px #18070d55;cursor:pointer;font-size:23px}
- #ctPendingBell[hidden],#ctPendingBadge[hidden]{display:none!important}
- #ctPendingBadge{position:absolute;top:-6px;right:-8px;min-width:21px;padding:2px 5px;border-radius:20px;background:#e53935;color:white;font-size:12px;font-weight:900}
+ /* V2: usamos la campana original de cabecera, nunca un botón flotante */
+ #modernBellBtn{flex:0 0 42px;isolation:isolate;box-shadow:none!important}
+ #modernBellBtn.ctp-has-pending{border-color:rgba(255,204,100,.65)!important;background:rgba(255,202,74,.13)!important}
+ #ctPendingBadge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px;border-radius:999px;background:#f5c75c;color:#421220;border:2px solid #57000d;font-size:10px;font-weight:900;line-height:1;box-shadow:0 2px 7px #0005}
+ #modernBellBtn #modernBellDot{display:none!important}
+ #modernBellBtn:focus-visible{outline:2px solid #f5c75c;outline-offset:3px}
+ #ctPendingBadge[hidden]{display:none!important}
  #ctPendingModal{display:none;position:fixed;inset:0;z-index:999996;background:#14080ec4;align-items:center;justify-content:center;padding:15px;box-sizing:border-box}
  #ctPendingModal.show{display:flex}
  .ctp-box{width:min(100%,480px);max-height:calc(100dvh - 32px);overflow:auto;background:#fffaf3;color:#421928;border:2px solid #d7aa57;border-radius:22px;box-shadow:0 24px 75px #090408aa;padding:19px;box-sizing:border-box}
  .ctp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.ctp-top h2{margin:3px 0 6px;font-size:23px}.ctp-kicker{color:#966826;font-weight:900;font-size:11px;letter-spacing:.11em}.ctp-sub{font-size:13px;color:#856674;margin:0 0 17px}.ctp-close{border:0;background:transparent;color:#641e30;font-size:25px;cursor:pointer;padding:6px}
  .ctp-list{display:grid;gap:10px}.ctp-item{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;background:#fff;border:1px solid #e6d6c0;border-radius:13px;padding:13px;align-items:center}.ctp-icon{font-size:24px}.ctp-item strong{display:block;font-size:13px;color:#502034}.ctp-item small{display:block;margin-top:4px;font-size:12px;color:#866b74;line-height:1.4;overflow-wrap:anywhere}.ctp-action{grid-column:2;background:#672138;color:white;font-size:13px;font-weight:800;border:0;border-radius:9px;padding:10px 14px;cursor:pointer;justify-self:start}.ctp-empty{padding:18px;text-align:center;color:#77616d}
  .ctp-footer{display:flex;justify-content:space-between;gap:9px;margin-top:18px;flex-wrap:wrap}.ctp-footer button{border:1px solid #d0b6a5;background:#eee4d9;color:#512738;border-radius:10px;padding:11px;font-weight:800;cursor:pointer}.ctp-footer button.ctp-refresh{background:#d6a953;color:#2b1520}
- @media(min-width:700px){#ctPendingBell{bottom:22px}}`;
+ `;
  document.head.append(style);
  const modal=document.createElement('div');modal.id='ctPendingModal';modal.setAttribute('aria-hidden','true');modal.innerHTML=`<div class="ctp-box" role="dialog" aria-modal="true" aria-labelledby="ctPendingTitle"><div class="ctp-top"><div><span class="ctp-kicker">CT CAMPEADOR · MI BANDEJA</span><h2 id="ctPendingTitle">🔔 Asuntos pendientes</h2><p class="ctp-sub" id="ctPendingCount">Comprobando…</p></div><button class="ctp-close" type="button" aria-label="Cerrar">×</button></div><div class="ctp-list" id="ctPendingList"></div><div class="ctp-footer"><button type="button" id="ctPendingLater">Revisar más tarde</button><button type="button" class="ctp-refresh" id="ctPendingRefresh">↻ Actualizar</button></div></div>`;
- const bell=document.createElement('button');bell.type='button';bell.id='ctPendingBell';bell.setAttribute('aria-label','Abrir asuntos pendientes');bell.hidden=true;bell.innerHTML='🔔<span id="ctPendingBadge" hidden>0</span>';
- document.body.append(modal,bell);
- bell.addEventListener('click',async()=>{ctPendingOpen();await ctPendingScan()});
+ const bell=document.getElementById('modernBellBtn');
+ if(!bell)throw new Error('No se encuentra la campana original de la cabecera');
+ bell.insertAdjacentHTML('beforeend','<span id="ctPendingBadge" hidden>0</span>');
+ bell.setAttribute('aria-label','Abrir asuntos pendientes');
+ document.body.append(modal);
+ // El manejador de esta campana se asigna al final de la inicialización moderna.
+ // Allí se sustituye el acceso directo a configuración Push por esta bandeja.
  modal.querySelector('.ctp-close').addEventListener('click',()=>ctPendingClose(true));
  modal.querySelector('#ctPendingLater').addEventListener('click',()=>ctPendingClose(true));
  modal.querySelector('#ctPendingRefresh').addEventListener('click',async()=>{await refreshOnline({silent:true});await ctPendingScan()});
