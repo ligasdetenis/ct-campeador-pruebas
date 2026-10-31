@@ -3195,6 +3195,11 @@ body.resultModalOpen{overflow:hidden}
 }
 
 
+/* Navegación desde el indicador Push a Mi perfil → Avisos */
+#ctPushIndicator{font:inherit;cursor:pointer;appearance:none;-webkit-appearance:none}
+#ctPushIndicator:disabled{cursor:default}
+#ctPushIndicator:focus-visible{outline:2px solid #f5c75c;outline-offset:3px}
+#mappPushRow.ct-push-row-highlight{outline:2px solid rgba(245,199,92,.75);outline-offset:-2px;background:rgba(245,199,92,.10)}
 /* Estado Push junto al nombre del usuario */
 .accessDesktopNameLine{
   display:flex;
@@ -4799,7 +4804,7 @@ Pablo Ruiz"></textarea>
       <button class="mapp-bell" id="modernBellBtn" type="button" aria-label="Avisos">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="mapp-bell-dot" id="modernBellDot"></span>
       </button>
-      <span class="ct-push-indicator checking" id="ctPushIndicator" title="Estado de las notificaciones Push. Se configuran en Mi perfil" aria-label="Comprobando notificaciones Push"><span class="ct-push-led" aria-hidden="true"></span><span class="ct-push-text">PUSH ···</span></span>
+      <button class="ct-push-indicator checking" id="ctPushIndicator" type="button" title="Estado de las notificaciones Push. Se configuran en Mi perfil" aria-label="Comprobando notificaciones Push"><span class="ct-push-led" aria-hidden="true"></span><span class="ct-push-text">PUSH ···</span></button>
     </div>
     <div class="mapp-context" id="modernContextBtn">
       <div class="mapp-context-item">
@@ -9010,7 +9015,9 @@ function ctSetPushIndicator(status){
   pill.className='ct-push-indicator '+status;
   pill.querySelector('.ct-push-text').textContent=label;
   pill.title=description;
-  pill.setAttribute('aria-label',description);
+  pill.setAttribute('aria-label',description + (status==='off'||status==='blocked'?'. Pulsa para ir a Mi perfil, Avisos.':''));
+  pill.dataset.pushStatus=status;
+  pill.disabled=status==='checking';
 }
 async function mappRefreshBellState(){
   const btn=$('#modernBellBtn');
@@ -9615,6 +9622,16 @@ $('#modernContextBtn').onclick=mappOpenSelector;
 $('#modernSelectorClose').onclick=mappApplySelector;
 $('#modernSelectorSheet').onclick=e=>{if(e.target===$('#modernSelectorSheet'))$('#modernSelectorSheet').classList.remove('show')};
 $('#modernBellBtn').onclick=async()=>{ctPendingOpen();await ctPendingScan()};
+$('#ctPushIndicator').onclick=()=>{
+  // Acceso explícito al apartado Avisos; no solicita permisos de forma automática.
+  mappShow('profile');
+  const row=document.getElementById('mappPushRow');
+  if(row){
+    row.scrollIntoView({behavior:'smooth',block:'center'});
+    row.classList.add('ct-push-row-highlight');
+    setTimeout(()=>row.classList.remove('ct-push-row-highlight'),1800);
+  }
+};
 $('#modernAdminBack').onclick=closeModernAdmin;
 $('#modernAdminBack2').onclick=closeModernAdmin;
 $('#adminCategorySelect').onchange=applyModernAdminContext;
