@@ -4269,6 +4269,12 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
 .ct-proposal-buttons .btn.gold{background:#c79b42;color:#261216;border-color:#a6782c}.ct-proposal-buttons .ct-proposal-counter{background:#681f30;color:#fff;border:2px solid #c79b42}
 .ct-proposal-history{margin-top:16px;font-size:12px}.ct-proposal-history summary{cursor:pointer;font-weight:bold}.ct-proposal-history ul{padding-left:20px}
 </style>
+<style id="ctOwnResultsStyle">
+.ct-own-results-switch{display:flex;gap:4px;padding:4px;background:#eae8e8;border:1px solid #ded8db;border-radius:13px;margin:12px 0 14px;max-width:390px}
+.ct-own-results-tab{appearance:none;border:0;background:transparent;color:#685960;border-radius:10px;min-height:38px;flex:1;font:inherit;font-weight:800;font-size:13px;cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
+.ct-own-results-tab.active{background:#fff;color:#681329;box-shadow:0 2px 8px rgba(43,17,24,.13)}
+.ct-own-results-tab:focus-visible{outline:2px solid #c69b51;outline-offset:2px}
+</style>
 </head>
 <body>
 <div id="testVersionRibbon">🧪 CT CAMPEADOR · ENTORNO TEST · V22.5 · WHATSAPP ASISTIDO</div>
@@ -4856,6 +4862,10 @@ Pablo Ruiz"></textarea>
     <section class="mapp-screen" id="modernResults">
       <div class="mapp-screen-heading">Resultados</div>
       <div class="mapp-subheading">Solo se muestran resultados confirmados.</div>
+      <div class="ct-own-results-switch" role="group" aria-label="Filtrar resultados">
+        <button type="button" id="ctResultsAll" class="ct-own-results-tab active" aria-pressed="true">Todos</button>
+        <button type="button" id="ctResultsMine" class="ct-own-results-tab" aria-pressed="false">Mis resultados</button>
+      </div>
       <div class="mapp-results-toolbar">
         <div class="mapp-results-filter"><label>Categoría</label><select id="resultsCategory"></select></div>
         <div class="mapp-results-filter"><label>Género</label><select id="resultsGender"><option>Masculino</option><option>Femenino</option></select></div>
@@ -8606,7 +8616,7 @@ function mappFreeSlots(){return isOpen()?slots().filter(s=>!mappIsPastDate(s.dat
 function mappWeekShort(){const w=weeks.find(x=>x.id===state.week);const n=String(w?.id||'').replace(/\D/g,'');return n?`Jornada ${n}`:(w?.label||state.week)}
 function mappCurrentRound(){return fixtureRound()||'Jornada'}
 
-const resultsViewState={category:null,gender:null,week:'all'};
+const resultsViewState={category:null,gender:null,week:'all',mine:false};
 
 function confirmedResultsAll(){
   const out=[];
@@ -8795,13 +8805,19 @@ function renderModernResults(){
   rankProRender();
   const box=$('#modernResultsContent');if(!box)return;
   renderResultsFilters();
+  const mine=Boolean(resultsViewState.mine);
+  const allBtn=$('#ctResultsAll'),mineBtn=$('#ctResultsMine');
+  if(allBtn){allBtn.classList.toggle('active',!mine);allBtn.setAttribute('aria-pressed',String(!mine));}
+  if(mineBtn){mineBtn.classList.toggle('active',mine);mineBtn.setAttribute('aria-pressed',String(mine));}
+  const ownName=state.authenticated ? normalizeName(state.player) : '';
   const rows=confirmedResultsAll().filter(x=>
+    (!mine || (ownName && (normalizeName(x.a)===ownName || normalizeName(x.b)===ownName))) &&
     (resultsViewState.category==='all'||x.category===resultsViewState.category) &&
     (resultsViewState.gender==='all'||x.gender===resultsViewState.gender) &&
     (resultsViewState.week==='all'||x.week===resultsViewState.week)
   );
   if(!rows.length){
-    box.innerHTML='<div class="mapp-result-empty">Todavía no hay resultados confirmados para esta selección.</div>';
+    box.innerHTML='<div class="mapp-result-empty">'+(mine ? (ownName?'Todavía no tienes resultados confirmados.':'Accede con tu PIN para ver tus resultados.') : 'Todavía no hay resultados confirmados para esta selección.')+'</div>';
     return;
   }
   box.innerHTML=rows.map(item=>{
@@ -9619,6 +9635,8 @@ $('#modernTrophyIcon').innerHTML=mappIcon('trophy');
 $('#modernCalendarIcon').innerHTML=mappIcon('calendar');
 $('#modernChartIcon').innerHTML=mappIcon('chart');
 document.querySelectorAll('[data-modern-go]').forEach(b=>b.onclick=()=>mappShow(b.dataset.modernGo));
+$('#ctResultsAll').onclick=()=>{resultsViewState.mine=false;renderModernResults()};
+$('#ctResultsMine').onclick=()=>{resultsViewState.mine=true;resultsViewState.category='all';resultsViewState.gender='all';resultsViewState.week='all';renderModernResults()};
 $('#resultsCategory').onchange=e=>{resultsViewState.category=e.target.value;renderModernResults()};
 $('#resultsGender').onchange=e=>{resultsViewState.gender=e.target.value;renderModernResults()};
 $('#resultsWeek').onchange=e=>{resultsViewState.week=e.target.value;renderModernResults()};
