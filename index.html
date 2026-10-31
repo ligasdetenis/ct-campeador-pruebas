@@ -1992,6 +1992,15 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .ct-push-indicator.blocked .ct-push-led{background:#ff8092}
 @media(max-width:420px){.mapp-brand{gap:7px}.ct-push-indicator{min-width:68px;padding:6px 5px;font-size:9px}}
 @media(max-width:365px){.ct-push-indicator{min-width:auto}.mapp-brand-title{font-size:20px}}
+
+/* V5: estado Push pequeño y secundario; mantiene clic y accesibilidad. */
+.ct-push-indicator{min-width:0!important;padding:4px 6px!important;gap:4px!important;font-size:9px!important;line-height:1!important;letter-spacing:0!important;border-radius:7px!important;background:rgba(15,0,5,.25)!important;border-color:rgba(255,255,255,.13)!important;box-shadow:none!important}
+.ct-push-indicator .ct-push-led{width:5px!important;height:5px!important;flex-basis:5px!important;box-shadow:none!important}
+.ct-push-indicator .ct-push-text{font-weight:650!important;opacity:.83}
+.ct-push-indicator.on{color:#b6e9c6!important}
+.ct-push-indicator.off{color:#edd6ad!important}
+.ct-push-indicator.blocked{color:#ffb9bb!important}
+@media(max-width:420px){.ct-push-indicator{padding:3px 5px!important;font-size:8px!important}}
 </style>
 
 <link rel="manifest" href="manifest-test.webmanifest">
@@ -4804,7 +4813,7 @@ Pablo Ruiz"></textarea>
       <button class="mapp-bell" id="modernBellBtn" type="button" aria-label="Avisos">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="mapp-bell-dot" id="modernBellDot"></span>
       </button>
-      <button class="ct-push-indicator checking" id="ctPushIndicator" type="button" title="Estado de las notificaciones Push. Se configuran en Mi perfil" aria-label="Comprobando notificaciones Push"><span class="ct-push-led" aria-hidden="true"></span><span class="ct-push-text">PUSH ···</span></button>
+      <button class="ct-push-indicator checking" id="ctPushIndicator" type="button" title="Estado de las notificaciones Push. Se configuran en Mi perfil" aria-label="Comprobando notificaciones Push"><span class="ct-push-led" aria-hidden="true"></span><span class="ct-push-text">···</span></button>
     </div>
     <div class="mapp-context" id="modernContextBtn">
       <div class="mapp-context-item">
@@ -9006,10 +9015,10 @@ function ctSetPushIndicator(status){
   const pill=document.getElementById('ctPushIndicator');
   if(!pill)return;
   const states={
-    on:['PUSH ON','Notificaciones Push activadas en este dispositivo'],
-    off:['PUSH OFF','Notificaciones Push sin activar. Configúralas en Mi perfil'],
-    blocked:['BLOQ.','Notificaciones Push bloqueadas o no compatibles en este dispositivo'],
-    checking:['PUSH ···','Comprobando notificaciones Push…']
+    on:['ON','Notificaciones Push activadas en este dispositivo'],
+    off:['OFF','Notificaciones Push sin activar. Configúralas en Mi perfil'],
+    blocked:['!','Notificaciones Push bloqueadas o no compatibles en este dispositivo'],
+    checking:['···','Comprobando notificaciones Push…']
   };
   const [label,description]=states[status]||states.checking;
   pill.className='ct-push-indicator '+status;
