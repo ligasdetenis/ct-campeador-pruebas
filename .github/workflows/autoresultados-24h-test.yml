@@ -1,4 +1,4 @@
-name: CT Campeador TEST - autoresultados 24 h
+name: CT Campeador TEST - autoresultados 15 min
 on:
   workflow_dispatch:
 permissions:
