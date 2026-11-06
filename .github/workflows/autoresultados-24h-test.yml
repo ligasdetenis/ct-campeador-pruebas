@@ -1,0 +1,71 @@
+name: CT Campeador TEST - activar autoresultados 24 h
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar que solo se despliega en TEST y preparar cron
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, re, tomllib, datetime
+          if os.environ['REPO'].lower() != 'ligasdetenis/ct-campeador-pruebas':
+              raise SystemExit('BLOQUEADO: repositorio distinto de ct-campeador-pruebas')
+          p=pathlib.Path('API_WORKER/wrangler.toml')
+          if not p.exists(): raise SystemExit('Falta wrangler.toml de TEST en el repositorio; no se despliega.')
+          original=p.read_text(encoding='utf-8')
+          data=tomllib.loads(original)
+          if data.get('name') != 'ct-campeador-api-test':
+              raise SystemExit('BLOQUEADO: el Worker configurado no es ct-campeador-api-test')
+          namespaces=data.get('kv_namespaces', [])
+          if any(x.get('id') == 'cd8d040962b7432180e0bb3141fed1f5' for x in namespaces):
+              raise SystemExit('BLOQUEADO: el KV DATA corresponde a PRODUCCIÓN.')
+          if not any(x.get('binding')=='DATA' for x in namespaces):
+              raise SystemExit('BLOQUEADO: no hay KV DATA definido.')
+          if not any(x.get('name')=='BOOKINGS' for x in data.get('durable_objects',{}).get('bindings', [])):
+              raise SystemExit('BLOQUEADO: no hay Durable Object BOOKINGS definido.')
+          if not pathlib.Path('API_WORKER/src/index.js').exists():
+              raise SystemExit('BLOQUEADO: falta el código fuente.')
+          # Modificamos solo la copia que despliega este workflow, sin reescribir bindings.
+          def update_section(src, section, key, value):
+              pattern=rf'(?ms)^(\[{re.escape(section)}\]\s*\n)(.*?)(?=^\[|\Z)'
+              m=re.search(pattern, src)
+              if not m: return src.rstrip()+f'\n\n[{section}]\n{key} = {value}\n'
+              content=m.group(2)
+              line_pattern=rf'(?m)^\s*{re.escape(key)}\s*=.*$'
+              if re.search(line_pattern,content):
+                  content=re.sub(line_pattern, lambda _m:f'{key} = {value}',content,count=1)
+              else: content=content.rstrip()+f'\n{key} = {value}\n'
+              return src[:m.start(2)]+content+src[m.end(2):]
+          cutoff=datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')
+          original=update_section(original,'vars','TEST_AUTO_CONFIRM_ENABLED','"true"')
+          original=update_section(original,'vars','TEST_AUTO_CONFIRM_NOT_BEFORE',f'"{cutoff}"')
+          # Preservar otros cron existentes, si los hay.
+          existing=tomllib.loads(original).get('triggers',{}).get('crons',[])
+          crons=list(dict.fromkeys(existing+['*/5 * * * *']))
+          quoted='['+', '.join('"'+x+'"' for x in crons)+']'
+          original=update_section(original,'triggers','crons',quoted)
+          final=tomllib.loads(original)
+          assert final['name']=='ct-campeador-api-test'
+          p.write_text(original,encoding='utf-8')
+          print('Configuración de TEST validada. Solo se confirmarán envíos realizados a partir de',cutoff)
+          PY
+      - name: Validar sintaxis
+        run: node --check API_WORKER/src/index.js
+      - name: Instalar Wrangler
+        working-directory: API_WORKER
+        run: npm install
+      - name: Desplegar ÚNICAMENTE Worker de TEST
+        working-directory: API_WORKER
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy --config ./wrangler.toml
