@@ -379,7 +379,71 @@ var BookingCoordinator = class extends DurableObject {
     try { ws.close(code, reason); } catch (_) {}
   }
 };
+// CT CAMPEADOR TEST — confirmación automática transcurridas 24 horas.
+// Protección: únicamente se ejecuta si TEST_AUTO_CONFIRM_ENABLED === "true".
+const TEST_RESULT_CONFIRM_MS = 24 * 60 * 60 * 1000;
+// No procesar solicitudes anteriores a la primera activación de esta prueba.
+const TEST_AUTO_CONFIRM_CUTOFF_KEY = "TEST_AUTO_CONFIRM_NOT_BEFORE";
+async function testAutoConfirmExpiredResults(env) {
+  if (env.TEST_AUTO_CONFIRM_ENABLED !== "true") {
+    console.log("TEST autoresultados: desactivado");
+    return { enabled: false, confirmed: 0 };
+  }
+  const state = await getState(env);
+  const now = Date.now();
+  const targets = Object.entries(state.results || {}).filter(([matchId, r]) =>
+    r?.status === "pending" && Number.isFinite(Date.parse(r.submittedAt || "")) &&
+    Date.parse(r.submittedAt) <= now - TEST_RESULT_CONFIRM_MS &&
+    Date.parse(r.submittedAt) >= Date.parse(env[TEST_AUTO_CONFIRM_CUTOFF_KEY] || "9999-12-31") &&
+    !!findFixture(state, matchId)
+  );
+  if (!targets.length) return { enabled: true, checked: 0, confirmed: 0 };
+  // Revalidar tras releer KV; no sustituye una transacción atómica.
+  const latest = await getState(env);
+  const updated = [];
+  const stamp = new Date().toISOString();
+  for (const [matchId, original] of targets) {
+    const r = latest.results?.[matchId];
+    if (!r || r.status !== "pending" || !findFixture(latest, matchId) ||
+        r.submittedAt !== original.submittedAt || r.submittedBy !== original.submittedBy ||
+        !Number.isFinite(Date.parse(r.submittedAt || "")) ||
+        Date.parse(r.submittedAt) > Date.now() - TEST_RESULT_CONFIRM_MS ||
+        Date.parse(r.submittedAt) < Date.parse(env[TEST_AUTO_CONFIRM_CUTOFF_KEY] || "9999-12-31")) continue;
+    r.status = "confirmed";
+    r.confirmedBy = "Sistema (24 h sin respuesta)";
+    r.confirmedAt = stamp;
+    r.autoConfirmed = true;
+    r.updatedAt = stamp;
+    if (latest.bookings && typeof latest.bookings === "object") delete latest.bookings[matchId];
+    if (latest.reservations && typeof latest.reservations === "object") delete latest.reservations[matchId];
+    updated.push([matchId, { ...r }]);
+  }
+  if (!updated.length) return { enabled: true, checked: targets.length, confirmed: 0 };
+  latest.updatedAt = stamp;
+  await env.DATA.put(STATE_KEY, JSON.stringify(latest));
+  for (const [matchId, result] of updated) {
+    try {
+      await bookingCall(env, { action: "cancel", matchId });
+      await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
+    } catch (error) { console.error("TEST: fallo al liberar reserva", matchId, error); }
+    await broadcastRealtime(env, { type: "resultChanged", matchId, result });
+    try {
+      await sendTargetedPush(env, [result.a, result.b],
+        "✅ Resultado confirmado automáticamente",
+        "Han pasado 24 horas sin respuesta. El resultado ya cuenta en la clasificación.",
+        { open: "result", matchId, week: result.week, category: result.category, gender: result.gender });
+    } catch (error) { console.error("TEST: fallo notificación", matchId, error); }
+  }
+  return { enabled: true, checked: targets.length, confirmed: updated.length };
+}
+
 var index_default = {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(testAutoConfirmExpiredResults(env).then(
+      summary => console.log("TEST autoresultados 24h", JSON.stringify(summary)),
+      error => console.error("TEST autoresultados 24h", error)
+    ));
+  },
   async fetch(request, env) {
     const corsHeaders = corsHeadersFor(request);
     if (!isAllowedOrigin(request)) {
