@@ -1,5 +1,3 @@
-// TEST 2026-10-17: resultado confirmado finaliza partido y libera reserva.
-// TEST FIX 1042: Push uses Cloudflare Service Binding, not global fetch.
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -28,6 +26,10 @@ var BookingCoordinator = class extends DurableObject {
     this.ctx = ctx;
     this.env = env;
     this.sql = ctx.storage.sql;
+    // V2: el estado de la liga se coordina en este Durable Object. SQLite evita
+    // que una confirmación automática sobrescriba una modificación simultánea.
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS league_snapshot (id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL)`);
+
     this.sql.exec(`
       CREATE TABLE IF NOT EXISTS reservations (
         match_id TEXT PRIMARY KEY,
@@ -62,6 +64,106 @@ var BookingCoordinator = class extends DurableObject {
 
     const body = await request.json().catch(() => ({}));
     const action = String(body.action || "");
+    if (action === "leagueRead" || action === "leagueWrite" || action === "leagueExpire") {
+      try {
+        // La única lectura de KV para migrar se realiza al inicializar el DO.
+        // Después SQLite es la fuente de verdad; KV se mantiene como espejo.
+        const result = await this.ctx.blockConcurrencyWhile(async () => {
+          let row = this.sql.exec("SELECT payload FROM league_snapshot WHERE id=1").toArray()[0];
+          if (!row) {
+            const legacy = await this.env.DATA.get(STATE_KEY);
+            const initial = legacy ? JSON.parse(legacy) : {version:2,playerLists:{},fixtures:{},slots:{},drafts:{},published:{},results:{},bookings:{},reservations:{},staff:{},adminRoles:{},weeks:{}};
+            this.sql.exec("INSERT INTO league_snapshot (id,payload) VALUES (1,?)", JSON.stringify(initial));
+            row = {payload:JSON.stringify(initial)};
+          }
+          const state = JSON.parse(row.payload);
+          if (action === "leagueRead") return {ok:true,state};
+          if (action === "leagueWrite") {
+            const mode = String(body.mode||"");
+            if (mode === "general") {
+              if (!body.state || typeof body.state!=="object") return {ok:false,status:400,error:"Estado ausente"};
+              const next = {...body.state, results: state.results || {}};
+              this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1", JSON.stringify(next));
+              await this.env.DATA.put(STATE_KEY,JSON.stringify(next)).catch(e=>console.error("Espejo KV pendiente",e));
+              return {ok:true,state:next};
+            }
+            if (mode === "reset") {
+              if (!body.state || typeof body.state!=="object") return {ok:false,status:400,error:"Estado ausente"};
+              this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1", JSON.stringify(body.state));
+              await this.env.DATA.put(STATE_KEY,JSON.stringify(body.state)).catch(e=>console.error("Espejo KV pendiente",e));
+              return {ok:true,state:body.state};
+            }
+            const matchId=String(body.matchId||"");
+            const found=findFixture(state,matchId);
+            if (!found) return {ok:false,status:404,error:"Partido inexistente"};
+            const {fixture,week,category,gender}=found;
+            const who=String(body.who||"");
+            const isAdmin=body.isAdmin===true;
+            const isPlayer=normalize(fixture.a)===normalize(who)||normalize(fixture.b)===normalize(who);
+            if (!isAdmin&&!isPlayer) return {ok:false,status:403,error:"No perteneces al partido"};
+            state.results=state.results||{};
+            const previous=state.results[matchId]||null;
+            const now=new Date().toISOString();
+            if (mode==="submit") {
+              if (previous?.status==="confirmed"&&!isAdmin) return {ok:false,status:409,error:"Resultado confirmado. Solo administración puede corregirlo."};
+              const incoming=body.incoming||{};
+              const type=["normal","retirement","wo","not_played"].includes(incoming.type)?incoming.type:"normal";
+              const sets=sanitizeSets(incoming.sets||[]);
+              const winner=String(incoming.winner||"").trim();
+              if (type==="normal") {const v=validateCompletedTennisResult(sets);if(!v.ok)return {ok:false,status:400,error:v.error};}
+              if ((type==="wo"||type==="retirement")&&winner!==fixture.a&&winner!==fixture.b)return {ok:false,status:400,error:"Selecciona ganador"};
+              const revised=previous?.status==="pending"&&!isAdmin&&normalize(previous.submittedBy)!==normalize(who);
+              state.results[matchId]={type,sets,winner:type==="wo"||type==="retirement"?winner:"",status:isAdmin?"confirmed":"pending",submittedBy:who,submittedAt:now,revisedFrom:revised?previous.submittedBy:null,revisedAt:revised?now:null,confirmedBy:isAdmin?who:null,confirmedAt:isAdmin?now:null,week,category,gender,a:fixture.a,b:fixture.b,updatedAt:now};
+              state.updatedAt=now;
+              this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1",JSON.stringify(state));
+              await this.env.DATA.put(STATE_KEY,JSON.stringify(state)).catch(e=>console.error("Espejo KV pendiente",e));
+              return {ok:true,result:state.results[matchId],editedPendingFromRival:!!revised};
+            }
+            if (mode==="confirm") {
+              if (!previous) return {ok:false,status:404,error:"No hay resultado pendiente"};
+              if (previous.status==="confirmed")return {ok:true,result:previous,alreadyConfirmed:true};
+              if (!isAdmin&&normalize(previous.submittedBy)===normalize(who))return {ok:false,status:403,error:"Debe confirmarlo el rival"};
+              previous.status="confirmed";previous.confirmedBy=who;previous.confirmedAt=now;previous.updatedAt=now;state.updatedAt=now;
+              this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1",JSON.stringify(state));
+              await this.env.DATA.put(STATE_KEY,JSON.stringify(state)).catch(e=>console.error("Espejo KV pendiente",e));
+              return {ok:true,result:previous};
+            }
+            if (mode==="delete") {
+              if (!isAdmin)return {ok:false,status:403,error:"Solo administración"};
+              delete state.results[matchId];state.updatedAt=now;
+              this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1",JSON.stringify(state));
+              await this.env.DATA.put(STATE_KEY,JSON.stringify(state)).catch(e=>console.error("Espejo KV pendiente",e));
+              return {ok:true,previousResult:previous};
+            }
+            return {ok:false,status:400,error:"Operación desconocida"};
+          }
+          // Cron: una sola actualización SQLite, cuando realmente haya caducados.
+          if (body.enabled!==true)return {ok:true,enabled:false,confirmed:[]};
+          const start=Date.parse(String(body.notBefore||""));
+          if (!Number.isFinite(start))return {ok:false,status:400,error:"Fecha de activación no válida"};
+          const now=Date.now(), stamp=new Date(now).toISOString(), confirmed=[];
+          for(const [id,r] of Object.entries(state.results||{})){
+            const t=Date.parse(r?.submittedAt||"");
+            if(r?.status!=="pending"||!findFixture(state,id)||!Number.isFinite(t)||t<start||t>now-24*60*60*1000)continue;
+            r.status="confirmed";r.confirmedBy="Sistema (24 h sin respuesta)";r.confirmedAt=stamp;r.updatedAt=stamp;r.autoConfirmed=true;
+            confirmed.push({matchId:id,result:{...r}});
+          }
+          if(confirmed.length){state.updatedAt=stamp;this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1",JSON.stringify(state));await this.env.DATA.put(STATE_KEY,JSON.stringify(state)).catch(e=>console.error("Espejo KV pendiente",e));}
+          return {ok:true,enabled:true,confirmed};
+        });
+        return doJson(result,result.status||200);
+      }catch(error){return doJson({ok:false,error:error?.message||String(error)},500);}
+    }
+    if (action === "leagueStatus") {
+      const row=this.sql.exec("SELECT payload FROM league_snapshot WHERE id=1").toArray()[0];
+      if(!row)return doJson({ok:true,initialized:false});
+      const state=JSON.parse(row.payload);
+      const results=Object.values(state.results||{});
+      return doJson({ok:true,initialized:true,updatedAt:state.updatedAt||null,
+        fixtureCount:Object.values(state.fixtures||{}).reduce((n,a)=>n+(Array.isArray(a)?a.length:0),0),
+        resultCount:results.length,confirmed:results.filter(r=>r?.status==="confirmed").length,
+        pending:results.filter(r=>r?.status==="pending").length});
+    }
     if (action === "ping") {
       return doJson({ ok: true, durableObject: "online" });
     }
@@ -379,69 +481,30 @@ var BookingCoordinator = class extends DurableObject {
     try { ws.close(code, reason); } catch (_) {}
   }
 };
-// CT CAMPEADOR TEST — confirmación automática transcurridos 15 minutos (SOLO TEST).
-// Protección: únicamente se ejecuta si TEST_AUTO_CONFIRM_ENABLED === "true".
-const TEST_RESULT_CONFIRM_MS = 15 * 60 * 1000;
-// No procesar solicitudes anteriores a la primera activación de esta prueba.
-const TEST_AUTO_CONFIRM_CUTOFF_KEY = "TEST_AUTO_CONFIRM_NOT_BEFORE";
-async function testAutoConfirmExpiredResults(env) {
-  if (env.TEST_AUTO_CONFIRM_ENABLED !== "true") {
-    console.log("TEST autoresultados: desactivado");
-    return { enabled: false, confirmed: 0 };
+// CT CAMPEADOR PRODUCCIÓN - confirmación automática tras 24 h sin respuesta.
+// Por seguridad, se activa solo cuando AUTORESULTS_ENABLED === "true" y
+// el envío es posterior a AUTORESULTS_NOT_BEFORE (fecha del despliegue inicial).
+const AUTORESULTS_WAIT_MS = 24 * 60 * 60 * 1000;
+async function confirmExpiredResults(env) {
+  if(env.AUTORESULTS_ENABLED!=="true")return {enabled:false,confirmed:0};
+  const op=await bookingCall(env,{action:"leagueExpire",enabled:true,notBefore:env.AUTORESULTS_NOT_BEFORE});
+  if(!op.ok)throw new Error(op.error||"Error al confirmar resultados");
+  for(const {matchId:id,result} of op.confirmed){
+    try{
+      const b=await bookingCall(env,{action:"get",matchId:id});
+      if(b?.reservation){const c=await bookingCall(env,{action:"cancel",matchId:id});if(!c?.ok)throw new Error(c.error||"No se pudo liberar la pista");await broadcastRealtime(env,{type:"reservationChanged",matchId:id,reservation:null});}
+    }catch(e){console.error("Reserva pendiente de liberar",id,e);}
+    await broadcastRealtime(env,{type:"resultChanged",matchId:id,result});
+    await sendTargetedPush(env,[result.a,result.b],"✅ Resultado confirmado automáticamente","Han pasado 24 horas sin respuesta. El resultado ya cuenta para la clasificación.",{open:"result",matchId:id,week:result.week,category:result.category,gender:result.gender});
   }
-  const state = await getState(env);
-  const now = Date.now();
-  const targets = Object.entries(state.results || {}).filter(([matchId, r]) =>
-    r?.status === "pending" && Number.isFinite(Date.parse(r.submittedAt || "")) &&
-    Date.parse(r.submittedAt) <= now - TEST_RESULT_CONFIRM_MS &&
-    Date.parse(r.submittedAt) >= Date.parse(env[TEST_AUTO_CONFIRM_CUTOFF_KEY] || "9999-12-31") &&
-    !!findFixture(state, matchId)
-  );
-  if (!targets.length) return { enabled: true, checked: 0, confirmed: 0 };
-  // Revalidar tras releer KV; no sustituye una transacción atómica.
-  const latest = await getState(env);
-  const updated = [];
-  const stamp = new Date().toISOString();
-  for (const [matchId, original] of targets) {
-    const r = latest.results?.[matchId];
-    if (!r || r.status !== "pending" || !findFixture(latest, matchId) ||
-        r.submittedAt !== original.submittedAt || r.submittedBy !== original.submittedBy ||
-        !Number.isFinite(Date.parse(r.submittedAt || "")) ||
-        Date.parse(r.submittedAt) > Date.now() - TEST_RESULT_CONFIRM_MS ||
-        Date.parse(r.submittedAt) < Date.parse(env[TEST_AUTO_CONFIRM_CUTOFF_KEY] || "9999-12-31")) continue;
-    r.status = "confirmed";
-    r.confirmedBy = "Sistema (15 min sin respuesta - TEST)";
-    r.confirmedAt = stamp;
-    r.autoConfirmed = true;
-    r.updatedAt = stamp;
-    if (latest.bookings && typeof latest.bookings === "object") delete latest.bookings[matchId];
-    if (latest.reservations && typeof latest.reservations === "object") delete latest.reservations[matchId];
-    updated.push([matchId, { ...r }]);
-  }
-  if (!updated.length) return { enabled: true, checked: targets.length, confirmed: 0 };
-  latest.updatedAt = stamp;
-  await env.DATA.put(STATE_KEY, JSON.stringify(latest));
-  for (const [matchId, result] of updated) {
-    try {
-      await bookingCall(env, { action: "cancel", matchId });
-      await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
-    } catch (error) { console.error("TEST: fallo al liberar reserva", matchId, error); }
-    await broadcastRealtime(env, { type: "resultChanged", matchId, result });
-    try {
-      await sendTargetedPush(env, [result.a, result.b],
-        "✅ Resultado confirmado automáticamente",
-        "Han pasado 15 minutos sin respuesta. El resultado ya cuenta en la clasificación (TEST).",
-        { open: "result", matchId, week: result.week, category: result.category, gender: result.gender });
-    } catch (error) { console.error("TEST: fallo notificación", matchId, error); }
-  }
-  return { enabled: true, checked: targets.length, confirmed: updated.length };
+  return {enabled:true,confirmed:op.confirmed.length};
 }
 
 var index_default = {
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(testAutoConfirmExpiredResults(env).then(
-      summary => console.log("TEST autoresultados 15min", JSON.stringify(summary)),
-      error => console.error("TEST autoresultados 15min", error)
+    ctx.waitUntil(confirmExpiredResults(env).then(
+      summary => console.log("PROD autoresultados 24h", JSON.stringify(summary)),
+      error => console.error("PROD autoresultados 24h", error)
     ));
   },
   async fetch(request, env) {
@@ -486,7 +549,7 @@ var index_default = {
           worker: "online",
           kv,
           durableObject,
-          version: "2.6.11-test-release-booking",
+          version: "2.6.10-finaliza-libera-pista",
           error
         }, kv === "online" && durableObject === "online" ? 200 : 500, corsHeaders);
       }
@@ -497,60 +560,7 @@ var index_default = {
       const action = String(body.action || "").trim();
       if (action === "ping") {
         const ping = await bookingCall(env, { action: "ping" });
-        return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.11-test-release-booking" }, 200, corsHeaders);
-      }
-      if (action === "restoreBackupTest") {
-        const authorization = request.headers.get("Authorization") || "";
-        const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : String(body.restoreToken || "").trim();
-        if (!env.RESTORE_TOKEN || !supplied || supplied !== env.RESTORE_TOKEN) {
-          return json({ ok: false, error: "Token de restauración TEST no válido." }, 401, corsHeaders);
-        }
-        const backup = body.backup;
-        if (!backup || backup.format !== "ct-campeador-backup" || Number(backup.schemaVersion) !== 1 || !backup.contents) {
-          return json({ ok: false, error: "La copia no tiene un formato CT Campeador válido." }, 400, corsHeaders);
-        }
-        const c = backup.contents;
-        if (!c.state || typeof c.state !== "object" || !Array.isArray(c.users)) {
-          return json({ ok: false, error: "La copia no contiene state/users válidos." }, 400, corsHeaders);
-        }
-
-        await Promise.all([
-          env.DATA.put(STATE_KEY, JSON.stringify(c.state)),
-          env.DATA.put(USERS_KEY, JSON.stringify(c.users)),
-          env.DATA.put(PROFILES_KEY, JSON.stringify(c.profiles && typeof c.profiles === "object" ? c.profiles : {})),
-          env.DATA.put(MESSAGES_KEY, JSON.stringify(Array.isArray(c.messages) ? c.messages : [])),
-          env.DATA.put(ADMIN_PREFS_KEY, JSON.stringify(c.adminPreferences && typeof c.adminPreferences === "object" ? c.adminPreferences : {}))
-        ]);
-
-        // Borra únicamente sesiones antiguas del entorno TEST. No afecta a producción.
-        for (const prefix of ["session:", "sessionsByUser:"]) {
-          let cursor;
-          do {
-            const page = await env.DATA.list({ prefix, cursor, limit: 1000 });
-            await Promise.all((page.keys || []).map((k) => env.DATA.delete(k.name)));
-            cursor = page.list_complete ? undefined : page.cursor;
-          } while (cursor);
-        }
-
-        const rr = await bookingCall(env, {
-          action: "replaceAllForTestRestore",
-          reservations: c.reservations && typeof c.reservations === "object" ? c.reservations : {}
-        });
-        if (!rr.ok) return json({ ok: false, error: rr.error || "No se pudieron restaurar las reservas TEST." }, 500, corsHeaders);
-
-        await broadcastRealtime(env, { type: "stateChanged", at: new Date().toISOString(), source: "testRestore" }).catch(() => {});
-        return json({
-          ok: true,
-          restored: {
-            tournamentName: String(c.state?.tournamentName || backup.tournamentName || "CT Campeador"),
-            users: c.users.length,
-            profiles: Object.keys(c.profiles || {}).length,
-            messages: Array.isArray(c.messages) ? c.messages.length : 0,
-            adminPreferences: Object.keys(c.adminPreferences || {}).length,
-            reservations: Number(rr.restored || 0)
-          },
-          note: "Restauración realizada únicamente en el entorno TEST."
-        }, 200, corsHeaders);
+        return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.10-finaliza-libera-pista" }, 200, corsHeaders);
       }
       if (action === "login") {
         const gateKey = loginGuardKey(request);
@@ -652,7 +662,8 @@ var index_default = {
           updatedBy: admin.session.name
         };
 
-        await env.DATA.put(STATE_KEY, JSON.stringify(nextState));
+        const saved = await bookingCall(env, {action:"leagueWrite", mode:"general", state:nextState});
+        if(!saved.ok)throw new Error(saved.error||"No se pudo guardar estado");
 
         return json({
           ok: true,
@@ -711,8 +722,8 @@ var index_default = {
         return json({ ok: true }, 200, corsHeaders);
       }
 
-      // LIVE TEST: autoriza por sesión habitual, no por un token de marcador.
-      // La clave abreviada coincide con la generada por "Mi partido" en la web TEST.
+      // LIVE independiente: valida el PIN y la participación real en la liga.
+      // No escribe resultados, reservas ni el estado del partido oficial.
       if (action === "liveAuthorization") {
         const auth = await requireUser(request, body, env);
         if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
@@ -722,16 +733,12 @@ var index_default = {
         let match = null;
         for (const fixtures of Object.values(state.fixtures || {})) {
           for (const fixture of Array.isArray(fixtures) ? fixtures : []) {
-            if (liveMatchKey(fixture.id) === matchKey) {
-              match = fixture;
-              break;
-            }
+            if (liveMatchKey(fixture.id) === matchKey) { match = fixture; break; }
           }
           if (match) break;
         }
-        if (!match) return json({ ok: false, error: "Este partido no existe en la liga TEST." }, 404, corsHeaders);
-        const me = normalize(auth.session.name);
-        const canControl = me === normalize(match.a) || me === normalize(match.b);
+        if (!match) return json({ ok: false, error: "Este partido no existe en la liga oficial." }, 404, corsHeaders);
+        const canControl = normalize(auth.session.name) === normalize(match.a) || normalize(auth.session.name) === normalize(match.b);
         return json({ ok: true, canControl, names: [String(match.a), String(match.b)], player: auth.session.name }, 200, corsHeaders);
       }
       if (action === "read") {
@@ -889,7 +896,8 @@ var index_default = {
           updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
           updatedBy: admin.session.name
         };
-        await env.DATA.put(STATE_KEY, JSON.stringify(safeState));
+        const saved = await bookingCall(env, {action:"leagueWrite", mode:"general", state:safeState});
+        if(!saved.ok)throw new Error(saved.error||"No se pudo guardar estado");
         await broadcastRealtime(env, { type: "stateChanged", updatedAt: safeState.updatedAt });
         return json({ ok: true, state: safeState }, 200, corsHeaders);
       }
@@ -959,8 +967,9 @@ var index_default = {
         const found = findFixture(state, matchId);
         if (!found) return json({ ok: false, error: "El enfrentamiento no existe o ya no est\xE1 publicado." }, 404, corsHeaders);
         const { fixture, week, category, gender } = found;
-        if (state.results?.[matchId]?.status === "confirmed") {
-          return json({ ok: false, error: "Este partido ya está finalizado y no puede reservar una pista." }, 409, corsHeaders);
+        const confirmedResult = state.results?.[matchId];
+        if (confirmedResult?.status === "confirmed") {
+          return json({ ok: false, error: "Este partido ya está finalizado y no puede volver a reservar pista." }, 409, corsHeaders);
         }
         if (auth.session.role !== "admin" && normalize(fixture.a) !== normalize(auth.session.name) && normalize(fixture.b) !== normalize(auth.session.name)) {
           return json({ ok: false, error: "Solo uno de los jugadores del partido puede reservar." }, 403, corsHeaders);
@@ -1004,10 +1013,7 @@ var index_default = {
         const cancelled = await bookingCall(env, { action: "cancel", matchId, cancelledBy: auth.session.name });
         if (!cancelled.ok) return json({ ok: false, error: cancelled.error || "No se pudo cancelar la reserva." }, 500, corsHeaders);
         await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
-        if (cancelled.proposal) {
-          await broadcastRealtime(env, { type: "proposalChanged", matchId, proposal: cancelled.proposal }, { recipients: [reservation.a, reservation.b], includeAdmins: true });
-        }
-        return json({ ok: true, proposal: cancelled.proposal || null }, 200, corsHeaders);
+        return json({ ok: true }, 200, corsHeaders);
       }
       if (action === "submitResult") {
         const auth = await requireUser(request, body, env);
@@ -1022,53 +1028,20 @@ var index_default = {
         const isAdmin = auth.session.role === "admin";
         const isPlayer = normalize(fixture.a) === normalize(auth.session.name) || normalize(fixture.b) === normalize(auth.session.name);
         if (!isAdmin && !isPlayer) return json({ ok: false, error: "Solo los jugadores del partido o un administrador pueden subir el resultado." }, 403, corsHeaders);
-        state.results = state.results || {};
-        const previous = state.results[matchId];
-        if (previous?.status === "confirmed" && !isAdmin) {
-          return json({ ok: false, error: "El resultado ya est\xE1 confirmado. Solo un administrador puede corregirlo." }, 409, corsHeaders);
-        }
-        const type = ["normal", "retirement", "wo", "not_played"].includes(incoming.type) ? incoming.type : "normal";
-        const sets = sanitizeSets(incoming.sets || []);
-        const winner = String(incoming.winner || "").trim();
-        if (type === "normal") {
-          const validation = validateCompletedTennisResult(sets);
-          if (!validation.ok) return json({ ok: false, error: validation.error }, 400, corsHeaders);
-        }
-        if ((type === "wo" || type === "retirement") && winner !== fixture.a && winner !== fixture.b) {
-          return json({ ok: false, error: "Selecciona el ganador del partido." }, 400, corsHeaders);
-        }
-        const now = (/* @__PURE__ */ new Date()).toISOString();
-        const editedPendingFromRival =
-          previous?.status === "pending" &&
-          !isAdmin &&
-          normalize(previous.submittedBy) !== normalize(auth.session.name);
+        const op = await bookingCall(env,{action:"leagueWrite",mode:"submit",matchId,who:auth.session.name,isAdmin,incoming});
+        if(!op.ok)return json({ok:false,error:op.error},op.status||409,corsHeaders);
+        const result=op.result;
+        const editedPendingFromRival=op.editedPendingFromRival;
 
-        const result = {
-          type,
-          sets,
-          winner: type === "wo" || type === "retirement" ? winner : "",
-          status: isAdmin ? "confirmed" : "pending",
-          submittedBy: auth.session.name,
-          submittedAt: now,
-          revisedFrom: editedPendingFromRival ? previous.submittedBy : null,
-          revisedAt: editedPendingFromRival ? now : null,
-          confirmedBy: isAdmin ? auth.session.name : null,
-          confirmedAt: isAdmin ? now : null,
-          week,
-          category,
-          gender,
-          a: fixture.a,
-          b: fixture.b,
-          updatedAt: now
-        };
-        state.results[matchId] = result;
-        state.updatedAt = now;
+        // Partido confirmado = partido finalizado.
+        // La reserva deja de bloquear la pista, pero el resultado permanece en el histórico.
         if (result.status === "confirmed") {
-          if (state.bookings && typeof state.bookings === "object") delete state.bookings[matchId];
-          if (state.reservations && typeof state.reservations === "object") delete state.reservations[matchId];
-          await bookingCall(env, { action: "cancel", matchId });
+          const currentReservation = await bookingCall(env, { action: "get", matchId });
+          if (currentReservation?.reservation) {
+            await bookingCall(env, { action: "cancel", matchId });
+            await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
+          }
         }
-        await env.DATA.put(STATE_KEY, JSON.stringify(state));
 
         if (result.status === "pending") {
           const rival = normalize(auth.session.name) === normalize(fixture.a) ? fixture.b : fixture.a;
@@ -1088,7 +1061,6 @@ var index_default = {
           );
         } else {
           await broadcastRealtime(env, { type: "resultChanged", matchId, result });
-          await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
         }
 
         return json({ ok: true, result }, 200, corsHeaders);
@@ -1100,29 +1072,21 @@ var index_default = {
         const state = await getState(env);
         const found = findFixture(state, matchId);
         if (!found) return json({ ok: false, error: "El enfrentamiento no existe." }, 404, corsHeaders);
-        state.results = state.results || {};
-        const result = state.results[matchId];
-        if (!result) return json({ ok: false, error: "No hay ning\xFAn resultado pendiente." }, 404, corsHeaders);
-        if (result.status === "confirmed") return json({ ok: true, result }, 200, corsHeaders);
         const { fixture } = found;
-        const isAdmin = auth.session.role === "admin";
-        const isPlayer = normalize(fixture.a) === normalize(auth.session.name) || normalize(fixture.b) === normalize(auth.session.name);
-        if (!isAdmin && !isPlayer) return json({ ok: false, error: "No puedes confirmar este resultado." }, 403, corsHeaders);
-        if (!isAdmin && normalize(result.submittedBy) === normalize(auth.session.name)) {
-          return json({ ok: false, error: "El resultado debe confirmarlo el rival." }, 403, corsHeaders);
+        const op=await bookingCall(env,{action:"leagueWrite",mode:"confirm",matchId,who:auth.session.name,isAdmin:auth.session.role==="admin"});
+        if(!op.ok)return json({ok:false,error:op.error},op.status||409,corsHeaders);
+        const result=op.result;
+        if(op.alreadyConfirmed)return json({ok:true,result},200,corsHeaders);
+
+        // Partido confirmado = partido finalizado.
+        // Liberamos la pista asociada a la reserva, sin borrar el resultado.
+        const currentReservation = await bookingCall(env, { action: "get", matchId });
+        if (currentReservation?.reservation) {
+          await bookingCall(env, { action: "cancel", matchId });
+          await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
         }
-        const now = (/* @__PURE__ */ new Date()).toISOString();
-        result.status = "confirmed";
-        result.confirmedBy = auth.session.name;
-        result.confirmedAt = now;
-        result.updatedAt = now;
-        state.updatedAt = now;
-        if (state.bookings && typeof state.bookings === "object") delete state.bookings[matchId];
-        if (state.reservations && typeof state.reservations === "object") delete state.reservations[matchId];
-        await bookingCall(env, { action: "cancel", matchId });
-        await env.DATA.put(STATE_KEY, JSON.stringify(state));
+
         await broadcastRealtime(env, { type: "resultChanged", matchId, result });
-        await broadcastRealtime(env, { type: "reservationChanged", matchId, reservation: null });
         if (result.submittedBy && normalize(result.submittedBy) !== normalize(auth.session.name)) {
           await sendTargetedPush(
             env,
@@ -1138,12 +1102,9 @@ var index_default = {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
         const matchId = String(body.matchId || "").trim();
-        const state = await getState(env);
-        state.results = state.results || {};
-        const previousResult = state.results[matchId] || null;
-        delete state.results[matchId];
-        state.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
-        await env.DATA.put(STATE_KEY, JSON.stringify(state));
+        const op=await bookingCall(env,{action:"leagueWrite",mode:"delete",matchId,who:admin.session.name,isAdmin:true});
+        if(!op.ok)return json({ok:false,error:op.error},op.status||409,corsHeaders);
+        const previousResult=op.previousResult;
         if (previousResult?.status === "pending") {
           await broadcastRealtime(
             env,
@@ -1339,8 +1300,17 @@ var index_default = {
             const txt = await r.text();
             let j = {};
             try { j = JSON.parse(txt); } catch (_) {}
-            if (!r.ok || j.ok === false) throw new Error(j.error || txt || `Push HTTP ${r.status}`);
+            if (!r.ok) throw new Error(j.error || txt || `Push HTTP ${r.status}`);
+            // Un resultado parcial (ok:false) puede incluir envíos aceptados.
+            // Conservar las estadísticas en lugar de convertirlas todas a cero.
+            if (j.ok === false && !Array.isArray(j.failed) && !Number.isFinite(Number(j.sent))) {
+              throw new Error(j.error || txt || "Respuesta Push no válida.");
+            }
             pushResult = j;
+            if (j.ok === false) {
+              const failedCount = Array.isArray(j.failed) ? j.failed.length : 0;
+              pushWarning = `Envío parcial: ${Number(j.sent || 0)} aceptados, ${failedCount} fallidos.`;
+            }
           } catch (e) {
             pushWarning = e?.message || String(e);
           }
@@ -1420,6 +1390,12 @@ var index_default = {
         }
         return json(j, 200, corsHeaders);
       }
+      if (action === "resultStorageHealth") {
+        const admin=await requireAdmin(request,body,env);
+        if(!admin.ok)return json({ok:false,error:admin.error},admin.status,corsHeaders);
+        const status=await bookingCall(env,{action:"leagueStatus"});
+        return json(status,status.ok?200:500,corsHeaders);
+      }
       if (action === "exportBackup") {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
@@ -1437,7 +1413,7 @@ var index_default = {
           format: "ct-campeador-backup",
           schemaVersion: 1,
           generatedAt: new Date().toISOString(),
-          apiVersion: "2.6.9-backup-export",
+          apiVersion: "2.6.10-finaliza-libera-pista",
           tournamentName: String(state?.tournamentName || "CT Campeador"),
           contents: {
             state,
@@ -1657,7 +1633,8 @@ var index_default = {
           updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
           updatedBy: admin.session.name
         };
-        await env.DATA.put(STATE_KEY, JSON.stringify(blankState));
+        const saved = await bookingCall(env, {action:"leagueWrite", mode:"reset", state:blankState});
+        if(!saved.ok)throw new Error(saved.error||"No se pudo guardar estado");
         return json({ ok: true, state: blankState }, 200, corsHeaders);
       }
       return json({ ok: false, error: `Acci\xF3n desconocida: ${action}` }, 400, corsHeaders);
@@ -1689,7 +1666,7 @@ async function broadcastRealtime(env, event, options = {}) {
 }
 __name(broadcastRealtime, "broadcastRealtime");
 
-const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-pruebas/";
+const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-liga/";
 
 // Convierte YYYY-MM-DD + HH:mm de Europe/Madrid a UTC, respetando horario de verano.
 function spanishSlotTimeToUTC(dateValue, timeValue) {
@@ -1845,14 +1822,11 @@ function normalize(text) {
 }
 __name(normalize, "normalize");
 async function getState(env) {
-  const raw = await env.DATA.get(STATE_KEY);
-  if (!raw) return { version: 2, playerLists: {}, fixtures: {}, slots: {}, drafts: {}, published: {}, results: {}, bookings: {}, reservations: {}, staff: {}, adminRoles: {}, weeks: {} };
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return { version: 2, playerLists: {}, fixtures: {}, slots: {}, drafts: {}, published: {}, results: {}, bookings: {}, reservations: {}, staff: {}, adminRoles: {}, weeks: {} };
-  }
+  const r=await bookingCall(env,{action:"leagueRead"});
+  if(!r.ok)throw new Error(r.error||"No se pudo leer la liga desde el coordinador");
+  return r.state;
 }
+
 __name(getState, "getState");
 
 async function getAdminPrefs(env) {
