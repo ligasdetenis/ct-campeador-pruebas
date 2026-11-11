@@ -29,6 +29,23 @@ var BookingCoordinator = class extends DurableObject {
     // V2: el estado de la liga se coordina en este Durable Object. SQLite evita
     // que una confirmación automática sobrescriba una modificación simultánea.
     this.sql.exec(`CREATE TABLE IF NOT EXISTS league_snapshot (id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL)`);
+    // PAGOS V1: registro independiente, permanente y por reserva real.
+    // No altera los resultados ni el almacenamiento de reservas activas.
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS court_booking_history (
+      booking_id TEXT PRIMARY KEY,
+      match_id TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      payment_a TEXT NOT NULL DEFAULT 'pending',
+      payment_b TEXT NOT NULL DEFAULT 'pending',
+      payment_a_at TEXT,
+      payment_b_at TEXT,
+      payment_a_by TEXT,
+      payment_b_by TEXT,
+      updated_at TEXT NOT NULL
+    )`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS idx_court_history_match ON court_booking_history(match_id)`);
+
 
     this.sql.exec(`
       CREATE TABLE IF NOT EXISTS reservations (
@@ -241,6 +258,39 @@ var BookingCoordinator = class extends DurableObject {
       this.sql.exec("DELETE FROM login_guard WHERE guard_key = ?", key);
       return doJson({ ok: true });
     }
+    if (action === "listCourtPayments") {
+      // Importación conservadora de reservas que siguen activas al instalar V1.
+      // Las ya liberadas antes de instalar V1 no pueden reconstruirse sin un registro previo.
+      this.ctx.storage.transactionSync(()=>{
+        const active=this.sql.exec("SELECT match_id,payload,updated_at FROM reservations").toArray();
+        for(const r of active){
+          const exists=this.sql.exec("SELECT booking_id FROM court_booking_history WHERE match_id=? AND status='active' LIMIT 1",r.match_id).toArray()[0];
+          if(!exists){
+            this.sql.exec("INSERT INTO court_booking_history(booking_id,match_id,payload,status,updated_at) VALUES(?,?,?,?,?)",crypto.randomUUID(),r.match_id,r.payload,'active',String(r.updated_at||new Date().toISOString()));
+          }
+        }
+      });
+      const rows=this.sql.exec("SELECT booking_id,match_id,payload,status,payment_a,payment_b,payment_a_at,payment_b_at,payment_a_by,payment_b_by,updated_at FROM court_booking_history ORDER BY updated_at DESC LIMIT 3000").toArray();
+      return doJson({ok:true,records:rows.map(row=>({bookingId:row.booking_id,matchId:row.match_id,reservation:JSON.parse(row.payload),status:row.status,paymentA:row.payment_a,paymentB:row.payment_b,paymentAAt:row.payment_a_at,paymentBAt:row.payment_b_at,paymentABy:row.payment_a_by,paymentBBy:row.payment_b_by,updatedAt:row.updated_at}))});
+    }
+    if (action === "setCourtPayment") {
+      const bookingId=String(body.bookingId||"").trim();
+      const side=String(body.side||"");
+      const payment=String(body.payment||"");
+      const adminName=String(body.adminName||"").slice(0,120);
+      if(!bookingId||!['a','b'].includes(side)||!['pending','paid'].includes(payment)||!adminName)return doJson({ok:false,error:'Datos de pago no válidos'},400);
+      const col=side==='a'?'a':'b';
+      const result=this.ctx.storage.transactionSync(()=>{
+        const row=this.sql.exec("SELECT payload,payment_"+col+" AS current FROM court_booking_history WHERE booking_id=?",bookingId).toArray()[0];
+        if(!row)throw new Error('Reserva histórica no encontrada');
+        const booking=JSON.parse(row.payload);
+        if(!booking[col])throw new Error('Jugador sin identificar');
+        const now=new Date().toISOString();
+        this.sql.exec("UPDATE court_booking_history SET payment_"+col+"=?,payment_"+col+"_at=?,payment_"+col+"_by=?,updated_at=? WHERE booking_id=?",payment,now,adminName,now,bookingId);
+        return {bookingId,side,payment,player:booking[col],updatedAt:now};
+      });
+      return doJson({ok:true,...result});
+    }
     if (action === "list") {
       const rows = this.sql.exec(
         "SELECT match_id, payload FROM reservations ORDER BY updated_at ASC"
@@ -336,6 +386,8 @@ var BookingCoordinator = class extends DurableObject {
           const now=new Date().toISOString();
           const reservation={...proposal.reservation,reservedBy:body.acceptedBy,reservedAt:now,updatedAt:now};
           this.sql.exec("INSERT INTO reservations(match_id,slot_id,payload,updated_at) VALUES(?,?,?,?)",matchId,proposal.slotId,JSON.stringify(reservation),now);
+          const bookingId=crypto.randomUUID();
+          this.sql.exec("INSERT INTO court_booking_history(booking_id,match_id,payload,status,updated_at) VALUES(?,?,?,?,?)",bookingId,matchId,JSON.stringify(reservation),'active',now);
           proposal.status='accepted';proposal.acceptedBy=body.acceptedBy;proposal.updatedAt=now;
           this.sql.exec("UPDATE match_proposals SET payload=?,updated_at=? WHERE match_id=?",JSON.stringify(proposal),now,matchId);
           return {reservation,proposal};
@@ -361,8 +413,14 @@ var BookingCoordinator = class extends DurableObject {
             err.code = "SLOT_TAKEN";
             throw err;
           }
+          const previous=this.sql.exec("SELECT slot_id FROM reservations WHERE match_id=?",matchId).toArray()[0];
           const payload = JSON.stringify(reservation);
           const now = (/* @__PURE__ */ new Date()).toISOString();
+          if(previous){
+            this.sql.exec("UPDATE court_booking_history SET status='replaced',updated_at=? WHERE match_id=? AND status='active'",now,matchId);
+          }
+          const bookingId=crypto.randomUUID();
+          this.sql.exec("INSERT INTO court_booking_history(booking_id,match_id,payload,status,updated_at) VALUES(?,?,?,?,?)",bookingId,matchId,payload,'active',now);
           this.sql.exec(
             `INSERT INTO reservations (match_id, slot_id, payload, updated_at)
              VALUES (?, ?, ?, ?)
@@ -390,6 +448,10 @@ var BookingCoordinator = class extends DurableObject {
       const cancelledProposal = this.ctx.storage.transactionSync(() => {
         const active = this.sql.exec("SELECT slot_id FROM reservations WHERE match_id = ?", matchId).toArray()[0];
         this.sql.exec("DELETE FROM reservations WHERE match_id = ?", matchId);
+        if(active){
+          const now=new Date().toISOString();
+          this.sql.exec("UPDATE court_booking_history SET status='cancelled',updated_at=? WHERE match_id=? AND status='active'",now,matchId);
+        }
         if (!active) return null;
         const row = this.sql.exec("SELECT payload FROM match_proposals WHERE match_id = ?", matchId).toArray()[0];
         if (!row) return null;
@@ -1396,6 +1458,13 @@ var index_default = {
         const status=await bookingCall(env,{action:"leagueStatus"});
         return json(status,status.ok?200:500,corsHeaders);
       }
+      // PAGOS V1: solo administración. Nunca se incluyen en la lectura de jugador.
+      if (action === "listCourtPayments" || action === "setCourtPayment") {
+        const admin=await requireAdmin(request,body,env);
+        if(!admin.ok)return json({ok:false,error:admin.error},admin.status,corsHeaders);
+        const answer=await bookingCall(env,action==="listCourtPayments"?{action}:{action,bookingId:body.bookingId,side:body.side,payment:body.payment,adminName:admin.session.name});
+        return json(answer,answer.ok?200:400,corsHeaders);
+      }
       if (action === "exportBackup") {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
@@ -1409,21 +1478,34 @@ var index_default = {
           listReservations(env)
         ]);
 
+        const courtPaymentsResult=await bookingCall(env,{action:"listCourtPayments"});
+        if(!courtPaymentsResult.ok) return json({ok:false,error:'No se pudo incluir el histórico de pagos en la copia'},500,corsHeaders);
+
+        // V4A PRIVACIDAD: copia operativa SIN PIN ni secretos de acceso.
+        // Los PIN continúan en KV y el login sigue funcionando; no modificamos credenciales.
+        const safeUsers = (Array.isArray(users) ? users : []).map(({pin, pinHash, token, ...u}) => u);
+        const safeState = JSON.parse(JSON.stringify(state || {}));
+        delete safeState.pins;
+        delete safeState.tokens;
+        delete safeState.sessions;
         const backup = {
           format: "ct-campeador-backup",
-          schemaVersion: 1,
+          schemaVersion: 2,
+          credentialsOmitted: true,
           generatedAt: new Date().toISOString(),
           apiVersion: "2.6.10-finaliza-libera-pista",
           tournamentName: String(state?.tournamentName || "CT Campeador"),
           contents: {
-            state,
-            users,
+            state: safeState,
+            users: safeUsers,
             profiles,
             messages,
             adminPreferences,
-            reservations
+            reservations,
+            courtPaymentHistory: courtPaymentsResult.records
           },
           excluded: [
+            "PIN de usuarios (V4A: excluidos de las copias)",
             "sesiones y tokens de autenticación",
             "secretos de Cloudflare",
             "claves VAPID privadas",
