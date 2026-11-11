@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,maximum-scale=1" name="viewport"/>
 <meta content="#b40012" name="theme-color"/>
-<title>CT Campeador</title>
+<title>CT Campeador · PRUEBAS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -5007,12 +5007,13 @@ Pablo Ruiz"></textarea>
 </div></div></div>
 <script>
 const CATEGORIES=["Benjamín","Alevín","Infantil","Cadete","Junior","Absoluto"];
-const STORAGE_KEY="ctcampeador_reservas_v3_cloudflare_cache";
-const TOKEN_KEY="ctcampeador_api_token";
-const API_URL="https://ct-campeador-api.ligasdetenis.workers.dev/";
-const PUSH_URL="https://ct-campeador-push-v1.ligasdetenis.workers.dev";
+const STORAGE_KEY="ctcampeador_TEST_reservas_v3_cloudflare_cache";
+const TOKEN_KEY="ctcampeador_TEST_api_token";
+const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
+if (!/^https:\/\/ct-campeador-api-test\.ligasdetenis\.workers\.dev\/$/.test(API_URL)) { throw new Error("SEGURIDAD TEST: endpoint API no autorizado"); }
+const PUSH_URL="https://push-desactivado-test.invalid";
 let PUSH_VAPID_PUBLIC_KEY="";
-const PUSH_SW_URL="/ct-campeador-liga/push-sw.js";
+const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
 
 
 /* =========================================================
@@ -5118,7 +5119,7 @@ let cloudMessagesLoaded=false;
 // V3.16.1 · consumo optimizado
 const AUTO_REFRESH_MS=5*60*1000;       // 5 min con la app visible
 const MIN_VISIBLE_REFRESH_MS=2*60*1000; // al volver a la app, mínimo 2 min desde la última lectura
-const PUSH_SYNC_CACHE_KEY='ctcampeador_push_sync_v3161';
+const PUSH_SYNC_CACHE_KEY='ctcampeador_TEST_push_sync_v3161';
 const PUSH_RESYNC_MS=7*24*60*60*1000;  // revalidación push como máximo una vez por semana
 let lastRefreshAt=0;
 function save(){localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
@@ -5480,7 +5481,7 @@ function goToJourney(weekId){
 }
 
 // PRODUCCIÓN V22.4 · Posición independiente del DOM y sin scroll-snap al redibujar.
-const JOURNEY_NAV_SCROLL_KEY='ctcampeador-prod-journey-navigator-scroll-v224';
+const JOURNEY_NAV_SCROLL_KEY='ctcampeador-test-journey-navigator-scroll-v224';
 let journeyNavScrollPosition=(()=>{try{return Math.max(0,Number(localStorage.getItem(JOURNEY_NAV_SCROLL_KEY))||0)}catch(_){return 0}})();
 let journeyNavIsRestoring=false;
 let journeyNavRestoreEpoch=0;
@@ -6145,16 +6146,16 @@ async function getPushPublicKey(){
   return PUSH_VAPID_PUBLIC_KEY;
 }
 function getPushDeviceId(){
-  let id=localStorage.getItem('ctc_push_v1_device');
+  let id=localStorage.getItem('ctc_TEST_push_v1_device');
   if(!id){
     id=crypto.randomUUID?crypto.randomUUID():'dev-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-    localStorage.setItem('ctc_push_v1_device',id);
+    localStorage.setItem('ctc_TEST_push_v1_device',id);
   }
   return id;
 }
 async function pushRegistration(){
   if(!('serviceWorker' in navigator))throw new Error('Este navegador no soporta Service Worker.');
-  await navigator.serviceWorker.register(PUSH_SW_URL,{scope:'/ct-campeador-liga/'});
+  await navigator.serviceWorker.register(PUSH_SW_URL,{scope:'/ct-campeador-pruebas/'});
   return navigator.serviceWorker.ready;
 }
 async function currentPushSubscription(){
@@ -6207,7 +6208,7 @@ async function checkInstalledAppVersion(){
   try{
     const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
     if(!standalone)return;
-    const r = await fetch(`/ct-campeador-liga/app-version.json?t=${Date.now()}`,{cache:'no-store'});
+    const r = await fetch(`/ct-campeador-pruebas/app-version.json?t=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return;
     const j = await r.json();
     const remote = String(j?.build||'').trim();
@@ -6390,7 +6391,7 @@ function renderIdentity(){
   const ps=visibleIdentitiesForCategory();
   sel.innerHTML='<option value="">Selecciona tu nombre</option>'+ps.map(p=>`<option value="${mappEsc(p)}">${mappEsc(p)}${roleOf(p)==='admin'?' · ADMIN':''}</option>`).join('');
   if(state.player&&!allIdentities().includes(state.player)){
-    state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_auth_player');
+    state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_TEST_auth_player');
   }
   sel.value=state.player;sel.disabled=state.authenticated;
   $('#playerPin').disabled=state.authenticated;$('#loginBtn').disabled=state.authenticated;
@@ -6969,7 +6970,7 @@ const ADMIN_DEFAULT_ORDER=[
 
 function adminOrderStorageKey(){
   if(!state.player)return '';
-  return 'ctcampeador_admin_block_order_'+normalizeName(state.player);
+  return 'ctcampeador_TEST_admin_block_order_'+normalizeName(state.player);
 }
 let adminCloudOrderLoadedFor='';
 let adminOrderSaveTimer=null;
@@ -7586,7 +7587,7 @@ function pushStatusDotHtml(name){
 
 /* V22.12 · Datos de WhatsApp locales al navegador del administrador.
    No se escriben ni en el estado público ni en el servidor. */
-const WA_ACCESS_KEY='ctcampeador_prod_wa_access_v1';
+const WA_ACCESS_KEY='ctcampeador_test_wa_access_v1';
 function waGetData(){
   try{const x=JSON.parse(localStorage.getItem(WA_ACCESS_KEY)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}
   catch(e){return {}}
@@ -7609,7 +7610,7 @@ function waUserActions(name){
   const safe=mappEsc(name);
   return `<div class="waAction"><span class="waPhone">${rec.phone?mappEsc(rec.phone):'Sin teléfono'}</span><span class="waStatus">${label}</span><button type="button" class="waEdit" data-wa-edit="${safe}">✏️ Editar teléfono</button><button type="button" data-wa-open="${safe}" ${hasPhone&&hasPin?'':'disabled'}>WhatsApp ↗</button><button type="button" class="waMark ${rec.deliveredAt?'waDelivered':''}" data-wa-mark="${safe}" ${hasPhone?'':'disabled'}>${rec.deliveredAt?'Desmarcar entrega':'Marcar entregado'}</button></div>`;
 }
-function waMessage(name,pin){return `Hola ${name}. \uD83C\uDFBE\n\nTu PIN personal para acceder a la Liga CT Campeador es: ${pin}.\n\nAccede aquí: https://ligasdetenis.github.io/ct-campeador-liga/\n\nNo compartas este PIN con otras personas.`}
+function waMessage(name,pin){return `Hola ${name}. \uD83C\uDFBE\n\nTu PIN personal para acceder a la Liga CT Campeador es: ${pin}.\n\nAccede aquí: https://ligasdetenis.github.io/ct-campeador-pruebas/\n\nNo compartas este PIN con otras personas.`}
 function waEditFor(name){
   if(!requireAdmin())return;
   const store=waGetData(), key=waCanonical(name), old=store[key]||{};
@@ -7909,7 +7910,7 @@ async function copyTextRobust(text){
 async function copyPinMessage(player){
   const pin=data.pins[player];
   if(!pin){alert('Ese jugador todavía no tiene PIN.');return}
-  const msg=`Hola ${player}. Tu PIN para reservar pistas en la Liga CT Campeador es ${pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-liga/`;
+  const msg=`Hola ${player}. Tu PIN para reservar pistas en la Liga CT Campeador es ${pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
   const ok=await copyTextRobust(msg);
   if(ok){alert('📋 Mensaje copiado. Ya puedes pegarlo en WhatsApp.');return}
 
@@ -7923,7 +7924,7 @@ async function regeneratePinFor(player){
     data.pins[player]=String(r.pin||'');
     localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
     renderPins();
-    const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-liga/`;
+    const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
     const copied=await copyTextRobust(msg);
     alert(`✅ PIN regenerado.\n\n${player}\nNuevo PIN: ${r.pin}`+(copied?'\n\n📋 Mensaje copiado al portapapeles.':''));
   }catch(e){
@@ -8091,7 +8092,7 @@ async function sendAdminMessage(){
       recipients,
       title,
       message:body,
-      url:'https://ligasdetenis.github.io/ct-campeador-liga/'
+      url:'https://ligasdetenis.github.io/ct-campeador-pruebas/'
     });
     await loadCloudMessages({silent:false});
     renderMessageHistory();
@@ -8800,7 +8801,7 @@ const MAPP_ICONS={
 function mappIcon(name){return MAPP_ICONS[name]||''}
 
 function mappInitials(name){const p=String(name||'?').trim().split(/\s+/);return (p[0]?.[0]||'')+(p.length>1?p[p.length-1][0]:'')}
-function mappPhotoKey(name){return 'ctcampeador_profile_photo_'+normalizeName(name)}
+function mappPhotoKey(name){return 'ctcampeador_TEST_profile_photo_'+normalizeName(name)}
 function mappLocalPhoto(name){try{return localStorage.getItem(mappPhotoKey(name))||''}catch(_){return ''}}
 function mappPhoto(name){
  const cloud=safeDataImageUrl(data.profiles?.[name]?.photoDataUrl);
@@ -10797,7 +10798,7 @@ if('serviceWorker' in navigator){
     if(!url)return;
     try{
       const u=new URL(url,location.origin);
-      if(u.origin!==location.origin||!u.pathname.startsWith('/ct-campeador-liga/'))return;
+      if(u.origin!==location.origin||!u.pathname.startsWith('/ct-campeador-pruebas/'))return;
       // Conservamos el destino en memoria antes de tocar la URL para evitar
       // que iOS/PWA lo pierda durante focus/navigation.
       pendingPushDeepLink={
