@@ -740,16 +740,23 @@ var index_default = {
       if (action === 'familyRequestLink') {
         const session=await getSession(request,body,env);
         if(!session||session.role!=='family')return json({ok:false,error:'Acceso familiar requerido'},403,corsHeaders);
-        const player=String(body.player||'').trim(),pin=String(body.pin||'').trim();
-        const gateKey=loginGuardKey(request),specific=loginAttemptKey(request,player);
+        // V1.5: el nombre se resuelve en el servidor exclusivamente mediante el PIN.
+        // No se confía en nombres enviados por el navegador.
+        const pin=String(body.pin||'').trim();
+        const gateKey=loginGuardKey(request),specific=loginAttemptKey(request,'family-link');
         const gate=await checkLoginGates(env,[gateKey,specific]);
-        if(!gate.allowed)return json({ok:false,error:'Demasiados intentos'},429,corsHeaders);
-        if(!player||!/^(?:\d{4}|\d{6})$/.test(pin))return json({ok:false,error:'Jugador o PIN incorrecto'},400,corsHeaders);
+        if(!gate.allowed)return json({ok:false,error:'Demasiados intentos. Vuelve a probar más tarde.'},429,corsHeaders);
+        if(!/^(?:\d{4}|\d{6})$/.test(pin))return json({ok:false,error:'Introduce el PIN del jugador (4 o 6 cifras).'},400,corsHeaders);
         const users=await getUsers(env);
-        const match=users.find(u=>normalize(u.name)===normalize(player)&&String(u.pin)===pin&&u.active!==false&&u.role!=='admin');
-        if(!match){await registerLoginFailure(env,gateKey,specific);return json({ok:false,error:'Jugador o PIN incorrecto'},401,corsHeaders)}
-        await clearLoginGates(env,[gateKey,specific]);
+        const matches=users.filter(u=>String(u.pin)===pin&&u.active!==false&&u.role!=='admin');
+        if(matches.length!==1){
+          await registerLoginFailure(env,gateKey,specific);
+          return json({ok:false,error:matches.length>1?'PIN duplicado. Solicita al administrador un PIN nuevo.':'PIN de jugador no válido.'},matches.length>1?409:401,corsHeaders);
+        }
+        const match=matches[0];
         const r=await bookingCall(env,{action:'familyLinkRequest',id:session.familyId,player:match.name});
+        if(!r.ok)return json({ok:false,error:r.error||'No se pudo solicitar la vinculación.'},409,corsHeaders);
+        await clearLoginGates(env,[gateKey,specific]);
         return json({ok:true,status:r.status,player:match.name},200,corsHeaders);
       }
       if (action === 'familyAdminList') {
