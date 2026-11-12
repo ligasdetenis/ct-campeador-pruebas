@@ -1361,6 +1361,26 @@ var index_default = {
         await revokeUserSessions(env, users[idx].name);
         return json({ ok: true, name: users[idx].name, pin }, 200, corsHeaders);
       }
+      // V1.6 TEST: bandeja familiar. El servidor resuelve de nuevo los enlaces aprobados.
+      if (action === "familyInbox") {
+        const session=await getSession(request,body,env);
+        if(!session||session.role!=="family")return json({ok:false,error:"Acceso familiar requerido"},403,corsHeaders);
+        const links=await bookingCall(env,{action:"familyLinks",id:session.familyId});
+        const approved=(links.links||[]).filter(l=>l.status==="approved");
+        const users=await getUsers(env);
+        const active=new Map(users.filter(u=>u.active!==false&&u.role!=="admin").map(u=>[normalize(u.name),u.name]));
+        const players=[...new Set(approved.map(l=>active.get(normalize(l.playerName))).filter(Boolean))];
+        const messages=await getMessages(env);
+        const combined=[];
+        for(const player of players){
+          const virtual={name:player,role:"player"};
+          for(const m of messages){
+            if(messageVisibleToUser(m,virtual))combined.push({...messageForSession(m,virtual),playerName:player});
+          }
+        }
+        combined.sort((a,b)=>String(b.at||"").localeCompare(String(a.at||"")));
+        return json({ok:true,players,messages:combined.slice(0,500),unread:combined.filter(m=>!m.read).length},200,corsHeaders);
+      }
       if (action === "listMessages") {
         const auth = await requireUser(request, body, env);
         if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
@@ -1501,46 +1521,35 @@ var index_default = {
           { recipients: [], includeAdmins: true }
         );
 
-        // 3) Push de fondo. Ampliar destinatarios con las familias autorizadas.
-        const familyRecipients=await bookingCall(env,{action:'familyRecipients',players:safeRecipients});
-        const pushRecipients=[...new Set([...safeRecipients,...(familyRecipients.recipients||[])])];
-        let pushResult = { ok: true, sent: 0, matchedUsers: 0, total: 0, removed: 0, failed: [] };
-        let pushWarning = "";
-        if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
-          pushWarning = "El mensaje se ha guardado y entregado en tiempo real, pero el servicio Push no está configurado.";
-        } else {
-          try {
-            const r = await env.PUSH_SERVICE.fetch("https://push.internal/admin/send", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${env.PUSH_SERVICE_TOKEN}`
-              },
-              body: JSON.stringify({
-                recipients: pushRecipients,
-                title,
-                body: message,
-                url: launchUrl,
-                tag: `ctc-admin-${Date.now()}`
-              })
-            });
-            const txt = await r.text();
-            let j = {};
-            try { j = JSON.parse(txt); } catch (_) {}
-            if (!r.ok) throw new Error(j.error || txt || `Push HTTP ${r.status}`);
-            // Un resultado parcial (ok:false) puede incluir envíos aceptados.
-            // Conservar las estadísticas en lugar de convertirlas todas a cero.
-            if (j.ok === false && !Array.isArray(j.failed) && !Number.isFinite(Number(j.sent))) {
-              throw new Error(j.error || txt || "Respuesta Push no válida.");
-            }
-            pushResult = j;
-            if (j.ok === false) {
-              const failedCount = Array.isArray(j.failed) ? j.failed.length : 0;
-              pushWarning = `Envío parcial: ${Number(j.sent || 0)} aceptados, ${failedCount} fallidos.`;
-            }
-          } catch (e) {
-            pushWarning = e?.message || String(e);
+        // 3) V1.6 TEST: un push por jugador, con destinatario y mensaje identificados.
+        // El token familiar no concede acceso: requireUser comprueba cada cambio de jugador.
+        let pushResult={ok:true,sent:0,matchedUsers:0,total:0,removed:0,failed:[]};
+        let pushWarning="";
+        if(!env.PUSH_SERVICE||!env.PUSH_SERVICE_TOKEN){
+          pushWarning="Mensaje guardado; servicio Push no configurado.";
+        }else{
+          const matched=new Set();
+          for(const player of safeRecipients){
+            try{
+              const fam=await bookingCall(env,{action:'familyRecipients',players:[player]});
+              const recipientsForPlayer=[...new Set([player,...(fam.recipients||[])])];
+              const r=await env.PUSH_SERVICE.fetch('https://push.internal/admin/send',{
+                method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${env.PUSH_SERVICE_TOKEN}`},
+                body:JSON.stringify({recipients:recipientsForPlayer,title,body:message,
+                  url:makeAppDeepLink({open:'messages',player,messageId:storedMessage.id}),
+                  tag:`ctc-msg-${storedMessage.id}-${encodeURIComponent(player).slice(0,32)}`})
+              });
+              const txt=await r.text();let info={};try{info=JSON.parse(txt)}catch(_){}
+              if(!r.ok){pushWarning=`Algunos avisos Push no se han enviado (HTTP ${r.status}).`;continue}
+              pushResult.sent+=Number(info.sent||0);
+              pushResult.total+=Number(info.total||0);
+              pushResult.removed+=Number(info.removed||0);
+              for(const name of recipientsForPlayer)matched.add(normalize(name));
+              if(Array.isArray(info.failed))pushResult.failed.push(...info.failed);
+            }catch(e){pushWarning='Envío Push parcial: '+String(e?.message||e).slice(0,160)}
           }
+          pushResult.matchedUsers=matched.size;
+          if(pushResult.failed.length){pushResult.ok=false;pushWarning=pushWarning||'Algunos dispositivos no recibieron el aviso.'}
         }
 
         storedMessage.sent = Number(pushResult.sent || 0);
@@ -1948,27 +1957,20 @@ __name(makeAppDeepLink, "makeAppDeepLink");
 
 async function sendTargetedPush(env, recipients, title, body, deepLink = {}) {
   if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) return;
-  const safeRecipients = [...new Set((recipients || []).map((x) => String(x || "").trim()).filter(Boolean))];
-  if (!safeRecipients.length) return;
-  try {
-    const family=await bookingCall(env,{action:'familyRecipients',players:safeRecipients});
-    for(const item of family.recipients||[])safeRecipients.push(item);
-    const allRecipients=[...new Set(safeRecipients)];
-    await env.PUSH_SERVICE.fetch("https://push.internal/admin/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${env.PUSH_SERVICE_TOKEN}`
-      },
-      body: JSON.stringify({
-        recipients: allRecipients,
-        title: String(title || "CT Campeador").slice(0, 80),
-        body: String(body || "").slice(0, 220),
-        url: makeAppDeepLink(deepLink),
-        tag: `ctc-${String(deepLink?.open || "notice").slice(0,30)}-${Date.now()}`
-      })
-    });
-  } catch (_) {}
+  const players=[...new Set((recipients||[]).map(x=>String(x||'').trim()).filter(Boolean))];
+  for(const player of players){
+    try{
+      const family=await bookingCall(env,{action:'familyRecipients',players:[player]});
+      const targets=[...new Set([player,...(family.recipients||[])])];
+      const response=await env.PUSH_SERVICE.fetch('https://push.internal/admin/send',{
+        method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${env.PUSH_SERVICE_TOKEN}`},
+        body:JSON.stringify({recipients:targets,title:String(title||'CT Campeador').slice(0,80),
+          body:String(body||'').slice(0,220),url:makeAppDeepLink({...deepLink,player}),
+          tag:`ctc-${String(deepLink?.open||'notice').slice(0,24)}-${Date.now()}-${encodeURIComponent(player).slice(0,32)}`})
+      });
+      if(!response.ok)console.error('Push TEST de jugador rechazado',response.status);
+    }catch(e){console.error('Push TEST de jugador',e)}
+  }
 }
 __name(sendTargetedPush, "sendTargetedPush");
 
