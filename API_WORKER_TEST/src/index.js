@@ -699,6 +699,10 @@ var index_default = {
         const ping = await bookingCall(env, { action: "ping" });
         return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.10-finaliza-libera-pista" }, 200, corsHeaders);
       }
+      // Diagnóstico inocuo: permite verificar qué protocolo familiar está realmente desplegado en TEST.
+      if (action === 'familyProtocol') {
+        return json({ok:true,environment:'test',familyProtocol:'pin-only',build:'1.5.1',requiresPlayerName:false},200,corsHeaders);
+      }
       // MODO FAMILIA: acceso independiente. Vinculación solo tras aprobación admin.
       if (action === 'familyRegister') {
         const name=String(body.name||'').trim().replace(/\s+/g,' ');
@@ -748,12 +752,15 @@ var index_default = {
         if(!gate.allowed)return json({ok:false,error:'Demasiados intentos. Vuelve a probar más tarde.'},429,corsHeaders);
         if(!/^(?:\d{4}|\d{6})$/.test(pin))return json({ok:false,error:'Introduce el PIN del jugador (4 o 6 cifras).'},400,corsHeaders);
         const users=await getUsers(env);
-        const matches=users.filter(u=>String(u.pin)===pin&&u.active!==false&&u.role!=='admin');
+        // Mismo criterio de búsqueda por PIN que el acceso ordinario.
+        // La delegación excluye cuentas administradoras para impedir privilegios indirectos.
+        const matches=users.filter(u=>String(u.pin)===pin&&u.active!==false);
         if(matches.length!==1){
           await registerLoginFailure(env,gateKey,specific);
-          return json({ok:false,error:matches.length>1?'PIN duplicado. Solicita al administrador un PIN nuevo.':'PIN de jugador no válido.'},matches.length>1?409:401,corsHeaders);
+          return json({ok:false,error:matches.length>1?'PIN duplicado. Solicita al administrador un PIN nuevo.':'PIN no encontrado entre los usuarios activos de TEST.'},matches.length>1?409:401,corsHeaders);
         }
         const match=matches[0];
+        if(match.role==='admin')return json({ok:false,error:'Este PIN corresponde a una cuenta administradora, no vinculable en Modo Familia.'},403,corsHeaders);
         const r=await bookingCall(env,{action:'familyLinkRequest',id:session.familyId,player:match.name});
         if(!r.ok)return json({ok:false,error:r.error||'No se pudo solicitar la vinculación.'},409,corsHeaders);
         await clearLoginGates(env,[gateKey,specific]);
