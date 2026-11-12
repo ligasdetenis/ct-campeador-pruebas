@@ -5124,7 +5124,7 @@ function familyMount(){
  const style=document.createElement('style');style.textContent=`
  #familyOpenLogin{margin:13px auto 0;display:block;width:min(100%,310px);border:1px solid #ebd6d9;background:#fff;border-radius:13px;padding:13px 18px;font:850 13px Inter,system-ui;color:#a90019;box-shadow:0 4px 12px #28000912;cursor:pointer}
  #familyAccountPanel{position:fixed;z-index:999990;inset:auto 0 0;width:min(100%,760px);margin:0 auto;max-height:min(87dvh,860px);overflow:auto;overscroll-behavior:contain;background:#f6f6f7;color:#1b1d22;border:1px solid #e6e6e9;border-radius:24px 24px 0 0;box-shadow:0 -20px 60px #17070b55;padding:0 0 calc(22px + env(safe-area-inset-bottom));font:14px Inter,system-ui}
- #familyAccountPanel[hidden],#familyPanelToggle[hidden]{display:none!important}
+ #familyAccountPanel[hidden]{display:none!important}
  #familyAccountPanel .familyHead{background:linear-gradient(125deg,#57000c,#9f0018 80%);color:#fff;padding:19px 56px 18px 20px;position:sticky;top:0;z-index:2;box-shadow:0 5px 18px #35000715}
  #familyAccountPanel .familyEyebrow{color:#f1c348;font-weight:850;letter-spacing:.11em;text-transform:uppercase;font-size:10px}
  #familyAccountPanel .familyHead h3{margin:5px 0;font-size:21px;font-weight:950;letter-spacing:-.025em;line-height:1.2}
@@ -5148,12 +5148,10 @@ function familyMount(){
  #familyAccountPanel .familyChip{display:inline-block;background:#fff2d6;color:#936006;border:1px solid #f1dfad;padding:5px 8px;border-radius:99px;font-weight:800;font-size:10px}
  #familyAccountPanel .familyStat{background:#fff7e1;border:1px solid #f0dfae;border-radius:12px;padding:11px 13px;font-size:12px;color:#75531c}
  #familyAccountPanel #familyClose{position:sticky;z-index:4;float:right;top:12px;right:13px;margin:12px 13px -51px 0;width:37px;height:37px;min-height:37px;line-height:1;padding:0;border:1px solid #ffffff5c;background:#ffffff20;color:white;border-radius:50%;font-size:20px}
- #familyPanelToggle{position:fixed;z-index:999980;bottom:82px;right:12px;border:0;border-radius:15px;padding:12px 15px;background:linear-gradient(105deg,#c9001c,#880010);color:#fff;font:850 12px Inter,system-ui;box-shadow:0 5px 18px #34000945;max-width:calc(100vw - 24px)}
  @media(min-width:650px){#familyAccountPanel{bottom:10px;border-radius:22px;max-height:85dvh}#familyAccountPanel .familyBody{padding:19px 20px}}
  `;document.head.append(style);
  const welcome=document.querySelector('#welcomePinBtn');if(welcome){welcome.insertAdjacentHTML('afterend','<button id="familyOpenLogin" type="button">👨‍👩‍👧‍👦 Acceso familiar</button>');document.getElementById('familyOpenLogin').onclick=()=>familyShowLogin();}
- document.body.insertAdjacentHTML('beforeend','<button id="familyPanelToggle" type="button" hidden>👨‍👩‍👧‍👦 Mi familia</button><div id="familyAccountPanel" hidden></div>');
- document.querySelector('#familyPanelToggle').onclick=()=>familyOpen();
+ document.body.insertAdjacentHTML('beforeend','<div id="familyAccountPanel" hidden></div>');
 }
 function familyBox(content){familyMount();const el=document.querySelector('#familyAccountPanel');el.hidden=false;el.innerHTML='<button id="familyClose" type="button" aria-label="Cerrar">×</button>'+content;el.querySelector('#familyClose').onclick=()=>el.hidden=true;return el;}
 function familyShowLogin(){
@@ -5175,7 +5173,7 @@ async function familyRefresh(){
    const saved=localStorage.getItem(FAMILY_SELECTION_KEY)||'';
    familyActive=choices.find(l=>l.playerName===saved)?.playerName||choices[0]?.playerName||'';
  }
- const toggle=document.querySelector('#familyPanelToggle');if(toggle)toggle.hidden=false;
+ // El acceso familiar reside en Mi perfil; no hay control flotante.
 }
 async function familySelect(player,{openPanel=true,refreshPending=true}={}){
  if(!familyLinks.some(l=>l.status==='approved'&&l.playerName===player))throw new Error('Jugador no autorizado');
@@ -5208,11 +5206,10 @@ async function familyAdminOpen(){
  el.querySelectorAll('[data-dec]').forEach(b=>b.onclick=async()=>{const r=requests[Number(b.dataset.i)],status=b.dataset.dec;if(!confirm(`${status==='approved'?'¿Confirmas que esta persona es tutor autorizado?':'¿Revocar acceso?'}\n${r.familyName} → ${r.playerName}`))return;try{await apiRequest({action:'familyAdminDecision',familyId:r.familyId,player:r.playerName,status});await familyAdminOpen()}catch(e){alert(e.message)}});
 }
 function familyRenderButton(){
- familyMount();const toggle=document.querySelector('#familyPanelToggle');if(!toggle)return;
- toggle.hidden=!state.authenticated;if(familyMode){toggle.textContent='👨‍👩‍👧‍👦 '+(familyActive||'Mi familia');toggle.onclick=()=>familyOpen()}
- else if(isAdmin()){toggle.textContent='👨‍👩‍👧‍👦 Familias';toggle.onclick=()=>familyAdminOpen().catch(e=>alert(e.message))}
- else toggle.hidden=true;
+ // V1.6.1 · El acceso a familia se presenta como fila integrada en Mi perfil.
+ // Sin botones position:fixed: no tapar ticker ni navegación inferior.
 }
+
 
 
 function realtimeUrl(){
@@ -9947,6 +9944,8 @@ async function renderModernProfile({skipMessageLoad=false}={}){
      ${mappAvatar(state.player,'mapp-profile-avatar')}
      <div><div class="mapp-profile-name">${mappEsc(state.player)}</div><div class="mapp-profile-role">${isAdmin()?(playerCategoryMemberships(state.player).length?`Administrador · Jugador · ${mappEsc(state.category)} ${mappEsc(state.gender)}`:'Administrador'):'Jugador · '+mappEsc(state.category)+' '+mappEsc(state.gender)}</div>${!isAdmin()&&playerCategoryMemberships(state.player).length>1?`<div class="mapp-menu-sub">Inscrito en ${playerCategoryMemberships(state.player).length} categorías · acceso inicial a la inferior</div>`:`<div class="mapp-menu-sub">Toca la foto para cambiarla · sincronizada en Cloudflare</div>`}</div>
    </div>
+   ${familyMode?`<div class="mapp-menu-row" id="mappFamilyRow" role="button" tabindex="0"><div class="mapp-menu-icon">${mappIcon('users')}</div><div><div class="mapp-menu-title">Mi familia</div><div class="mapp-menu-sub">${mappEsc(familyName||'Cuenta familiar')} · ${mappEsc(familyActive||'Seleccionar jugador')}</div></div><div>${mappIcon('chevron')}</div></div>`:''}
+   ${!familyMode&&isAdmin()?`<div class="mapp-menu-row" id="mappFamilyAdminRow" role="button" tabindex="0"><div class="mapp-menu-icon gray">${mappIcon('users')}</div><div><div class="mapp-menu-title">Familias</div><div class="mapp-menu-sub">Solicitudes y autorizaciones</div></div><div>${mappIcon('chevron')}</div></div>`:''}
    <div class="mapp-menu-row" id="mappPushRow"><div class="mapp-menu-icon">${mappIcon('bell')}</div><div><div class="mapp-menu-title">Avisos</div><div class="mapp-menu-sub ${pushCls}">${mappEsc(pushText)}</div></div><div>${mappIcon('chevron')}</div></div>
    <div class="mapp-menu-row" id="mappMessagesRow"><div class="mapp-menu-icon">${mappIcon('mail')}</div><div><div class="mapp-menu-title">Mensajes</div><div class="mapp-menu-sub">${mappUserMessages().length?`${mappUserMessages().length} mensaje${mappUserMessages().length===1?'':'s'} recibido${mappUserMessages().length===1?'':'s'}`:'No tienes mensajes'}</div></div>${mappUnreadMessages().length?`<div class="mapp-msg-badge">${mappUnreadMessages().length}</div>`:`<div>${mappIcon('chevron')}</div>`}</div>
    <div class="mapp-menu-row" id="mappInstallRow"><div class="mapp-menu-icon">${mappIcon('phone')}</div><div><div class="mapp-menu-title">Aplicación</div><div class="mapp-menu-sub ${installCls}">${mappEsc(installText)}</div></div><div>${mappIcon('chevron')}</div></div>
@@ -9957,6 +9956,8 @@ async function renderModernProfile({skipMessageLoad=false}={}){
  const avatar=box.querySelector('.mapp-profile-avatar');
  avatar?.addEventListener('click',()=>$('#mappPhotoInput').click());
  $('#mappPhotoInput')?.addEventListener('change',mappSavePhoto);
+ $('#mappFamilyRow')?.addEventListener('click',()=>familyOpen());
+ $('#mappFamilyAdminRow')?.addEventListener('click',()=>familyAdminOpen().catch(e=>alert(e.message)));
  $('#mappPushRow')?.addEventListener('click',async()=>{await activateNativePush();await renderModernProfile();renderModernHeader();mappRefreshBellState()});
  $('#mappMessagesRow')?.addEventListener('click',openMessagesInbox);
  $('#mappInstallRow')?.addEventListener('click',installAppNow);
