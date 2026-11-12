@@ -2,6 +2,36 @@
 
 <html lang="es" class="app-booting">
 <head>
+<script id="ctc-test-diagnostico-arranque">
+/* TEST exclusivamente: diagnóstico del bloqueo de splash. No realiza llamadas a la API ni modifica datos. */
+(function(){
+  var errors=[];
+  function note(message){
+    if(errors.length<8) errors.push(String(message||'Error desconocido').slice(0,350));
+  }
+  window.addEventListener('error',function(e){ note('JavaScript: '+(e.message||'Error de script')+(e.filename?' · '+e.filename.split('/').pop():'')+(e.lineno?':'+e.lineno:'')); });
+  window.addEventListener('unhandledrejection',function(e){note('Promesa: '+(e.reason&&e.reason.message||e.reason||'sin detalle'));});
+  function show(){
+    if(!document.documentElement.classList.contains('app-booting'))return;
+    document.documentElement.classList.remove('app-booting');
+    document.documentElement.classList.add('app-ready');
+    if(document.getElementById('ctc-test-boot-diagnostic'))return;
+    var card=document.createElement('section');
+    card.id='ctc-test-boot-diagnostic';
+    card.setAttribute('role','alert');
+    card.style.cssText='position:fixed;z-index:2147483590;top:90px;left:12px;right:12px;max-width:620px;margin:auto;background:#fffbea;color:#251b14;padding:17px;border:3px solid #ffcf22;border-radius:15px;font:14px/1.5 system-ui;box-shadow:0 10px 40px #0007;max-height:72vh;overflow:auto';
+    var heading=document.createElement('strong');heading.textContent='⚠️ TEST · Diagnóstico de inicio';card.appendChild(heading);
+    var expl=document.createElement('p');expl.textContent='La aplicación no terminó el arranque. No se han modificado tus datos. Copia este diagnóstico para localizar la causa.';card.appendChild(expl);
+    var pre=document.createElement('pre');pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#fff;padding:10px;border:1px solid #e8d7a6;border-radius:8px';
+    pre.textContent=errors.length?errors.join('\n'):'Sin error JavaScript capturado. Posible espera en inicialización, caché de PWA o recurso externo.';card.appendChild(pre);
+    var btn=document.createElement('button');btn.textContent='Copiar diagnóstico';btn.style.cssText='padding:10px;border-radius:9px;background:#ffda2d;color:#211b15;border:0;font-weight:800';
+    btn.addEventListener('click',function(){var val='CTC TEST BOOT: '+pre.textContent; if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(val).then(function(){btn.textContent='Copiado';}).catch(function(){window.prompt('Copia este diagnóstico',val);});}else{window.prompt('Copia este diagnóstico',val);}});card.appendChild(btn);
+    document.body.appendChild(card);
+  }
+  function arm(){setTimeout(show,10000);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm,{once:true}); else arm();
+})();
+</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,maximum-scale=1" name="viewport"/>
 <meta content="#b40012" name="theme-color"/>
