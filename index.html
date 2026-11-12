@@ -5122,27 +5122,47 @@ const familyEsc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function familyMount(){
  if(document.getElementById('familyAccountPanel'))return;
  const style=document.createElement('style');style.textContent=`
- #familyOpenLogin{margin:12px auto 0;display:block;border:2px solid #e8b333;background:#fffdf2;border-radius:14px;padding:12px 18px;font-weight:900;color:#47350a;cursor:pointer}
- #familyAccountPanel{position:fixed;z-index:999990;bottom:85px;left:12px;right:12px;max-width:540px;margin:auto;box-shadow:0 12px 40px #0005;border:2px solid #d9aa32;border-radius:18px;background:#fff;color:#19242e;padding:15px;font:15px system-ui;max-height:70dvh;overflow:auto}
- #familyAccountPanel .familyGrid{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
- #familyAccountPanel button{padding:10px;border-radius:10px;border:1px solid #cbb66e;background:#fff8dd;color:#252525;font-weight:750;cursor:pointer}
- #familyAccountPanel input{max-width:220px;width:100%;padding:11px;border:1px solid #ccc;border-radius:9px;color:#222;background:#fff}
- #familyAccountPanel .familyRow{padding:8px;border-bottom:1px solid #eee}
- #familyAccountPanel .approved{background:#def8e6;border-color:#1c9e5a}
- #familyAccountPanel .waiting{background:#fff3d1}
- #familyAccountPanel #familyClose{float:right}
- #familyPanelToggle{position:fixed;z-index:999980;bottom:80px;right:12px;border:2px solid #d2a11b;border-radius:16px;padding:11px 13px;background:#ffe59d;color:#241900;font-weight:bold;box-shadow:0 3px 16px #0003}
+ #familyOpenLogin{margin:13px auto 0;display:block;width:min(100%,310px);border:1px solid #ebd6d9;background:#fff;border-radius:13px;padding:13px 18px;font:850 13px Inter,system-ui;color:#a90019;box-shadow:0 4px 12px #28000912;cursor:pointer}
+ #familyAccountPanel{position:fixed;z-index:999990;inset:auto 0 0;width:min(100%,760px);margin:0 auto;max-height:min(87dvh,860px);overflow:auto;overscroll-behavior:contain;background:#f6f6f7;color:#1b1d22;border:1px solid #e6e6e9;border-radius:24px 24px 0 0;box-shadow:0 -20px 60px #17070b55;padding:0 0 calc(22px + env(safe-area-inset-bottom));font:14px Inter,system-ui}
+ #familyAccountPanel[hidden],#familyPanelToggle[hidden]{display:none!important}
+ #familyAccountPanel .familyHead{background:linear-gradient(125deg,#57000c,#9f0018 80%);color:#fff;padding:19px 56px 18px 20px;position:sticky;top:0;z-index:2;box-shadow:0 5px 18px #35000715}
+ #familyAccountPanel .familyEyebrow{color:#f1c348;font-weight:850;letter-spacing:.11em;text-transform:uppercase;font-size:10px}
+ #familyAccountPanel .familyHead h3{margin:5px 0;font-size:21px;font-weight:950;letter-spacing:-.025em;line-height:1.2}
+ #familyAccountPanel .familyHead p{margin:6px 0 0;color:#f3dfe2;font-size:12px;line-height:1.5}
+ #familyAccountPanel .familyBody{padding:16px;display:grid;gap:13px}
+ #familyAccountPanel .familyCard{background:#fff;border:1px solid #e8e8ec;border-radius:16px;box-shadow:0 5px 17px #23080e0a;padding:15px}
+ #familyAccountPanel .familySection{font-size:15px;font-weight:950;margin:0 0 12px;color:#202127}
+ #familyAccountPanel .familyHelp{font-size:12px;color:#6f7480;line-height:1.5;margin:6px 0 12px}
+ #familyAccountPanel .familyField{display:block;font-size:11px;font-weight:850;color:#5e626c;margin:0 0 5px}
+ #familyAccountPanel input{box-sizing:border-box;width:100%;max-width:none;border:1px solid #dce0e7;border-radius:12px;color:#202126;background:#fff;padding:13px 14px;font:800 15px Inter,system-ui;min-height:48px}
+ #familyAccountPanel input:focus{border-color:#cf001d;outline:3px solid #cf001d1a}
+ #familyAccountPanel .familyGrid{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:10px}
+ #familyAccountPanel .familyGrid>*{flex:1 1 145px;min-width:0}
+ #familyAccountPanel button{border-radius:12px;padding:11px 14px;font:850 12px Inter,system-ui;min-height:43px;border:1px solid #ececef;background:#fff;color:#30343b;cursor:pointer}
+ #familyAccountPanel button.familyPrimary{background:linear-gradient(90deg,#d60020,#bd0019);border:0;color:white;box-shadow:0 6px 13px #d600201c}
+ #familyAccountPanel button.familySecondary{background:#fff;border-color:#e6d8dc;color:#ad001b}
+ #familyAccountPanel button.familyPlayer{display:flex;align-items:center;text-align:left;gap:11px;width:100%;background:#fff;border:1px solid #e7e7ea;color:#24262b}
+ #familyAccountPanel button.familyPlayer.approved{border:2px solid #29a367;background:#f0fbf4;color:#0d663d}
+ #familyAccountPanel .familyRow{padding:12px 0;border-bottom:1px solid #ececef;color:#30343b;font-size:12px}
+ #familyAccountPanel .familyRow:last-child{border-bottom:0}
+ #familyAccountPanel .familyChip{display:inline-block;background:#fff2d6;color:#936006;border:1px solid #f1dfad;padding:5px 8px;border-radius:99px;font-weight:800;font-size:10px}
+ #familyAccountPanel .familyStat{background:#fff7e1;border:1px solid #f0dfae;border-radius:12px;padding:11px 13px;font-size:12px;color:#75531c}
+ #familyAccountPanel #familyClose{position:sticky;z-index:4;float:right;top:12px;right:13px;margin:12px 13px -51px 0;width:37px;height:37px;min-height:37px;line-height:1;padding:0;border:1px solid #ffffff5c;background:#ffffff20;color:white;border-radius:50%;font-size:20px}
+ #familyPanelToggle{position:fixed;z-index:999980;bottom:82px;right:12px;border:0;border-radius:15px;padding:12px 15px;background:linear-gradient(105deg,#c9001c,#880010);color:#fff;font:850 12px Inter,system-ui;box-shadow:0 5px 18px #34000945;max-width:calc(100vw - 24px)}
+ @media(min-width:650px){#familyAccountPanel{bottom:10px;border-radius:22px;max-height:85dvh}#familyAccountPanel .familyBody{padding:19px 20px}}
  `;document.head.append(style);
  const welcome=document.querySelector('#welcomePinBtn');if(welcome){welcome.insertAdjacentHTML('afterend','<button id="familyOpenLogin" type="button">👨‍👩‍👧‍👦 Acceso familiar</button>');document.getElementById('familyOpenLogin').onclick=()=>familyShowLogin();}
  document.body.insertAdjacentHTML('beforeend','<button id="familyPanelToggle" type="button" hidden>👨‍👩‍👧‍👦 Mi familia</button><div id="familyAccountPanel" hidden></div>');
  document.querySelector('#familyPanelToggle').onclick=()=>familyOpen();
 }
-function familyBox(content){familyMount();const el=document.querySelector('#familyAccountPanel');el.hidden=false;el.innerHTML='<button id="familyClose" type="button">✕</button>'+content;el.querySelector('#familyClose').onclick=()=>el.hidden=true;return el;}
+function familyBox(content){familyMount();const el=document.querySelector('#familyAccountPanel');el.hidden=false;el.innerHTML='<button id="familyClose" type="button" aria-label="Cerrar">×</button>'+content;el.querySelector('#familyClose').onclick=()=>el.hidden=true;return el;}
 function familyShowLogin(){
- const el=familyBox(`<h3>👨‍👩‍👧‍👦 Cuenta familiar</h3><p>Una sola sesión para gestionar los jugadores vinculados y recibir sus avisos.</p>
-  <label>Nombre de la familia</label><div class="familyGrid"><input id="famName" maxlength="70" placeholder="Ej.: Familia González" autocomplete="username"></div>
-  <label>PIN familiar (6 cifras)</label><div class="familyGrid"><input id="famPin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" placeholder="••••••"></div>
-  <div class="familyGrid"><button id="famLogin">Entrar</button><button id="famRegister">Crear cuenta familiar</button></div><small>Los vínculos requieren la aprobación del administrador.</small>`);
+ const el=familyBox(`<div class="familyHead"><div class="familyEyebrow">CT Campeador · Familias</div><h3>Tu equipo, en una sola cuenta</h3><p>Gestiona los partidos y las reservas de tus hijos desde una única sesión.</p></div>
+ <div class="familyBody"><section class="familyCard"><h4 class="familySection">Acceso familiar</h4>
+ <label class="familyField" for="famName">Nombre de la familia</label><input id="famName" maxlength="70" placeholder="Ej.: Familia González" autocomplete="username">
+ <label class="familyField" for="famPin" style="margin-top:14px">PIN familiar (6 cifras)</label><input id="famPin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" placeholder="••••••">
+ <div class="familyGrid"><button class="familyPrimary" id="famLogin">Entrar</button><button class="familySecondary" id="famRegister">Crear cuenta familiar</button></div></section>
+ <div class="familyStat">🔒 Los jugadores se vinculan mediante su PIN personal y requieren autorización del administrador.</div></div>`);
  async function go(action){let name=el.querySelector('#famName').value.trim(),pin=el.querySelector('#famPin').value.trim();if(name.length<4||!/^[0-9]{6}$/.test(pin)){alert('Introduce nombre y PIN de 6 cifras.');return}
  try{const j=await apiRequest({action,name,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);familyMode=true;familyName=j.familyName||name;familyActive='';state.player='';state.authenticated=true;await familyRefresh();hidePinWelcome();renderAll();familyOpen();if(familyActive){await familySelect(familyActive)}else familyOpen();}
  catch(e){alert('Acceso familiar: '+e.message)}}
@@ -5165,23 +5185,25 @@ async function familySelect(player){
 }
 function familyOpen(){
  const active=familyLinks.filter(l=>l.status==='approved'),pending=familyLinks.filter(l=>l.status!=='approved');
- const el=familyBox(`<h3>👨‍👩‍👧‍👦 ${familyEsc(familyName)}</h3><p><b>Jugador activo:</b> ${familyEsc(familyActive||'Ninguno todavía')}</p>
- <div class="familyGrid">${active.map(l=>`<button type="button" data-family-player="${familyEsc(l.playerName)}" class="${l.playerName===familyActive?'approved':''}">🎾 ${familyEsc(l.playerName)}</button>`).join('')||'<p>Aún no hay jugadores autorizados.</p>'}</div>
- ${pending.map(l=>`<div class="familyRow">⏳ ${familyEsc(l.playerName)} · ${familyEsc(l.status==='pending'?'Pendiente de aprobación':l.status==='revoked'?'Revocado':'No autorizado')}</div>`).join('')}
- <hr><b>Vincular otro jugador</b><p>Introduce una sola vez su nombre y PIN; el administrador tendrá que autorizarlo.</p>
- <div class="familyGrid"><input id="familyPlayerName" placeholder="Nombre del jugador" autocomplete="off"><input id="familyPlayerPin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN del jugador" autocomplete="off"></div>
- <div class="familyGrid"><button id="familyRequest">Solicitar vinculación</button><button id="familyRefresh">Actualizar autorizaciones</button><button id="familyLogout">Cerrar sesión familiar</button></div>
- <small>No se almacenan los PIN de los jugadores vinculados en esta cuenta.</small>`);
+ const el=familyBox(`<div class="familyHead"><div class="familyEyebrow">CT Campeador · Mi familia</div><h3>${familyEsc(familyName)}</h3><p>Selecciona un jugador para gestionar sus partidos, pistas y resultados.</p></div>
+ <div class="familyBody"><section class="familyCard"><h4 class="familySection">🎾 Jugadores vinculados</h4>
+ ${active.map(l=>`<button type="button" data-family-player="${familyEsc(l.playerName)}" class="familyPlayer ${l.playerName===familyActive?'approved':''}" style="margin-bottom:9px"><span style="font-size:21px">🎾</span><span style="flex:1">${familyEsc(l.playerName)}</span><span>${l.playerName===familyActive?'✓ Activo':'Cambiar'}</span></button>`).join('')||'<p class="familyHelp">Todavía no hay jugadores autorizados. Vincula el primero con su PIN.</p>'}
+ ${pending.map(l=>`<div class="familyRow"><span class="familyChip">${familyEsc(l.status==='pending'?'⏳ Pendiente':l.status==='revoked'?'Revocado':'No autorizado')}</span> &nbsp;${familyEsc(l.playerName)}</div>`).join('')}
+ </section><section class="familyCard"><h4 class="familySection">➕ Vincular un jugador</h4><p class="familyHelp">Introduce únicamente su PIN personal. Identificaremos su nombre automáticamente y enviaremos la solicitud al administrador.</p>
+ <label for="familyPlayerPin" class="familyField">PIN del jugador (4 o 6 cifras)</label><input id="familyPlayerPin" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="••••••" autocomplete="off">
+ <button class="familyPrimary" style="width:100%;margin-top:11px" id="familyRequest">Solicitar vinculación</button>
+ <p class="familyHelp" style="margin:10px 0 0">🔒 Nunca guardamos el PIN personal en la cuenta familiar.</p></section>
+ <div class="familyGrid"><button class="familySecondary" id="familyRefresh">↻ Actualizar autorizaciones</button><button id="familyLogout">Cerrar sesión</button></div></div>`);
  el.querySelectorAll('[data-family-player]').forEach(b=>b.onclick=()=>familySelect(b.dataset.familyPlayer).catch(e=>alert(e.message)));
- el.querySelector('#familyRequest').onclick=async()=>{const player=el.querySelector('#familyPlayerName').value.trim(),pin=el.querySelector('#familyPlayerPin').value.trim();try{await apiRequest({action:'familyRequestLink',player,pin});el.querySelector('#familyPlayerPin').value='';await familyRefresh();familyOpen();alert('Solicitud enviada. Falta la autorización del administrador.')}catch(e){alert(e.message)}};
+ el.querySelector('#familyRequest').onclick=async()=>{const pinInput=el.querySelector('#familyPlayerPin'),pin=pinInput.value.trim(),btn=el.querySelector('#familyRequest');if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce el PIN del jugador (4 o 6 cifras).');return;}btn.disabled=true;try{const r=await apiRequest({action:'familyRequestLink',pin});pinInput.value='';await familyRefresh();familyOpen();alert('Jugador identificado: '+r.player+'\n'+(r.status==='approved'?'Ya está vinculado.':'Solicitud enviada. Falta la autorización del administrador.'))}catch(e){alert(e.message)}finally{btn.disabled=false}};
  el.querySelector('#familyRefresh').onclick=async()=>{try{await familyRefresh();familyOpen()}catch(e){alert(e.message)}};
  el.querySelector('#familyLogout').onclick=()=>document.querySelector('#clearIdentity')?.click();
 }
 async function familyAdminOpen(){
  const j=await apiRequest({action:'familyAdminList'});
  const requests=j.requests||[];
- const el=familyBox(`<h3>🔐 Autorizaciones familiares</h3><p>Comprueba que el solicitante es el tutor autorizado antes de aprobar.</p>
- ${requests.map((r,i)=>`<div class="familyRow"><b>${familyEsc(r.familyName)}</b> → ${familyEsc(r.playerName)}<br><small>${familyEsc(r.status)}</small><div class="familyGrid"><button data-i="${i}" data-dec="approved">✅ Aprobar</button><button data-i="${i}" data-dec="revoked">🚫 Revocar</button></div></div>`).join('')||'<p>No hay solicitudes.</p>'}`);
+ const el=familyBox(`<div class="familyHead"><div class="familyEyebrow">Administración</div><h3>Autorizaciones familiares</h3><p>Antes de aprobar, verifica que quien solicita el acceso es el tutor autorizado del jugador.</p></div>
+ <div class="familyBody"><section class="familyCard">${requests.map((r,i)=>`<div class="familyRow"><b>${familyEsc(r.familyName)}</b> → <b>${familyEsc(r.playerName)}</b><p class="familyHelp">Estado: ${familyEsc(r.status)}</p><div class="familyGrid"><button class="familyPrimary" data-i="${i}" data-dec="approved">✓ Aprobar</button><button class="familySecondary" data-i="${i}" data-dec="revoked">Revocar</button></div></div>`).join('')||'<p class="familyHelp">No hay solicitudes.</p>'}</section></div>`);
  el.querySelectorAll('[data-dec]').forEach(b=>b.onclick=async()=>{const r=requests[Number(b.dataset.i)],status=b.dataset.dec;if(!confirm(`${status==='approved'?'¿Confirmas que esta persona es tutor autorizado?':'¿Revocar acceso?'}\n${r.familyName} → ${r.playerName}`))return;try{await apiRequest({action:'familyAdminDecision',familyId:r.familyId,player:r.playerName,status});await familyAdminOpen()}catch(e){alert(e.message)}});
 }
 function familyRenderButton(){
