@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,maximum-scale=1" name="viewport"/>
 <meta content="#b40012" name="theme-color"/>
-<title>CT Campeador · PRUEBAS</title>
+<title>🟨 TEST · CT Campeador · Modo Familia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1916,21 +1916,6 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .adminHistoryTag{font-size:9px;font-weight:900;background:#f1f2f4;color:#6a6e75;padding:5px 7px;border-radius:8px;white-space:nowrap}
 .adminHistoryTag.occupied{background:#e8f6ed;color:#237447}
 .adminHistoryEmpty{padding:16px;color:#858a91;font-size:12px;text-align:center}
-.ctPaymentSection{margin-top:18px;padding:14px;background:#f7faff;border:1px solid #dbe7fb;border-radius:14px}
-.ctPaymentHeading{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;color:#163a69;font-size:14px}
-.ctPaymentHeading button{padding:9px 12px;border:1px solid #aac6ec;background:white;border-radius:9px;color:#163a69;font-weight:800;cursor:pointer}
-.ctPaymentStats{font-size:12px;font-weight:800;color:#274268;margin:12px 0}
-.ctPaymentFilters{margin:8px 0 12px}.ctPaymentFilters label{display:grid;gap:4px;max-width:260px;font-size:12px;color:#33445d}
-.ctPaymentFilters select{height:38px;background:white;color:#19273c;border:1px solid #c2cfe2;border-radius:8px;padding:6px}
-.ctPaymentList{display:grid;gap:11px;max-height:580px;overflow:auto}
-.ctPaymentCard{background:#fff;border:1px solid #d8e2f0;border-radius:12px;padding:12px;display:grid;gap:8px}
-.ctPaymentCardHead{font-size:12px;color:#183b66;font-weight:800;overflow-wrap:anywhere}
-.ctPaymentCardSub{font-size:11px;color:#657184}
-.ctPaymentPerson{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:#1a2e48}
-.ctPaymentPerson select{background:#fff;color:#203149;border:1px solid #bac9dd;border-radius:8px;min-height:39px;padding:7px;max-width:150px}
-.ctPaymentPerson select:disabled{opacity:.6}
-.ctPaymentEmpty{font-size:12px;color:#5c6b7c;padding:12px;text-align:center}
-
 @media(max-width:520px){.adminHistoryFilters{grid-template-columns:1fr}}
 /* PRODUCCIÓN · Clasificación PRO: tabla accesible, nombre fijo y foto */
 .rankProCard{background:#fff;border:1px solid #e8e9ec;border-radius:17px;margin-bottom:16px;box-shadow:0 6px 20px #250e1410;overflow:hidden}
@@ -2038,6 +2023,15 @@ body.modern-admin .courtsTemplatePanel p{margin:0;color:#697281;font-size:12px;l
 .ct-push-indicator.off{color:#edd6ad!important}
 .ct-push-indicator.blocked{color:#ffb9bb!important}
 @media(max-width:420px){.ct-push-indicator{padding:3px 5px!important;font-size:8px!important}}
+
+/* CT CAMPEADOR PROD · Paneles contextuales y pago integrado */
+.ctInlineContext{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0;padding:12px;background:#f4f7fb;border:1px solid #dfe6ef;border-radius:12px}
+.ctInlineContext.one{grid-template-columns:1fr}
+.ctInlineContext label{display:grid;gap:5px;font-weight:750;font-size:12px;color:#344256}
+.ctInlineContext select{width:100%;min-height:44px;border:1px solid #c8d1dc;border-radius:9px;padding:8px;background:white;color:#202b3c}
+.ctHistPayPair{display:grid;gap:7px;margin-top:8px}.ctHistPayPlayer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px}.ctHistPayPlayer span{flex:1;min-width:115px;overflow-wrap:anywhere}.ctHistPayPlayer select{min-width:112px;min-height:36px;border:1px solid #cdd7e1;border-radius:8px;padding:6px;background:white;color:#202b3c}
+.ctHistPayPlayer select:disabled{opacity:.6}.ctHistPayMsg{font-size:12px;color:#536173;margin:9px 0}.ctHistPayReload{font-size:12px;padding:8px 11px;border:1px solid #bfcedc;border-radius:9px;background:#fff;color:#24364a;font-weight:700}
+@media(max-width:430px){.ctInlineContext{grid-template-columns:1fr}.ctHistPayPlayer{align-items:flex-start}}
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -4321,8 +4315,19 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
 .courtPublishInfoBar{margin:0 0 12px;font-weight:650;font-size:13px;opacity:.85}
 @media(max-width:620px){.courtPublishStatusCard{padding:15px;gap:10px;flex-wrap:wrap}.courtPublishStatusPill{margin-left:38px}}
 </style>
+<style id="test-family-isolation">#ct-family-test-warning{position:sticky;top:0;z-index:2147483600;background:#ffd52a;color:#382700;padding:10px 12px;text-align:center;font:bold 13px system-ui;border-bottom:2px solid #8b6500}body.modern-ui #ct-family-test-warning,body.modern-admin #ct-family-test-warning{display:block!important}html.app-booting #ct-family-test-warning{opacity:1!important}</style><style id="testEnvironmentYellowBannerV13">
+/* Banner visual permanente: solo TEST. No realiza peticiones ni modifica datos. */
+:root{--ct-test-bar-height:36px}
+body{padding-top:var(--ct-test-bar-height)!important}
+body > header{top:var(--ct-test-bar-height)!important}
+#ctTestEnvironmentBanner{position:fixed;top:0;left:0;right:0;height:var(--ct-test-bar-height);z-index:1000001;display:flex;justify-content:center;align-items:center;gap:9px;padding:0 12px;box-sizing:border-box;background:#ffd530;color:#322000;border-bottom:2px solid #d29b00;font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:900;letter-spacing:.045em;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+#ctTestEnvironmentBanner .ctTestTag{background:#352700;color:#ffe888;border-radius:5px;padding:3px 7px;font-size:11px;letter-spacing:.07em}
+@media(max-width:420px){#ctTestEnvironmentBanner{font-size:10px;gap:6px;padding:0 6px}}
+</style>
 </head>
 <body>
+<div id="ctTestEnvironmentBanner" role="status" aria-label="Entorno de pruebas, datos no oficiales"><span aria-hidden="true">⚠️</span><span class="ctTestTag">TEST</span><span>ENTORNO DE PRUEBAS · DATOS NO OFICIALES</span><span aria-hidden="true">⚠️</span></div>
+<div id="ct-family-test-warning" role="status">⚠️ TEST · MODO FAMILIA · NO ES LA LIGA OFICIAL</div>
 
 <div class="pinWelcome hidden" id="pinWelcome">
   <div class="pinWelcomeCard">
@@ -4467,20 +4472,14 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
 <details class="adminBlock adminAccordion adminPrimary" data-admin-section="courtHistory" id="adminCourtHistoryPanel">
   <summary class="adminSummary"><span class="adminSummaryTitle">Histórico de pistas</span><span class="adminSummaryMeta" id="adminHistoryMeta">Consultar reservas finalizadas</span></summary>
   <div class="adminAccordionBody">
-    <p class="authNote">Consulta las franjas ya finalizadas. Los datos no se eliminan ni se modifican.</p>
+    <p class="authNote">Histórico de pistas y pagos individuales por jugador. Los registros de pagos nuevos se conservan aunque se libere la pista.</p>
+    <div class="ctHistPayMsg" id="ctHistPayMessage">El control de pagos se consulta en Cloudflare y solo está disponible para Administración.</div>
+    <button type="button" class="ctHistPayReload" id="ctHistPayReload">↻ Actualizar histórico y pagos</button>
     <div class="adminHistoryFilters">
       <label>Mes <select id="adminHistoryMonth" aria-label="Mes del histórico"></select></label>
-      <label>Ocupación <select id="adminHistoryStatus"><option value="all">Todas las franjas</option><option value="booked">Solo ocupadas</option><option value="free">Sin reserva registrada</option></select></label>
+      <label>Mostrar <select id="adminHistoryStatus"><option value="booked">Solo reservas (recomendado)</option><option value="all">Todas las franjas</option><option value="free">Sin reserva registrada</option></select></label><label>Pago <select id="ctHistPayFilter"><option value="all">Todos</option><option value="pending">Con pagos pendientes</option><option value="paid">Pagos completos</option></select></label>
     </div>
     <div id="adminHistoryList" class="adminHistoryList"></div>
-    <section class="ctPaymentSection" id="ctPaymentSection" aria-label="Pagos individuales de pistas">
-      <div class="ctPaymentHeading"><strong>💳 Control de pagos por jugador</strong><button type="button" id="ctPaymentReload">Actualizar pagos</button></div>
-      <p class="authNote">Cada jugador se marca por separado. Solo Administración puede consultar y cambiar los pagos. Los cambios se guardan en Cloudflare.</p>
-      <div class="ctPaymentStats" id="ctPaymentStats">Abre este apartado para consultar los pagos.</div>
-      <div class="ctPaymentFilters"><label>Ver <select id="ctPaymentFilter"><option value="all">Todas las reservas</option><option value="unpaid">Con pagos pendientes</option><option value="paid">Totalmente pagadas</option></select></label></div>
-      <div id="ctPaymentList" class="ctPaymentList" aria-live="polite"></div>
-      <p class="authNote">Nota: las reservas eliminadas antes de instalar este módulo no pueden reconstruirse automáticamente. Las nuevas quedan registradas incluso después de liberar la pista.</p>
-    </section>
   </div>
 </details>
 
@@ -4697,6 +4696,7 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
       <div class="adminSubsectionHead"><span>Disponibilidad de pistas</span><span id="adminMeta_slots_sub">Abrir</span></div>
       <div class="adminSubsectionBody">
         <div class="courtsPro">
+          <div class="ctInlineContext one"><label>Jornada cuya disponibilidad quieres configurar<select id="ctCourtsWeek" aria-label="Jornada de configuración de pistas"></select></label></div>
           <div class="courtsProHero">
             <div><div class="courtsProHeroTitle">Panel de pistas</div><div class="courtsProHeroSub">Prepara, revisa y publica la disponibilidad de la jornada desde un único lugar.</div></div>
             <div class="courtsProWeek" id="courtsProWeek">Jornada actual</div>
@@ -4778,7 +4778,9 @@ body.modern-admin #journeyNavigator .journeyJump{scroll-snap-align:none!importan
     <span class="adminSummaryTitle">Jugadores</span>
     <span class="adminSummaryMeta" id="adminMeta_players">Abrir</span>
   </summary>
-  <div class="adminAccordionBody"><div class="authNote">Carga aquí la lista completa de jugadores de <b>la categoría y sexo seleccionados</b>. No depende de la semana. Una línea por jugador.</div>
+  <div class="adminAccordionBody">
+ <div class="ctInlineContext" id="ctPlayerContext"><label>Categoría<select id="ctPlayerCategory" aria-label="Categoría para introducir jugadores"></select></label><label>Modalidad<select id="ctPlayerGender" aria-label="Modalidad de jugadores"><option value="Masculino">Masculino</option><option value="Femenino">Femenino</option></select></label></div>
+ <div class="authNote">Carga aquí la lista completa de jugadores de <b>la categoría y sexo seleccionados</b>. No depende de la semana. Una línea por jugador.</div>
 <div class="tiny" style="margin-bottom:8px">Puedes pegar directamente una lista desde Excel, WhatsApp o iSquad. Se eliminan líneas vacías y duplicados.</div>
 <textarea id="playerPaste" placeholder="Carlos Pérez
 Hugo Martín
@@ -5007,11 +5009,13 @@ Pablo Ruiz"></textarea>
 </div></div></div>
 <script>
 const CATEGORIES=["Benjamín","Alevín","Infantil","Cadete","Junior","Absoluto"];
-const STORAGE_KEY="ctcampeador_TEST_reservas_v3_cloudflare_cache";
-const TOKEN_KEY="ctcampeador_TEST_api_token";
+const STORAGE_KEY="ctcampeador_TEST_FAMILY_reservas_v3_cloudflare_cache";
+const TOKEN_KEY="ctcampeador_TEST_FAMILY_api_token";
+const FAMILY_SELECTION_KEY='ctc_TEST_family_selection_v1';
+let familyMode=false, familyName='',familyLinks=[],familyActive='';
 const API_URL="https://ct-campeador-api-test.ligasdetenis.workers.dev/";
-if (!/^https:\/\/ct-campeador-api-test\.ligasdetenis\.workers\.dev\/$/.test(API_URL)) { throw new Error("SEGURIDAD TEST: endpoint API no autorizado"); }
-const PUSH_URL="https://push-desactivado-test.invalid";
+if(!/^https:\/\/ct-campeador-api-test\.ligasdetenis\.workers\.dev\/$/.test(API_URL)){throw new Error("SEGURIDAD TEST: API no autorizada");}
+const PUSH_URL="https://campeador-push-test.ligasdetenis.workers.dev";
 let PUSH_VAPID_PUBLIC_KEY="";
 const PUSH_SW_URL="/ct-campeador-pruebas/push-sw.js";
 
@@ -5030,10 +5034,6 @@ function mappEsc(s){
 function safeDataImageUrl(value){
   const v=String(value||'').trim();
   return /^data:image\/(?:jpeg|jpg|png|webp|gif|avif);base64,[a-z0-9+/=]+$/i.test(v)?v:'';
-}
-// V4A: nunca persistir PIN en snapshots de la liga del navegador.
-function v4SafeStateJSON(x){
-  return JSON.stringify(x, (key, value) => key === 'pins' ? {} : value);
 }
 const APP_BUILD="20261021-prod-live-independiente-v1";
 const DEFAULT_WEEKS=[
@@ -5076,7 +5076,7 @@ function setWeekRangeLocal(start,end){
   data.weekRanges[state.week]={start,end};
   applyWeekRanges();
   const removed=trimDraftToCurrentWeek({persist:true});
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
   markFixtureDirty();
   renderWeeks();
   setDefaultQuickDate();
@@ -5091,14 +5091,6 @@ function setWeekRangeLocal(start,end){
 
 function fresh(){return {tournamentName:'II Liga Federada',playerLists:{},fixtures:{},fixtureRounds:{},slots:{},drafts:{},published:{},bookings:{},results:{},profiles:{},pins:{},roles:{},staff:{},weekRanges:{},postponed:{},fixtureVisibilityOverrides:{},weeks:Object.fromEntries(weeks.map(w=>[w.id,{...w}]))}}
 function normalizeData(x){const d=x&&typeof x==='object'?x:{};const wr={...(d.weekRanges||{})};if(d.weeks&&typeof d.weeks==='object'){for(const [id,w] of Object.entries(d.weeks)){if(w&&w.start&&w.end&&!wr[id])wr[id]={start:w.start,end:w.end}}}hydrateWeeksFromState(d.weeks,wr);return {tournamentName:String(d.tournamentName||'II Liga Federada').trim().slice(0,60)||'II Liga Federada',playerLists:d.playerLists||{},fixtures:d.fixtures||{},fixtureRounds:d.fixtureRounds||{},slots:d.slots||{},drafts:d.drafts||{},published:d.published||{},bookings:d.reservations||d.bookings||{},results:d.results||{},profiles:d.profiles||{},pins:d.pins||{},roles:{...(d.roles||{}),...(d.adminRoles||{})},staff:d.staff||{},accessExcluded:Array.isArray(d.accessExcluded)?d.accessExcluded:[],messageHistory:Array.isArray(d.messageHistory)?d.messageHistory:[],weekRanges:wr,postponed:d.postponed||{},fixtureVisibilityOverrides:d.fixtureVisibilityOverrides||{},weeks:Object.fromEntries(weeks.map(w=>[w.id,{...w}]))}}
-// Limpiar PIN que pudieran haber quedado guardados por versiones anteriores.
-try {
-  const previous = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-  if (previous && typeof previous === 'object' && previous.pins) {
-    previous.pins = {};
-    localStorage.setItem(STORAGE_KEY, v4SafeStateJSON(previous));
-  }
-} catch (_) { /* una copia local corrupta no bloquea la app */ }
 let data=normalizeData(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")||fresh());
 applyWeekRanges();
 if(!data.staff["Adrián Prádanos"])data.staff["Adrián Prádanos"]={name:"Adrián Prádanos"};
@@ -5119,12 +5111,86 @@ let cloudMessagesLoaded=false;
 // V3.16.1 · consumo optimizado
 const AUTO_REFRESH_MS=5*60*1000;       // 5 min con la app visible
 const MIN_VISIBLE_REFRESH_MS=2*60*1000; // al volver a la app, mínimo 2 min desde la última lectura
-const PUSH_SYNC_CACHE_KEY='ctcampeador_TEST_push_sync_v3161';
+const PUSH_SYNC_CACHE_KEY='ctcampeador_TEST_FAMILY_push_sync_v3161';
 const PUSH_RESYNC_MS=7*24*60*60*1000;  // revalidación push como máximo una vez por semana
 let lastRefreshAt=0;
-function save(){localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
 function publicState(){return {tournamentName:data.tournamentName||'II Liga Federada',playerLists:data.playerLists,fixtures:data.fixtures,fixtureRounds:data.fixtureRounds,slots:data.slots,drafts:data.drafts,published:data.published,bookings:data.bookings,reservations:data.bookings,results:data.results,staff:data.staff,accessExcluded:data.accessExcluded||[],adminRoles:Object.fromEntries(Object.entries(data.roles||{}).filter(([,r])=>r==='admin')),weekRanges:data.weekRanges||{},postponed:data.postponed||{},fixtureVisibilityOverrides:data.fixtureVisibilityOverrides||{},weeks:Object.fromEntries(weeks.map(w=>[w.id,w])),updatedAt:new Date().toISOString()}}
-async function apiRequest(payload,{auth=true}={}){const headers={'Content-Type':'application/json'};if(auth&&apiToken)headers.Authorization='Bearer '+apiToken;const r=await fetch(API_URL,{method:'POST',headers,body:JSON.stringify(payload)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));return j}
+async function apiRequest(payload,{auth=true}={}){const headers={'Content-Type':'application/json'};if(auth&&apiToken)headers.Authorization='Bearer '+apiToken;const safePayload=auth&&familyMode&&familyActive?{...payload,familyPlayer:familyActive}:payload;const r=await fetch(API_URL,{method:'POST',headers,body:JSON.stringify(safePayload)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));return j}
+// FAMILY V1 — Sólo la cuenta familiar puede iniciar la vinculación. El servidor autoriza operaciones.
+const familyEsc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function familyMount(){
+ if(document.getElementById('familyAccountPanel'))return;
+ const style=document.createElement('style');style.textContent=`
+ #familyOpenLogin{margin:12px auto 0;display:block;border:2px solid #e8b333;background:#fffdf2;border-radius:14px;padding:12px 18px;font-weight:900;color:#47350a;cursor:pointer}
+ #familyAccountPanel{position:fixed;z-index:999990;bottom:85px;left:12px;right:12px;max-width:540px;margin:auto;box-shadow:0 12px 40px #0005;border:2px solid #d9aa32;border-radius:18px;background:#fff;color:#19242e;padding:15px;font:15px system-ui;max-height:70dvh;overflow:auto}
+ #familyAccountPanel .familyGrid{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+ #familyAccountPanel button{padding:10px;border-radius:10px;border:1px solid #cbb66e;background:#fff8dd;color:#252525;font-weight:750;cursor:pointer}
+ #familyAccountPanel input{max-width:220px;width:100%;padding:11px;border:1px solid #ccc;border-radius:9px;color:#222;background:#fff}
+ #familyAccountPanel .familyRow{padding:8px;border-bottom:1px solid #eee}
+ #familyAccountPanel .approved{background:#def8e6;border-color:#1c9e5a}
+ #familyAccountPanel .waiting{background:#fff3d1}
+ #familyAccountPanel #familyClose{float:right}
+ #familyPanelToggle{position:fixed;z-index:999980;bottom:80px;right:12px;border:2px solid #d2a11b;border-radius:16px;padding:11px 13px;background:#ffe59d;color:#241900;font-weight:bold;box-shadow:0 3px 16px #0003}
+ `;document.head.append(style);
+ const welcome=document.querySelector('#welcomePinBtn');if(welcome){welcome.insertAdjacentHTML('afterend','<button id="familyOpenLogin" type="button">👨‍👩‍👧‍👦 Acceso familiar</button>');document.getElementById('familyOpenLogin').onclick=()=>familyShowLogin();}
+ document.body.insertAdjacentHTML('beforeend','<button id="familyPanelToggle" type="button" hidden>👨‍👩‍👧‍👦 Mi familia</button><div id="familyAccountPanel" hidden></div>');
+ document.querySelector('#familyPanelToggle').onclick=()=>familyOpen();
+}
+function familyBox(content){familyMount();const el=document.querySelector('#familyAccountPanel');el.hidden=false;el.innerHTML='<button id="familyClose" type="button">✕</button>'+content;el.querySelector('#familyClose').onclick=()=>el.hidden=true;return el;}
+function familyShowLogin(){
+ const el=familyBox(`<h3>👨‍👩‍👧‍👦 Cuenta familiar</h3><p>Una sola sesión para gestionar los jugadores vinculados y recibir sus avisos.</p>
+  <label>Nombre de la familia</label><div class="familyGrid"><input id="famName" maxlength="70" placeholder="Ej.: Familia González" autocomplete="username"></div>
+  <label>PIN familiar (6 cifras)</label><div class="familyGrid"><input id="famPin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" placeholder="••••••"></div>
+  <div class="familyGrid"><button id="famLogin">Entrar</button><button id="famRegister">Crear cuenta familiar</button></div><small>Los vínculos requieren la aprobación del administrador.</small>`);
+ async function go(action){let name=el.querySelector('#famName').value.trim(),pin=el.querySelector('#famPin').value.trim();if(name.length<4||!/^[0-9]{6}$/.test(pin)){alert('Introduce nombre y PIN de 6 cifras.');return}
+ try{const j=await apiRequest({action,name,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);familyMode=true;familyName=j.familyName||name;familyActive='';state.player='';state.authenticated=true;await familyRefresh();hidePinWelcome();renderAll();familyOpen();if(familyActive){await familySelect(familyActive)}else familyOpen();}
+ catch(e){alert('Acceso familiar: '+e.message)}}
+ el.querySelector('#famLogin').onclick=()=>go('familyLogin');el.querySelector('#famRegister').onclick=()=>go('familyRegister');
+}
+async function familyRefresh(){
+ const r=await apiRequest({action:'familyInfo'});familyMode=true;familyName=r.name||'';familyLinks=r.links||[];
+ const choices=familyLinks.filter(l=>l.status==='approved');
+ if(!choices.some(l=>l.playerName===familyActive)){
+   const saved=localStorage.getItem(FAMILY_SELECTION_KEY)||'';
+   familyActive=choices.find(l=>l.playerName===saved)?.playerName||choices[0]?.playerName||'';
+ }
+ const toggle=document.querySelector('#familyPanelToggle');if(toggle)toggle.hidden=false;
+}
+async function familySelect(player){
+ if(!familyLinks.some(l=>l.status==='approved'&&l.playerName===player))throw new Error('Jugador no autorizado');
+ familyActive=player;localStorage.setItem(FAMILY_SELECTION_KEY,player);state.player=player;state.authenticated=true;data.roles[player]='jugador';
+ await refreshOnline({silent:true,force:true});routePlayerToOwnCategory(player);renderAll();familyOpen();
+ try{const sub=await currentPushSubscription();if(sub)await apiRequest({action:'subscribePush',deviceId:getPushDeviceId(),subscription:sub.toJSON()});}catch(e){console.warn('Push familiar pendiente de sincronizar',e)}
+}
+function familyOpen(){
+ const active=familyLinks.filter(l=>l.status==='approved'),pending=familyLinks.filter(l=>l.status!=='approved');
+ const el=familyBox(`<h3>👨‍👩‍👧‍👦 ${familyEsc(familyName)}</h3><p><b>Jugador activo:</b> ${familyEsc(familyActive||'Ninguno todavía')}</p>
+ <div class="familyGrid">${active.map(l=>`<button type="button" data-family-player="${familyEsc(l.playerName)}" class="${l.playerName===familyActive?'approved':''}">🎾 ${familyEsc(l.playerName)}</button>`).join('')||'<p>Aún no hay jugadores autorizados.</p>'}</div>
+ ${pending.map(l=>`<div class="familyRow">⏳ ${familyEsc(l.playerName)} · ${familyEsc(l.status==='pending'?'Pendiente de aprobación':l.status==='revoked'?'Revocado':'No autorizado')}</div>`).join('')}
+ <hr><b>Vincular otro jugador</b><p>Introduce una sola vez su nombre y PIN; el administrador tendrá que autorizarlo.</p>
+ <div class="familyGrid"><input id="familyPlayerName" placeholder="Nombre del jugador" autocomplete="off"><input id="familyPlayerPin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN del jugador" autocomplete="off"></div>
+ <div class="familyGrid"><button id="familyRequest">Solicitar vinculación</button><button id="familyRefresh">Actualizar autorizaciones</button><button id="familyLogout">Cerrar sesión familiar</button></div>
+ <small>No se almacenan los PIN de los jugadores vinculados en esta cuenta.</small>`);
+ el.querySelectorAll('[data-family-player]').forEach(b=>b.onclick=()=>familySelect(b.dataset.familyPlayer).catch(e=>alert(e.message)));
+ el.querySelector('#familyRequest').onclick=async()=>{const player=el.querySelector('#familyPlayerName').value.trim(),pin=el.querySelector('#familyPlayerPin').value.trim();try{await apiRequest({action:'familyRequestLink',player,pin});el.querySelector('#familyPlayerPin').value='';await familyRefresh();familyOpen();alert('Solicitud enviada. Falta la autorización del administrador.')}catch(e){alert(e.message)}};
+ el.querySelector('#familyRefresh').onclick=async()=>{try{await familyRefresh();familyOpen()}catch(e){alert(e.message)}};
+ el.querySelector('#familyLogout').onclick=()=>document.querySelector('#clearIdentity')?.click();
+}
+async function familyAdminOpen(){
+ const j=await apiRequest({action:'familyAdminList'});
+ const requests=j.requests||[];
+ const el=familyBox(`<h3>🔐 Autorizaciones familiares</h3><p>Comprueba que el solicitante es el tutor autorizado antes de aprobar.</p>
+ ${requests.map((r,i)=>`<div class="familyRow"><b>${familyEsc(r.familyName)}</b> → ${familyEsc(r.playerName)}<br><small>${familyEsc(r.status)}</small><div class="familyGrid"><button data-i="${i}" data-dec="approved">✅ Aprobar</button><button data-i="${i}" data-dec="revoked">🚫 Revocar</button></div></div>`).join('')||'<p>No hay solicitudes.</p>'}`);
+ el.querySelectorAll('[data-dec]').forEach(b=>b.onclick=async()=>{const r=requests[Number(b.dataset.i)],status=b.dataset.dec;if(!confirm(`${status==='approved'?'¿Confirmas que esta persona es tutor autorizado?':'¿Revocar acceso?'}\n${r.familyName} → ${r.playerName}`))return;try{await apiRequest({action:'familyAdminDecision',familyId:r.familyId,player:r.playerName,status});await familyAdminOpen()}catch(e){alert(e.message)}});
+}
+function familyRenderButton(){
+ familyMount();const toggle=document.querySelector('#familyPanelToggle');if(!toggle)return;
+ toggle.hidden=!state.authenticated;if(familyMode){toggle.textContent='👨‍👩‍👧‍👦 '+(familyActive||'Mi familia');toggle.onclick=()=>familyOpen()}
+ else if(isAdmin()){toggle.textContent='👨‍👩‍👧‍👦 Familias';toggle.onclick=()=>familyAdminOpen().catch(e=>alert(e.message))}
+ else toggle.hidden=true;
+}
+
 
 function realtimeUrl(){
   return API_URL.replace(/^https:/,'wss:').replace(/^http:/,'ws:').replace(/\/$/,'')+'/realtime';
@@ -5148,7 +5214,7 @@ function applyRealtimeEvent(ev){
     data.bookings=data.bookings||{};
     if(ev.reservation)data.bookings[ev.matchId]=ev.reservation;
     else delete data.bookings[ev.matchId];
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     return;
   }
@@ -5157,7 +5223,7 @@ function applyRealtimeEvent(ev){
     data.results=data.results||{};
     if(ev.result)data.results[ev.matchId]=ev.result;
     else delete data.results[ev.matchId];
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     if(state.resultMatchId===ev.matchId && $('#resultModal')?.classList.contains('show')){
       openResultModal(ev.matchId);
@@ -5237,7 +5303,7 @@ async function loadPublicTournamentName(){
     const name=String(j?.config?.tournamentName||'').trim();
     if(name){
       data.tournamentName=name;
-      localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
       renderModernHeader();
       renderTournamentNameEditor();
     }
@@ -5251,6 +5317,13 @@ async function loadPublicTournamentName(){
 async function restoreSession(){
   if(!apiToken)return false;
   try{
+    let fam=null;
+    try{fam=await apiRequest({action:'familyInfo'})}catch(_){}
+    if(fam?.ok){familyMode=true;familyName=fam.name;familyLinks=fam.links||[];await familyRefresh();
+      state.authenticated=true;
+      if(!familyActive){state.player='';return true}
+      state.player=familyActive;data.roles[familyActive]='jugador';
+    }
     const j=await apiRequest({action:'read'});
     if(!j.user||!j.user.name){throw new Error('Sesión no válida');}
     state.player=j.user.name;
@@ -5266,7 +5339,7 @@ async function restoreSession(){
     data.roles[state.player]=localRoleFromApi(j.user.role);
     data.roles["Adrián Prádanos"]='admin';
     lastRefreshAt=Date.now();
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     if(isAdmin())await loadAdminUsers();
     return true;
   }catch(e){
@@ -5285,7 +5358,7 @@ function adminEditorActive(){
   return !!(el && el.closest && el.closest('#adminView') && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 }
 
-async function refreshOnline({silent=false,force=false}={}){if((fixtureEditorDirty||playerEditorDirty||adminEditorActive())&&!force){setOnline(true,'✏️ Editando · actualización pausada');return false}try{const j=await apiRequest({action:'read'});const remote=normalizeData(j.state);data.tournamentName=remote.tournamentName||data.tournamentName||'II Liga Federada';data.playerLists=remote.playerLists;data.fixtures=remote.fixtures;data.fixtureRounds=remote.fixtureRounds;data.slots=remote.slots;data.drafts=remote.drafts;data.published=remote.published;data.bookings=remote.bookings;data.results=remote.results;data.profiles=remote.profiles||data.profiles||{};data.weekRanges=remote.weekRanges||data.weekRanges||{};data.postponed=remote.postponed||{};data.fixtureVisibilityOverrides=remote.fixtureVisibilityOverrides||{};data.accessExcluded=remote.accessExcluded||data.accessExcluded||[];applyWeekRanges();data.staff={...(data.staff||{}),...(remote.staff||{})};data.roles={...(data.roles||{}),...(remote.roles||{})};data.roles["Adrián Prádanos"]="admin";localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));lastRefreshAt=Date.now();setOnline(true,'☁️ Online');renderAll();return true}catch(e){setOnline(false,'⚠️ Offline');if(!silent)alert('No se ha podido actualizar desde Cloudflare.\n\n'+e.message);return false}}
+async function refreshOnline({silent=false,force=false}={}){if((fixtureEditorDirty||playerEditorDirty||adminEditorActive())&&!force){setOnline(true,'✏️ Editando · actualización pausada');return false}try{const j=await apiRequest({action:'read'});const remote=normalizeData(j.state);data.tournamentName=remote.tournamentName||data.tournamentName||'II Liga Federada';data.playerLists=remote.playerLists;data.fixtures=remote.fixtures;data.fixtureRounds=remote.fixtureRounds;data.slots=remote.slots;data.drafts=remote.drafts;data.published=remote.published;data.bookings=remote.bookings;data.results=remote.results;data.profiles=remote.profiles||data.profiles||{};data.weekRanges=remote.weekRanges||data.weekRanges||{};data.postponed=remote.postponed||{};data.fixtureVisibilityOverrides=remote.fixtureVisibilityOverrides||{};data.accessExcluded=remote.accessExcluded||data.accessExcluded||[];applyWeekRanges();data.staff={...(data.staff||{}),...(remote.staff||{})};data.roles={...(data.roles||{}),...(remote.roles||{})};data.roles["Adrián Prádanos"]="admin";localStorage.setItem(STORAGE_KEY,JSON.stringify(data));lastRefreshAt=Date.now();setOnline(true,'☁️ Online');renderAll();return true}catch(e){setOnline(false,'⚠️ Offline');if(!silent)alert('No se ha podido actualizar desde Cloudflare.\n\n'+e.message);return false}}
 async function saveStateOnline(){
   if(!apiToken||!isAdmin())return;
   if(saveTimer){clearTimeout(saveTimer);saveTimer=null}
@@ -5341,7 +5414,7 @@ async function loadAdminUsers(){
     }
   }
 
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
 function fixtureKey(){return `${state.week}|${state.category}|${state.gender}`}
@@ -5390,7 +5463,7 @@ function addFixturePair(a,b,{silent=false}={}){
   if(normalizeName(a)===normalizeName(b)){if(!silent)alert('Un jugador no puede enfrentarse a sí mismo.');return false}
   const arr=fixtures().slice(); const k=fixturePairKey(a,b);
   if(arr.some(m=>fixturePairKey(m.a,m.b)===k)){if(!silent)alert('Ese enfrentamiento ya está añadido.');return false}
-  arr.push(makeFixture(a,b)); data.fixtures[fixtureKey()]=arr; localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data)); markFixtureDirty(); return true
+  arr.push(makeFixture(a,b)); data.fixtures[fixtureKey()]=arr; localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); markFixtureDirty(); return true
 }
 function parseFixtureText(raw){
   const pairs=[]; const unknown=[]; const players=categoryPlayers(); const known=new Set(players.map(normalizeName));
@@ -5481,7 +5554,7 @@ function goToJourney(weekId){
 }
 
 // PRODUCCIÓN V22.4 · Posición independiente del DOM y sin scroll-snap al redibujar.
-const JOURNEY_NAV_SCROLL_KEY='ctcampeador-test-journey-navigator-scroll-v224';
+const JOURNEY_NAV_SCROLL_KEY='ctcampeador-prod-journey-navigator-scroll-v224';
 let journeyNavScrollPosition=(()=>{try{return Math.max(0,Number(localStorage.getItem(JOURNEY_NAV_SCROLL_KEY))||0)}catch(_){return 0}})();
 let journeyNavIsRestoring=false;
 let journeyNavRestoreEpoch=0;
@@ -5688,7 +5761,7 @@ function openFutureFixturesPlanner(initialWeekId=''){
           if(arr.length)data.fixtures[key]=arr;
           else delete data.fixtures[key];
         }
-        localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
         await saveStateOnline();
         await refreshOnline({silent:true,force:true});
         renderAll();
@@ -5696,7 +5769,7 @@ function openFutureFixturesPlanner(initialWeekId=''){
         alert('✅ Jornadas futuras guardadas.');
       }catch(e){
         data.fixtures=backup;
-        localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
         alert('No se han podido guardar.\\n\\n'+e.message);
       }finally{
         btn.disabled=false;btn.textContent=old;
@@ -5795,7 +5868,7 @@ function renderFixtureEditor(){
       return;
     }
     data.fixtures[fixtureKey()]=fixtures().filter(m=>m.id!==mid);
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     markFixtureDirty();
     renderFixtureEditor();
     renderMatches();
@@ -5870,7 +5943,7 @@ async function publishJourneyFixturesNow(weekId){
   const overrideKey=fixtureVisibilityKey(weekId);
   const previousOverride=data.fixtureVisibilityOverrides[overrideKey];
   data.fixtureVisibilityOverrides[overrideKey]=true;
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
   try{
     await saveStateOnline();
     renderAll();
@@ -5878,7 +5951,7 @@ async function publishJourneyFixturesNow(weekId){
   }catch(e){
     if(previousOverride===undefined) delete data.fixtureVisibilityOverrides[overrideKey];
     else data.fixtureVisibilityOverrides[overrideKey]=previousOverride;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     alert('No se ha podido publicar.\n\n'+e.message);
   }
 }
@@ -5901,12 +5974,12 @@ async function publishAllJourneysNow(){
     data.fixtureVisibilityOverrides={...backup};
     for(const w of pending)data.fixtureVisibilityOverrides[fixtureVisibilityKey(w.id)]=true;
     await saveStateOnline();
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     alert(`✅ Publicadas ${pending.length} jornadas de ${state.category} · ${state.gender}.`);
   }catch(e){
     data.fixtureVisibilityOverrides=backup;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     alert('No se han podido publicar las jornadas.\n\n'+e.message);
   }finally{
@@ -5991,7 +6064,7 @@ function ensurePins(){
     used.add(pin);
     if(!data.roles[p])data.roles[p]='jugador';
   }
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 function visibleIdentitiesForCategory(){const globalUsers=allIdentities().filter(p=>(roleOf(p)==='admin'||roleOf(p)==='miembro')&&!accessIsExcluded(p));const category=categoryPlayers().filter(p=>!accessIsExcluded(p));const visible=[...new Set([...category,...globalUsers])].sort((a,b)=>a.localeCompare(b,'es'));if(state.authenticated&&state.player&&!visible.includes(state.player))visible.push(state.player);return visible}
 
@@ -6107,6 +6180,7 @@ async function loginWithPinOnly(){
     if(btn){btn.disabled=true;btn.textContent='⏳ Entrando…'}
     const j=await apiRequest({action:'loginPin',pin},{auth:false});
     apiToken=j.token;
+    familyMode=false;familyActive='';familyLinks=[];
     localStorage.setItem(TOKEN_KEY,apiToken);
     state.player=j.user.name;
     state.authenticated=true;
@@ -6146,10 +6220,10 @@ async function getPushPublicKey(){
   return PUSH_VAPID_PUBLIC_KEY;
 }
 function getPushDeviceId(){
-  let id=localStorage.getItem('ctc_TEST_push_v1_device');
+  let id=localStorage.getItem('ctc_TEST_FAMILY_push_v1_device');
   if(!id){
     id=crypto.randomUUID?crypto.randomUUID():'dev-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-    localStorage.setItem('ctc_TEST_push_v1_device',id);
+    localStorage.setItem('ctc_TEST_FAMILY_push_v1_device',id);
   }
   return id;
 }
@@ -6171,6 +6245,7 @@ function pushSubscriptionFingerprint(sub,userName){
   }catch(_){return ''}
 }
 async function syncPushSubscription(sub,{force=false}={}){
+  if(familyMode){if(!sub||!apiToken)return false;await apiRequest({action:'subscribePush',deviceId:getPushDeviceId(),subscription:sub.toJSON?sub.toJSON():sub});return true;}
   if(!sub||!state.authenticated||!state.player||!apiToken)return false;
   const fp=pushSubscriptionFingerprint(sub,state.player);
   if(!force&&fp){
@@ -6179,20 +6254,7 @@ async function syncPushSubscription(sub,{force=false}={}){
       if(cached?.fingerprint===fp && Date.now()-Number(cached.syncedAt||0)<PUSH_RESYNC_MS)return true;
     }catch(_){}
   }
-  const r=await fetch(PUSH_URL+'/subscribe',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':'Bearer '+apiToken
-    },
-    body:JSON.stringify({
-      deviceId:getPushDeviceId(),
-      subscription:sub.toJSON?sub.toJSON():sub,
-      userName:state.player
-    })
-  });
-  let j={};try{j=await r.json()}catch(e){}
-  if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));
+  await apiRequest({action:'subscribePush',deviceId:getPushDeviceId(),subscription:sub.toJSON?sub.toJSON():sub});
   if(fp){try{localStorage.setItem(PUSH_SYNC_CACHE_KEY,JSON.stringify({fingerprint:fp,syncedAt:Date.now()}))}catch(_){}}
   return true;
 }
@@ -6391,7 +6453,7 @@ function renderIdentity(){
   const ps=visibleIdentitiesForCategory();
   sel.innerHTML='<option value="">Selecciona tu nombre</option>'+ps.map(p=>`<option value="${mappEsc(p)}">${mappEsc(p)}${roleOf(p)==='admin'?' · ADMIN':''}</option>`).join('');
   if(state.player&&!allIdentities().includes(state.player)){
-    state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_TEST_auth_player');
+    state.player='';state.authenticated=false;localStorage.removeItem('ctcampeador_auth_player');
   }
   sel.value=state.player;sel.disabled=state.authenticated;
   $('#playerPin').disabled=state.authenticated;$('#loginBtn').disabled=state.authenticated;
@@ -6442,10 +6504,10 @@ function renderMatches(){const fs=viewFixtures(), box=$('#matches');const offici
  box.querySelectorAll('[data-confirm-result]').forEach(b=>b.onclick=()=>confirmResult(b.dataset.confirmResult));
  box.querySelectorAll('[data-delay-mid]').forEach(b=>b.onclick=()=>openDelayModal(b.dataset.delayMid));
 }
-async function cancelBooking(mid){const m=findFixtureById(mid);const bk=bookingFor(mid);if(!m||!bk)return;if(!canPlayerReserve(m)&&!isAdmin()){alert('Solo uno de los dos jugadores o un administrador puede cancelar la reserva.');return;}const ok=confirm(`¿Cancelar esta reserva?\n\n${m.a} vs ${m.b}\n${dayDateES(bk.date)} · ${bk.time} · ${bk.court}\n\nLa pista volverá a quedar libre.`);if(!ok)return;try{await apiRequest({action:'cancelReservation',matchId:mid});delete data.bookings[mid];localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));renderAll();alert('✅ Reserva cancelada. La pista vuelve a estar disponible.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
+async function cancelBooking(mid){const m=findFixtureById(mid);const bk=bookingFor(mid);if(!m||!bk)return;if(!canPlayerReserve(m)&&!isAdmin()){alert('Solo uno de los dos jugadores o un administrador puede cancelar la reserva.');return;}const ok=confirm(`¿Cancelar esta reserva?\n\n${m.a} vs ${m.b}\n${dayDateES(bk.date)} · ${bk.time} · ${bk.court}\n\nLa pista volverá a quedar libre.`);if(!ok)return;try{await apiRequest({action:'cancelReservation',matchId:mid});delete data.bookings[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();alert('✅ Reserva cancelada. La pista vuelve a estar disponible.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
 function openDelayModal(mid){if(!isAdmin())return;const rec=fixtureRecord(mid);if(!rec)return;state.delayMatchId=mid;const p=postponedInfo(mid);$('#delayMatch').textContent=`${rec.m.a} vs ${rec.m.b}`;$('#delayOrigin').textContent=`Jornada oficial: ${weeks.find(w=>w.id===rec.week)?.label||rec.week} · ${rec.category} ${rec.gender}`;const originIdx=weeks.findIndex(w=>w.id===rec.week);const options=['<option value="">Retrasado · todavía sin nueva semana</option>'];weeks.forEach((w,i)=>{if(i>originIdx)options.push(`<option value="${w.id}">${w.label}</option>`)});$('#delayTargetWeek').innerHTML=options.join('');$('#delayTargetWeek').value=p?.targetWeek||'';$('#restoreDelayBtn').classList.toggle('hidden',!p);$('#delayModal').classList.add('show')}
-async function saveDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;const target=$('#delayTargetWeek').value;data.postponed=data.postponed||{};data.postponed[mid]={originalWeek:rec.week,targetWeek:target||'',status:target?'reprogrammed':'delayed',updatedAt:new Date().toISOString(),updatedBy:state.player};localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert(target?`✅ Partido reprogramado a ${weeks.find(w=>w.id===target)?.label||target}.`:'✅ Partido marcado como retrasado. Queda pendiente de asignar una nueva semana.')}catch(e){alert('El cambio se ha guardado localmente, pero no se pudo guardar online.\n\n'+e.message)}}
-async function restoreDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;if(!confirm(`¿Devolver ${rec.m.a} vs ${rec.m.b} a su jornada oficial?`))return;delete data.postponed[mid];localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert('✅ Partido devuelto a su jornada oficial.')}catch(e){alert(e.message)}}
+async function saveDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;const target=$('#delayTargetWeek').value;data.postponed=data.postponed||{};data.postponed[mid]={originalWeek:rec.week,targetWeek:target||'',status:target?'reprogrammed':'delayed',updatedAt:new Date().toISOString(),updatedBy:state.player};localStorage.setItem(STORAGE_KEY,JSON.stringify(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert(target?`✅ Partido reprogramado a ${weeks.find(w=>w.id===target)?.label||target}.`:'✅ Partido marcado como retrasado. Queda pendiente de asignar una nueva semana.')}catch(e){alert('El cambio se ha guardado localmente, pero no se pudo guardar online.\n\n'+e.message)}}
+async function restoreDelay(){if(!isAdmin())return;const mid=state.delayMatchId,rec=fixtureRecord(mid);if(!rec)return;if(!confirm(`¿Devolver ${rec.m.a} vs ${rec.m.b} a su jornada oficial?`))return;delete data.postponed[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));$('#delayModal').classList.remove('show');renderAll();try{await saveStateOnline();setOnline(true,'☁️ Guardado');alert('✅ Partido devuelto a su jornada oficial.')}catch(e){alert(e.message)}}
 function readSet(aId,bId){
  const av=$(aId).value,bv=$(bId).value;
  if(av===''&&bv==='')return null;
@@ -6536,9 +6598,9 @@ function showResultModalUI(){
   $('#resultModal').classList.add('show');
 }
 function openResultModal(mid){state.resultMatchId=mid;const m=findFixtureById(mid);if(!m)return;if(!isAdmin()&&!canPlayerReserve(m)){alert('Solo los jugadores del partido o un administrador pueden gestionar el resultado.');return}const r=resultFor(mid);$('#resultModalMatch').textContent=`${m.a} vs ${m.b}`;const rec=fixtureRecord(mid);$('#resultModalCat').textContent=rec?`${rec.category} · ${rec.gender} · ${weeks.find(w=>w.id===rec.week)?.label||rec.week}`:`${state.category} · ${state.gender}`;$('#resultWinner').innerHTML=`<option value="">Selecciona ganador</option><option value="${m.a.replace(/"/g,'&quot;')}">${m.a}</option><option value="${m.b.replace(/"/g,'&quot;')}">${m.b}</option>`;$('#resultType').value=r?.type||'normal';const sets=r?.sets||[];[['#rS1A','#rS1B'],['#rS2A','#rS2B'],['#rS3A','#rS3B']].forEach((ids,i)=>{$(ids[0]).value=sets[i]?.a??'';$(ids[1]).value=sets[i]?.b??''});$('#resultWinner').value=r?.winner||'';$('#resultModalMode').textContent=r?'EDITAR RESULTADO':'SUBIR RESULTADO';$('#resultExisting').classList.toggle('hidden',!r);if(r)$('#resultExisting').innerHTML=`<b>Estado actual:</b> ${resultLabel(r)} · ${r.status==='confirmed'?'Confirmado':(r.revisedFrom?`Modificado por ${mappEsc(r.submittedBy)} · pendiente de ${mappEsc(r.revisedFrom)}`:'Pendiente de confirmar')}`;const canConfirm=!!r&&r.status==='pending'&&!isAdmin()&&r.submittedBy!==state.player&&canPlayerReserve(m);$('#confirmResultBtn').classList.toggle('hidden',!canConfirm);$('#saveResultBtn').classList.toggle('hidden',(!isAdmin()&&r?.status==='confirmed'));$('#saveResultBtn').textContent=isAdmin()?(r?'💾 Guardar corrección':'✅ Guardar resultado'):(canConfirm?'✏️ Editar y pedir nueva confirmación':(r?'📤 Actualizar resultado':'📤 Enviar resultado'));$('#deleteResultBtn').classList.toggle('hidden',!(isAdmin()&&r));syncResultType();showResultModalUI();validateNormalResultLive()}
-async function saveResult(){const mid=state.resultMatchId,m=findFixtureById(mid);if(!m)return;try{const type=$('#resultType').value;let sets=[];if(type==='normal'){const check=validateNormalResultLive();if(!check.ok)throw new Error(check.error||'Revisa el resultado.');sets=check.sets}else if(type!=='wo'&&type!=='not_played'){for(const [a,b] of [['#rS1A','#rS1B'],['#rS2A','#rS2B'],['#rS3A','#rS3B']]){const set=readSet(a,b);if(set)sets.push(set)}}const winner=(type==='wo'||type==='retirement')?$('#resultWinner').value:'';if((type==='wo'||type==='retirement')&&!winner)throw new Error('Selecciona el ganador.');const btn=$('#saveResultBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{const j=await apiRequest({action:'submitResult',matchId:mid,result:{type,sets,winner}});data.results[mid]=j.result;localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));closeResultModalUI();renderAll();alert(j.result.status==='confirmed'?'✅ Resultado guardado y confirmado.':(j.result.revisedFrom?'✏️ Resultado modificado. Ahora debe confirmarlo de nuevo tu rival.':'✅ Resultado enviado. Queda pendiente de confirmación del rival.'))}finally{btn.disabled=false;btn.textContent=old}}catch(e){alert(e.message)}}
-async function confirmResult(mid){const m=findFixtureById(mid),r=resultFor(mid);if(!m||!r)return;const ok=confirm(`¿Confirmas este resultado?\n\n${m.a} vs ${m.b}\n${resultLabel(r)}\n\nUna vez confirmado, solo un administrador podrá corregirlo.`);if(!ok)return;try{const j=await apiRequest({action:'confirmResult',matchId:mid});data.results[mid]=j.result;localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));renderAll();alert('✅ Resultado confirmado.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
-async function deleteResult(mid){if(!isAdmin())return;const m=findFixtureById(mid);if(!m)return;if(!confirm(`¿Borrar el resultado de ${m.a} vs ${m.b}?`))return;try{await apiRequest({action:'deleteResult',matchId:mid});delete data.results[mid];localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));closeResultModalUI();renderAll();alert('🗑️ Resultado borrado.')}catch(e){alert(e.message)}}
+async function saveResult(){const mid=state.resultMatchId,m=findFixtureById(mid);if(!m)return;try{const type=$('#resultType').value;let sets=[];if(type==='normal'){const check=validateNormalResultLive();if(!check.ok)throw new Error(check.error||'Revisa el resultado.');sets=check.sets}else if(type!=='wo'&&type!=='not_played'){for(const [a,b] of [['#rS1A','#rS1B'],['#rS2A','#rS2B'],['#rS3A','#rS3B']]){const set=readSet(a,b);if(set)sets.push(set)}}const winner=(type==='wo'||type==='retirement')?$('#resultWinner').value:'';if((type==='wo'||type==='retirement')&&!winner)throw new Error('Selecciona el ganador.');const btn=$('#saveResultBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{const j=await apiRequest({action:'submitResult',matchId:mid,result:{type,sets,winner}});data.results[mid]=j.result;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));closeResultModalUI();renderAll();alert(j.result.status==='confirmed'?'✅ Resultado guardado y confirmado.':(j.result.revisedFrom?'✏️ Resultado modificado. Ahora debe confirmarlo de nuevo tu rival.':'✅ Resultado enviado. Queda pendiente de confirmación del rival.'))}finally{btn.disabled=false;btn.textContent=old}}catch(e){alert(e.message)}}
+async function confirmResult(mid){const m=findFixtureById(mid),r=resultFor(mid);if(!m||!r)return;const ok=confirm(`¿Confirmas este resultado?\n\n${m.a} vs ${m.b}\n${resultLabel(r)}\n\nUna vez confirmado, solo un administrador podrá corregirlo.`);if(!ok)return;try{const j=await apiRequest({action:'confirmResult',matchId:mid});data.results[mid]=j.result;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();alert('✅ Resultado confirmado.')}catch(e){alert(e.message);await refreshOnline({silent:true})}}
+async function deleteResult(mid){if(!isAdmin())return;const m=findFixtureById(mid);if(!m)return;if(!confirm(`¿Borrar el resultado de ${m.a} vs ${m.b}?`))return;try{await apiRequest({action:'deleteResult',matchId:mid});delete data.results[mid];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));closeResultModalUI();renderAll();alert('🗑️ Resultado borrado.')}catch(e){alert(e.message)}}
 function renderKpis(){
  const all=allWeekFixtures();
  const booked=all.filter(m=>bookingFor(m.id)).length;
@@ -6753,7 +6815,7 @@ async function viewMatchProposal(mid){
   }
   if(choice==='accept'){
    const result=await apiRequest({action:'respondMatchProposal',matchId:mid,response:'accept'});
-   if(result.reservation){data.bookings[mid]=result.reservation;localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));}
+   if(result.reservation){data.bookings[mid]=result.reservation;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
    alert('✅ Propuesta aceptada. Pista reservada.');
    ctProposalCache.delete(mid);await refreshOnline({silent:true,force:true});
   }else if(choice==='reject'){
@@ -6776,7 +6838,7 @@ async function book(mid,sid){
    const reservation={week:state.week,slotId:sid,a:m.a,b:m.b,day:s.day,date:s.date,time:s.time,court:s.court,category:state.category,gender:state.gender};
    const j=await apiRequest({action:'reserve',matchId:mid,slotId:sid,reservation});
    data.bookings[mid]={...reservation,...j.reservation};
-   localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
    $('#reserveModal').classList.remove('show');
    renderAll();
    setOnline(true,'☁️ Online');
@@ -6945,7 +7007,7 @@ async function adminDeleteMatchCompletely(m){
     if(data.results)delete data.results[m.id];
     if(data.postponed)delete data.postponed[m.id];
 
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     await saveStateOnline();
     renderAll();
     alert('🗑️ Enfrentamiento eliminado.');
@@ -6970,7 +7032,7 @@ const ADMIN_DEFAULT_ORDER=[
 
 function adminOrderStorageKey(){
   if(!state.player)return '';
-  return 'ctcampeador_TEST_admin_block_order_'+normalizeName(state.player);
+  return 'ctcampeador_admin_block_order_'+normalizeName(state.player);
 }
 let adminCloudOrderLoadedFor='';
 let adminOrderSaveTimer=null;
@@ -7456,83 +7518,96 @@ function courtHistoryRecords(){
  }
  return records.sort((a,b)=>`${b.date} ${b.time} ${b.court}`.localeCompare(`${a.date} ${a.time} ${a.court}`));
 }
-// PAGOS INDIVIDUALES V1: nunca se guardan en localStorage, solo se leen desde API admin.
-let ctCourtPayments=[];
-let ctPaymentsLoaded=false;
-let ctPaymentsBusy=false;
-async function ctLoadCourtPayments(){
- if(!isAdmin()||ctPaymentsBusy)return;
- const host=$('#ctPaymentList');if(!host)return;
- ctPaymentsBusy=true;
- host.innerHTML='<div class="ctPaymentEmpty">Consultando pagos en Cloudflare…</div>';
+// Estado de pago remoto: nunca se guarda en localStorage.
+let ctPaymentsV1=[];
+let ctPaymentsV1Loaded=false;
+let ctPaymentsV1Busy=false;
+function ctHistoryLocationKey(week,date,time,court){return [week,date,time,court].map(x=>String(x||'').trim().toLowerCase()).join('|')}
+async function ctRefreshPayments(){
+ if(!isAdmin()||ctPaymentsV1Busy)return;
+ ctPaymentsV1Busy=true;
+ const status=$('#ctHistPayMessage');if(status)status.textContent='Consultando el histórico de reservas y pagos en Cloudflare…';
  try{
   const response=await apiRequest({action:'listCourtPayments'});
-  ctCourtPayments=Array.isArray(response.records)?response.records:[];
-  ctPaymentsLoaded=true;ctRenderCourtPayments();
- }catch(e){host.textContent='No se han podido cargar los pagos: '+String(e.message||e)}
- finally{ctPaymentsBusy=false}
+  ctPaymentsV1=Array.isArray(response.records)?response.records:[];
+  ctPaymentsV1Loaded=true;
+  if(status)status.textContent='✓ Datos de pago actualizados. Los cambios se guardan en Cloudflare.';
+  renderAdminCourtHistory();
+ }catch(e){if(status)status.textContent='⚠ No se han podido consultar los pagos. No se permite marcarlos sin conexión: '+String(e.message||e);renderAdminCourtHistory()}
+ finally{ctPaymentsV1Busy=false}
 }
-function ctRenderCourtPayments(){
- if(!isAdmin())return;
- const host=$('#ctPaymentList'),stat=$('#ctPaymentStats'),filter=$('#ctPaymentFilter');
- if(!host||!stat||!filter)return;
- if(!ctPaymentsLoaded)return;
- const now=Date.now();
- const finished=ctCourtPayments.filter(row=>{
-  const b=row.reservation||{};return b.date&&Date.parse(String(b.date)+'T23:59:59')<now;
- });
- const pendingCount=finished.reduce((n,row)=>n+(row.paymentA==='paid'?0:1)+(row.paymentB==='paid'?0:1),0);
- const paidCount=finished.length*2-pendingCount;
- stat.textContent=`${finished.length} reservas registradas · ${paidCount} pagos realizados · ${pendingCount} pagos pendientes`;
- const selected=finished.filter(row=>filter.value==='unpaid'?(row.paymentA!=='paid'||row.paymentB!=='paid'):filter.value==='paid'?(row.paymentA==='paid'&&row.paymentB==='paid'):true)
-  .sort((a,b)=>String(b.reservation?.date||'').localeCompare(String(a.reservation?.date||'')));
- host.innerHTML=selected.length?selected.map(row=>{
-  const b=row.reservation||{};const id=mappEsc(row.bookingId);
-  const person=(side,name,pay)=>`<div class="ctPaymentPerson"><strong>${mappEsc(name||'Jugador sin identificar')}</strong><select data-ct-payment-id="${id}" data-ct-payment-side="${side}" aria-label="Pago de ${mappEsc(name||'jugador')}" ><option value="pending" ${pay!=='paid'?'selected':''}>🔴 Pendiente</option><option value="paid" ${pay==='paid'?'selected':''}>🟢 Pagado</option></select></div>`;
-  return `<div class="ctPaymentCard"><div class="ctPaymentCardHead">${mappEsc(dayDateES(b.date)||b.date||'')} · ${mappEsc(b.time||'')} · ${mappEsc(b.court||'Pista')} · ${mappEsc(b.week||'')}</div><div class="ctPaymentCardSub">${row.status==='cancelled'?'Reserva liberada o cancelada · registro conservado':row.status==='replaced'?'Reserva sustituida':'Reserva registrada'}</div>${person('a',b.a,row.paymentA)}${person('b',b.b,row.paymentB)}</div>`;
- }).join(''):'<div class="ctPaymentEmpty">No hay reservas registradas para este filtro. Las reservas anteriores a la instalación pueden no estar disponibles.</div>';
- host.querySelectorAll('[data-ct-payment-id]').forEach(select=>select.addEventListener('change',async()=>{
-  const bookingId=select.dataset.ctPaymentId,side=select.dataset.ctPaymentSide,payment=select.value;
-  if(!confirm('¿Guardar el nuevo estado de pago de este jugador?')){ctRenderCourtPayments();return}
-  select.disabled=true;
-  try{
-   await apiRequest({action:'setCourtPayment',bookingId,side,payment});
-   await ctLoadCourtPayments();
-  }catch(e){alert('No se ha guardado el pago. '+String(e.message||e));await ctLoadCourtPayments()}
- }));
-}
-function ctSetupPaymentUI(){
- const panel=$('#adminCourtHistoryPanel');if(!panel||panel.dataset.ctPaymentWired)return;
- panel.dataset.ctPaymentWired='1';
- panel.addEventListener('toggle',()=>{if(panel.open&&isAdmin())ctLoadCourtPayments()});
- const reload=$('#ctPaymentReload'),filter=$('#ctPaymentFilter');
- if(reload)reload.onclick=ctLoadCourtPayments;
- if(filter)filter.onchange=ctRenderCourtPayments;
- if(panel.open&&isAdmin())ctLoadCourtPayments();
+function ctHistoryAllRows(){
+ const base=courtHistoryRecords();
+ if(!ctPaymentsV1Loaded)return base;
+ const indexed=new Set();const records=[];
+ for(const h of ctPaymentsV1){
+  const b=h.reservation||{};
+  if(!b.date||!slotHasFinished(b.date,b.time))continue;
+  records.push({week:String(b.week||''),date:String(b.date||''),time:String(b.time||''),court:String(b.court||''),booking:b,payment:h});
+  indexed.add(ctHistoryLocationKey(b.week,b.date,b.time,b.court));
+ }
+ for(const row of base){
+  const key=ctHistoryLocationKey(row.week,row.date,row.time,row.court);
+  if(!indexed.has(key))records.push({...row,payment:null});
+ }
+ return records.sort((a,b)=>`${b.date} ${b.time} ${b.court}`.localeCompare(`${a.date} ${a.time} ${a.court}`));
 }
 function renderAdminCourtHistory(){
  if(!isAdmin())return;
- const month=$('#adminHistoryMonth'),status=$('#adminHistoryStatus'),list=$('#adminHistoryList');
- if(!month||!status||!list)return;
- const all=courtHistoryRecords();
+ const month=$('#adminHistoryMonth'),status=$('#adminHistoryStatus'),list=$('#adminHistoryList'),payFilter=$('#ctHistPayFilter');
+ if(!month||!status||!list||!payFilter)return;
+ const all=ctHistoryAllRows();
  const previous=month.value||'all';
  const months=[...new Set(all.map(r=>r.date.slice(0,7)).filter(m=>/^\d{4}-\d{2}$/.test(m)))].sort().reverse();
  month.innerHTML='<option value="all">Todos los meses</option>'+months.map(m=>`<option value="${m}">${mappEsc(new Date(m+'-15T12:00:00').toLocaleDateString('es-ES',{month:'long',year:'numeric'}))}</option>`).join('');
  month.value=months.includes(previous)?previous:'all';
- const selected=all.filter(r=>(month.value==='all'||r.date.startsWith(month.value))&&(status.value==='all'||(status.value==='booked'?!!r.booking:!r.booking)));
- const groups=new Map();
- for(const r of selected){if(!groups.has(r.date))groups.set(r.date,[]);groups.get(r.date).push(r)}
- list.innerHTML=selected.length?[...groups].map(([day,rows])=>`<div class="adminHistoryDay"><div class="adminHistoryDayTitle">${mappEsc(dayDateES(day))}</div>${rows.map(r=>`<div class="adminHistoryRow"><div><div class="adminHistoryMain">${mappEsc(r.time||'Hora no indicada')} · ${mappEsc(r.court||'Pista no indicada')}</div><div class="adminHistoryPlayers">${r.booking?mappEsc(`${r.booking.a||'Jugador sin identificar'} vs ${r.booking.b||'Jugador sin identificar'}`):'Sin reserva registrada'} · ${mappEsc(r.week)}</div></div><span class="adminHistoryTag ${r.booking?'occupied':''}">${r.booking?'RESERVADA':'SIN RESERVA'}</span></div>`).join('')}</div>`).join(''):'<div class="adminHistoryEmpty">No hay franjas finalizadas registradas con estos filtros.</div>';
- $('#adminHistoryMeta').textContent=`${all.length} franjas finalizadas`;
- month.onchange=renderAdminCourtHistory;
- status.onchange=renderAdminCourtHistory;
+ const selected=all.filter(r=>(month.value==='all'||r.date.startsWith(month.value))&&(status.value==='all'||(status.value==='booked'?!!r.booking:!r.booking)) && (payFilter.value==='all'||(r.payment&&(payFilter.value==='paid'?(r.payment.paymentA==='paid'&&r.payment.paymentB==='paid'):(r.payment.paymentA!=='paid'||r.payment.paymentB!=='paid')))));
+ const groups=new Map();for(const r of selected){if(!groups.has(r.date))groups.set(r.date,[]);groups.get(r.date).push(r)}
+ const paymentSelect=(r,side)=>{
+  const record=r.payment;if(!record||!record.bookingId)return '';
+  const player=side==='a'?r.booking?.a:r.booking?.b;
+  if(!player)return '';
+  const current=side==='a'?record.paymentA:record.paymentB;
+  return `<div class="ctHistPayPlayer"><span>${mappEsc(player)}</span><select aria-label="Pago de ${mappEsc(player)}" data-ct-payment-id="${mappEsc(record.bookingId)}" data-ct-payment-side="${side}"><option value="pending" ${current!=='paid'?'selected':''}>🔴 Pendiente</option><option value="paid" ${current==='paid'?'selected':''}>🟢 Pagado</option></select></div>`;
+ };
+ list.innerHTML=selected.length?[...groups].map(([day,rows])=>`<div class="adminHistoryDay"><div class="adminHistoryDayTitle">${mappEsc(dayDateES(day))}</div>${rows.map(r=>`<div class="adminHistoryRow"><div style="min-width:0;flex:1"><div class="adminHistoryMain">${mappEsc(r.time||'Hora no indicada')} · ${mappEsc(r.court||'Pista no indicada')}</div><div class="adminHistoryPlayers">${r.booking?mappEsc(`${r.booking.a||'Jugador sin identificar'} vs ${r.booking.b||'Jugador sin identificar'}`):'Sin reserva registrada'} · ${mappEsc(r.week)}</div>${r.payment?`<div class="ctHistPayPair">${paymentSelect(r,'a')}${paymentSelect(r,'b')}</div>`:(r.booking?'<div class="ctHistPayMsg">Reserva anterior sin registro de pagos: no se puede marcar automáticamente.</div>':'')}</div><span class="adminHistoryTag ${r.booking?'occupied':''}">${r.booking?(r.payment?.paymentA==='paid'&&r.payment?.paymentB==='paid'?'PAGADA':'RESERVA'):'SIN RESERVA'}</span></div>`).join('')}</div>`).join(''):'<div class="adminHistoryEmpty">No hay franjas con estos filtros.</div>';
+ const meta=$('#adminHistoryMeta');if(meta)meta.textContent=`${all.length} registros de histórico`;
+ month.onchange=renderAdminCourtHistory;status.onchange=renderAdminCourtHistory;payFilter.onchange=renderAdminCourtHistory;
+ list.querySelectorAll('[data-ct-payment-id]').forEach(sel=>sel.addEventListener('change',async()=>{
+   if(!isAdmin()||!ctPaymentsV1Loaded)return;
+   const bookingId=sel.dataset.ctPaymentId,side=sel.dataset.ctPaymentSide,payment=sel.value;
+   if(!confirm(`¿Confirmas marcar este pago como ${payment==='paid'?'PAGADO':'PENDIENTE'}?`)){renderAdminCourtHistory();return}
+   sel.disabled=true;
+   try{await apiRequest({action:'setCourtPayment',bookingId,side,payment});await ctRefreshPayments()}
+   catch(e){alert('No se ha guardado el pago: '+String(e.message||e));await ctRefreshPayments()}
+ }));
+}
+function ctConfigureAdminInlineSelectors(){
+ if(!isAdmin())return;
+ const cat=$('#ctPlayerCategory'),gen=$('#ctPlayerGender'),week=$('#ctCourtsWeek');
+ if(cat){cat.innerHTML=CATEGORIES.map(c=>`<option value="${mappEsc(c)}" ${c===state.category?'selected':''}>${mappEsc(c)}</option>`).join('')}
+ if(gen)gen.value=state.gender;
+ if(week){week.innerHTML=weeks.map(w=>`<option value="${mappEsc(w.id)}" ${w.id===state.week?'selected':''}>${mappEsc(w.label)}</option>`).join('')}
+ const switchContext=(values)=>{
+  if(playerEditorDirty && !confirm('Hay cambios sin guardar en la lista de jugadores. ¿Cambiar y descartarlos?')){ctConfigureAdminInlineSelectors();return}
+  playerEditorDirty=false;
+  Object.assign(state,values);
+  renderAll();renderModernAdminContext();
+ };
+ if(cat)cat.onchange=()=>switchContext({category:cat.value,gender:gen?.value||state.gender});
+ if(gen)gen.onchange=()=>switchContext({category:cat?.value||state.category,gender:gen.value});
+ if(week)week.onchange=()=>switchContext({week:week.value});
+ const reload=$('#ctHistPayReload');if(reload)reload.onclick=ctRefreshPayments;
+ const panel=$('#adminCourtHistoryPanel');
+ if(panel&&!panel.dataset.ctPaymentsWired){panel.dataset.ctPaymentsWired='1';panel.addEventListener('toggle',()=>{if(panel.open&&isAdmin())ctRefreshPayments()})}
+ if(panel?.open&&!ctPaymentsV1Loaded&&!ctPaymentsV1Busy)ctRefreshPayments();
 }
 
 function renderAdmin(){
   const admin=isAdmin();
   $('#adminNavBtn').classList.toggle('hidden',!admin);
   if(!admin){$('#adminView').classList.add('hidden');return}
-  const cps=categoryPlayers();if(!playerEditorDirty)$('#playerPaste').value=cps.join('\n');$('#playerCount').textContent=`${cps.length} jugador${cps.length===1?'':'es'}`;$('#fixturePaste').value='';renderFixtureEditor();const cw=weeks.find(w=>w.id===state.week);if(cw){$('#weekStartDate').value=cw.start;$('#weekEndDate').value=cw.end;$('#weekRangeHint').textContent=`Rango actual: ${dayDateES(cw.start)} → ${dayDateES(cw.end)}. Las pistas del borrador se limitarán a estas fechas.`}renderSlotRows();setDefaultQuickDate();renderAdminMatches();renderPins();renderRoles();renderExternalAdmins();renderWhats();renderAdminFunctionalTools();wireAdminFunctionalTools();renderAdminCourtHistory();ctSetupPaymentUI();setupAdminBlockOrdering();
+  const cps=categoryPlayers();if(!playerEditorDirty)$('#playerPaste').value=cps.join('\n');$('#playerCount').textContent=`${cps.length} jugador${cps.length===1?'':'es'}`;$('#fixturePaste').value='';renderFixtureEditor();const cw=weeks.find(w=>w.id===state.week);if(cw){$('#weekStartDate').value=cw.start;$('#weekEndDate').value=cw.end;$('#weekRangeHint').textContent=`Rango actual: ${dayDateES(cw.start)} → ${dayDateES(cw.end)}. Las pistas del borrador se limitarán a estas fechas.`}renderSlotRows();setDefaultQuickDate();renderAdminMatches();renderPins();renderRoles();renderExternalAdmins();renderWhats();renderAdminFunctionalTools();wireAdminFunctionalTools();renderAdminCourtHistory();ctConfigureAdminInlineSelectors();setupAdminBlockOrdering();
 }
 function renderRoles(){
   const tb=$('#roleTable');const ps=allIdentities().filter(p=>!accessIsExcluded(p));
@@ -7544,7 +7619,7 @@ function renderRoles(){
     data.roles[name]=s.value;
     if(s.value==='miembro'||s.value==='admin')data.staff[name]={name};
     restoreAccess(name);
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     try{await saveUsersOnline();await saveStateOnline();renderAll();alert(`Permiso actualizado: ${name} → ${s.value.toUpperCase()}`)}
     catch(e){alert('No se ha podido guardar el permiso.\n\n'+e.message);await refreshOnline({silent:true,force:true})}
   })
@@ -7587,7 +7662,7 @@ function pushStatusDotHtml(name){
 
 /* V22.12 · Datos de WhatsApp locales al navegador del administrador.
    No se escriben ni en el estado público ni en el servidor. */
-const WA_ACCESS_KEY='ctcampeador_test_wa_access_v1';
+const WA_ACCESS_KEY='ctcampeador_prod_wa_access_v1';
 function waGetData(){
   try{const x=JSON.parse(localStorage.getItem(WA_ACCESS_KEY)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}
   catch(e){return {}}
@@ -7828,7 +7903,7 @@ async function deleteAccessUsers(names){
     }
   }
 
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
   try{await saveStateOnline()}catch(_){}
   renderAll();
 
@@ -7870,7 +7945,7 @@ async function createExternalAdmin(){
   if(!pin)pin=randomPin();
   if(!/^\d{6}$/.test(pin)){alert('El PIN debe tener 6 cifras o dejarse vacío para generarlo automáticamente.');return;}
   data.staff[name]={name};data.roles[name]=selectedRole;data.pins[name]=pin;restoreAccess(name);
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
   try{
     await saveUsersOnline();await saveStateOnline();
     $('#newAdminName').value='';$('#newAdminPin').value='';
@@ -7879,7 +7954,7 @@ async function createExternalAdmin(){
     alert(`✅ Usuario creado.\n\n${name}\nTipo: ${selectedRole==='admin'?'Administrador':'Miembro'}\nPIN: ${pin}`);
   }catch(e){
     delete data.staff[name];delete data.roles[name];delete data.pins[name];
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));renderAll();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderAll();
     alert('No se ha podido crear el usuario.\n\n'+e.message);
   }
 }
@@ -7922,7 +7997,7 @@ async function regeneratePinFor(player){
   try{
     const r=await apiRequest({action:'regeneratePin',name:player});
     data.pins[player]=String(r.pin||'');
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderPins();
     const msg=`Hola ${player}. Tu nuevo PIN para reservar pistas en la Liga CT Campeador es ${r.pin}.\n\nAcceso a la web app: https://ligasdetenis.github.io/ct-campeador-pruebas/`;
     const copied=await copyTextRobust(msg);
@@ -8801,7 +8876,7 @@ const MAPP_ICONS={
 function mappIcon(name){return MAPP_ICONS[name]||''}
 
 function mappInitials(name){const p=String(name||'?').trim().split(/\s+/);return (p[0]?.[0]||'')+(p.length>1?p[p.length-1][0]:'')}
-function mappPhotoKey(name){return 'ctcampeador_TEST_profile_photo_'+normalizeName(name)}
+function mappPhotoKey(name){return 'ctcampeador_profile_photo_'+normalizeName(name)}
 function mappLocalPhoto(name){try{return localStorage.getItem(mappPhotoKey(name))||''}catch(_){return ''}}
 function mappPhoto(name){
  const cloud=safeDataImageUrl(data.profiles?.[name]?.photoDataUrl);
@@ -8819,7 +8894,7 @@ async function mappMaybeMigrateLegacyPhoto(name){
    const j=await apiRequest({action:'upsertProfile',profile:{player:name,photoDataUrl:local}});
    data.profiles=data.profiles||{};
    data.profiles[name]=j.profile;
-   localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
  }catch(e){console.warn('Migración de foto:',e)}
  finally{mappPhotoSyncing.delete(name)}
 }
@@ -8945,7 +9020,7 @@ async function adminDeleteResultDirect(matchId,a,b){
   try{
     await apiRequest({action:'deleteResult',matchId});
     if(data.results)delete data.results[matchId];
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     await refreshOnline({silent:true,force:true});
     renderAll();
     alert('🗑️ Resultado eliminado.');
@@ -8962,7 +9037,7 @@ async function adminReleaseBookingDirect(matchId,reservation){
   try{
     await apiRequest({action:'cancelReservation',matchId});
     if(data.bookings)delete data.bookings[matchId];
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     await refreshOnline({silent:true,force:true});
     renderAll();
     alert('🔓 Pista liberada.');
@@ -9887,7 +9962,7 @@ async function mappSavePhoto(e){
    data.profiles=data.profiles||{};
    data.profiles[state.player]=j.profile;
    try{localStorage.setItem(mappPhotoKey(state.player),dataUrl)}catch(_){}
-   localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
    renderAll();
    alert('📷 Foto guardada y sincronizada en Cloudflare.');
  }catch(err){
@@ -9949,7 +10024,7 @@ function renderModernUI(){
  renderModernProfile();
 }
 
-function renderAll(){renderModernHeader();renderTournamentNameEditor();renderMessageAudience();renderMessageHistory();renderTabs();renderWeeks();renderIdentity();renderState();renderMatches();renderSchedule();renderKpis();renderAdmin();updateAdminSummaries();wireAdminCompact();renderPushUI();renderModernUI();renderModernAdminContext()}
+function renderAll(){familyMount();renderModernHeader();renderTournamentNameEditor();renderMessageAudience();renderMessageHistory();renderTabs();renderWeeks();renderIdentity();renderState();renderMatches();renderSchedule();renderKpis();renderAdmin();updateAdminSummaries();wireAdminCompact();renderPushUI();renderModernUI();renderModernAdminContext();familyRenderButton()}
 
 
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=mappIcon(el.dataset.icon));
@@ -10000,9 +10075,9 @@ $('#welcomePin').addEventListener('input',e=>{
 $('#welcomePin').addEventListener('keydown',e=>{if(e.key==='Enter')loginWithPinOnly()});
 
 $('#playerIdentity').onchange=e=>{if(!state.authenticated)state.player=e.target.value;$('#playerPin').value='';renderIdentity()};
-$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);ctcSelectCalendarWeekOnEntry();$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
+$('#loginBtn').onclick=async()=>{const player=$('#playerIdentity').value,pin=$('#playerPin').value.trim();if(!player){alert('Selecciona tu nombre.');return}if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce un PIN válido de 6 cifras. Los PIN antiguos de 4 siguen funcionando.');return}try{$('#loginBtn').disabled=true;const j=await apiRequest({action:'login',name:player,pin},{auth:false});apiToken=j.token;familyMode=false;familyActive='';familyLinks=[];localStorage.setItem(TOKEN_KEY,apiToken);state.player=j.user.name;state.authenticated=true;data.roles[state.player]=localRoleFromApi(j.user.role);if(isAdmin())await loadAdminUsers();routePlayerToOwnCategory(state.player);ctcSelectCalendarWeekOnEntry();$('#playerPin').value='';setOnline(true,'☁️ Online');await refreshOnline({silent:true,force:true});connectRealtime();renderAll();queuePushDeepLink()}catch(e){alert('No se ha podido iniciar sesión.\n\n'+e.message)}finally{$('#loginBtn').disabled=false}};
 $('#playerPin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});
-$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(MAPP_LAST_TAB_KEY);adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
+$('#clearIdentity').onclick=async()=>{stopRealtime();try{if(apiToken)await apiRequest({action:'logout'})}catch(e){}apiToken='';localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(MAPP_LAST_TAB_KEY);localStorage.removeItem(FAMILY_SELECTION_KEY);familyMode=false;familyActive='';familyLinks=[];document.querySelector('#familyAccountPanel')?.setAttribute('hidden','');adminCloudOrderLoadedFor='';state.player='';state.authenticated=false;$('#playerPin').value='';renderAll();showPinWelcome('Introduce tu PIN para cambiar de usuario.',false)};
 $$('.gender').forEach(b=>b.onclick=()=>{state.gender=b.dataset.gender;renderAll()});
 $('#weekSelect').onchange=e=>{state.week=e.target.value;renderAll()};
 function openNativeDatePicker(inputId){
@@ -10019,7 +10094,7 @@ $('#openWeekEndCal').onclick=()=>openNativeDatePicker('#weekEndDate');
 $('#weekStartDate').addEventListener('click',()=>{try{if(typeof $('#weekStartDate').showPicker==='function')$('#weekStartDate').showPicker()}catch(e){}});
 $('#weekEndDate').addEventListener('click',()=>{try{if(typeof $('#weekEndDate').showPicker==='function')$('#weekEndDate').showPicker()}catch(e){}});
 
-$('#externalRound').addEventListener('input',e=>{if(!requireAdmin())return;const round=e.target.value;setJourneyName(state.week,round);if(round.trim())data.fixtureRounds[fixtureKey()]=round.trim();else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));markFixtureDirty();renderJourneyNavigator();});
+$('#externalRound').addEventListener('input',e=>{if(!requireAdmin())return;const round=e.target.value;setJourneyName(state.week,round);if(round.trim())data.fixtureRounds[fixtureKey()]=round.trim();else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderJourneyNavigator();});
 ['#weekStartDate','#weekEndDate'].forEach(id=>$(id).addEventListener('change',()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(start&&end&&start<=end){setWeekRangeLocal(start,end);const h=$('#weekRangeHint');if(h)h.textContent=`Rango sin guardar: ${dayDateES(start)} → ${dayDateES(end)}. Pulsa “Guardar jornada” para publicarlo.`}else if(start&&end){alert('La fecha de inicio no puede ser posterior a la fecha final.')}}));
 $('#prevWeek').onclick=()=>{let i=weeks.findIndex(w=>w.id===state.week);if(i>0){state.week=weeks[i-1].id;renderAll()}};
 $('#nextWeek').onclick=()=>{let i=weeks.findIndex(w=>w.id===state.week);if(i<weeks.length-1){state.week=weeks[i+1].id;renderAll()}};
@@ -10055,7 +10130,7 @@ $('#savePlayers').onclick=async()=>{
     data.playerLists[key]=list;
 
     // Guardamos primero la pertenencia deportiva.
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderIdentity(); renderAdmin();
     await saveStateOnline();
 
@@ -10082,7 +10157,7 @@ $('#savePlayers').onclick=async()=>{
         data.roles[canonicalName]=localRoleFromApi(u.role);
       }
 
-      localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
       await saveStateOnline();
     }
 
@@ -10110,7 +10185,7 @@ $('#clearPlayers').onclick=async()=>{
   // Vaciar una categoría solo elimina la pertenencia deportiva.
   // El usuario, su PIN y sus avisos se conservan hasta borrarlos expresamente desde Administración.
   playerEditorDirty=false;
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
   renderAll();
 
   try{
@@ -10161,7 +10236,7 @@ function addJourney(){
   syncWeeksIntoData();
   state.week=id;
   fixtureEditorDirty=true;
-  localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
   renderAll();
   renderModernAdminContext();
   $('#journeySettingsPanel')?.classList.remove('hidden');
@@ -10271,7 +10346,7 @@ async function importCompleteLeagueFile(file){
   if(!ok)return;
   const btn=$('#importCompleteLeagueBtn'), oldLabel=btn?.textContent;
   if(btn){btn.disabled=true;btn.textContent='Importando…';}
-  const backup=v4SafeStateJSON(data),backupWeeks=weeks.map(w=>({...w})),oldCategory=state.category,oldGender=state.gender,oldWeek=state.week;
+  const backup=JSON.stringify(data),backupWeeks=weeks.map(w=>({...w})),oldCategory=state.category,oldGender=state.gender,oldWeek=state.week;
   let remoteSaved=false;
   try{
     if(!apiToken)throw new Error('Falta la conexión de administrador con Cloudflare.');
@@ -10292,7 +10367,7 @@ async function importCompleteLeagueFile(file){
       data.fixtures[key]=schedule[i].map(([a,b])=>({id:`${key}|${slug(a)}|${slug(b)}`,a,b}));
     }
     ensurePins();syncWeeksIntoData();
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     await saveStateOnline();remoteSaved=true;
     await saveUsersOnline();
     fixtureEditorDirty=false;playerEditorDirty=false;
@@ -10300,7 +10375,7 @@ async function importCompleteLeagueFile(file){
     renderAll();renderModernAdminContext();
     alert(`✅ Importación completada.\n\n${category} · ${gender}\n${schedule.length} jornadas · ${total} partidos\n${missingCount} jornadas creadas automáticamente\n${newAccounts.length} usuarios nuevos con PIN\n${reusedFromOtherCategory.length} usuarios ya existentes reutilizados.\n\nRevisa los PIN nuevos en Administración → Usuarios antes de entregárselos a sus titulares.`);
   }catch(e){
-    if(!remoteSaved){weeks.splice(0,weeks.length,...backupWeeks);data=normalizeData(JSON.parse(backup));state.category=oldCategory;state.gender=oldGender;state.week=oldWeek;localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));}
+    if(!remoteSaved){weeks.splice(0,weeks.length,...backupWeeks);data=normalizeData(JSON.parse(backup));state.category=oldCategory;state.gender=oldGender;state.week=oldWeek;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
     renderAll();renderModernAdminContext();
     alert((remoteSaved?'Los partidos ya se guardaron, pero falló la sincronización de usuarios. No repitas la importación; revisa Usuarios.':'No se completó la importación y se recuperaron los datos locales anteriores.')+'\n\n'+(e.message||e));
   }finally{if(btn){btn.disabled=false;btn.textContent=oldLabel;}}
@@ -10316,9 +10391,9 @@ if($('#publishAllJourneysBtn'))$('#publishAllJourneysBtn').onclick=publishAllJou
 
 if($('#futureFixturesBtn'))$('#futureFixturesBtn').onclick=openFutureFixturesPlanner;
 $('#importFixtures').onclick=()=>{if(!requireAdmin())return;const {pairs,unknown}=parseFixtureText($('#fixturePaste').value);if(!pairs.length){alert('No he encontrado enfrentamientos válidos en el texto.');return}let added=0;for(const [a,b] of pairs)if(addFixturePair(a,b,{silent:true}))added++;renderFixtureEditor();renderMatches();$('#fixtureImportStatus').textContent=`${added} partido${added===1?'':'s'} añadido${added===1?'':'s'}.`+(unknown.length?` ⚠ Nombres no encontrados exactamente en la lista: ${unknown.join(', ')}`:' Todos los nombres coinciden con la categoría.');};
-$('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(!start||!end){alert('Indica el inicio y el fin de la semana.');return}if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return}data.weekRanges=data.weekRanges||{};data.weekRanges[state.week]={start,end};applyWeekRanges();trimDraftToCurrentWeek({persist:false});trimStoredAvailabilityToCurrentWeek();persistDraft();const round=$('#externalRound').value.trim();setJourneyName(state.week,round);if(round)data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();ensurePins();localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));const btn=$('#saveFixtures'),oldTxt=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{await saveStateOnline();await saveUsersOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado');await refreshOnline({silent:true,force:true});const js=$('#journeySaveState');if(js){js.textContent='✓ Jornada sincronizada';js.classList.remove('dirty');js.classList.add('ok')}alert(`✅ Jornada guardada.\n\n${round||weeks.find(w=>w.id===state.week).label}\n${fixtures().length} partido${fixtures().length===1?'':'s'}.`)}catch(e){fixtureEditorDirty=true;setOnline(true,'✏️ Sin guardar');alert('No se ha podido guardar la jornada online.\n\n'+e.message)}finally{btn.disabled=false;btn.textContent=oldTxt}};
-$('#clearFixtures').onclick=async()=>{if(!requireAdmin())return;if(confirm('¿Vaciar todos los enfrentamientos de esta categoría y jornada?')){delete data.fixtures[fixtureKey()];delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));markFixtureDirty();renderAll();try{await saveStateOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado')}catch(e){alert(e.message)}}};
-$('#copyPrevFixtures').onclick=()=>{if(!requireAdmin())return;const i=weeks.findIndex(w=>w.id===state.week);if(i<=0){alert('No hay una semana anterior para copiar.');return}const prevKey=`${weeks[i-1].id}|${state.category}|${state.gender}`;const prev=data.fixtures[prevKey]||[];if(!prev.length){alert('La semana anterior no tiene enfrentamientos en esta categoría.');return}if(fixtures().length&&!confirm('Ya hay enfrentamientos en esta jornada. ¿Sustituirlos por los de la semana anterior?'))return;data.fixtures[fixtureKey()]=prev.map(m=>makeFixture(m.a,m.b));data.fixtureRounds[fixtureKey()]=data.fixtureRounds?.[prevKey]||'';localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));markFixtureDirty();renderFixtureEditor();renderMatches()};
+$('#saveFixtures').onclick=async()=>{if(!requireAdmin())return;const start=$('#weekStartDate').value,end=$('#weekEndDate').value;if(!start||!end){alert('Indica el inicio y el fin de la semana.');return}if(start>end){alert('La fecha de inicio no puede ser posterior a la fecha final.');return}data.weekRanges=data.weekRanges||{};data.weekRanges[state.week]={start,end};applyWeekRanges();trimDraftToCurrentWeek({persist:false});trimStoredAvailabilityToCurrentWeek();persistDraft();const round=$('#externalRound').value.trim();setJourneyName(state.week,round);if(round)data.fixtureRounds[fixtureKey()]=round;else delete data.fixtureRounds[fixtureKey()];syncWeeksIntoData();ensurePins();localStorage.setItem(STORAGE_KEY,JSON.stringify(data));const btn=$('#saveFixtures'),oldTxt=btn.textContent;btn.disabled=true;btn.textContent='⏳ Guardando…';try{await saveStateOnline();await saveUsersOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado');await refreshOnline({silent:true,force:true});const js=$('#journeySaveState');if(js){js.textContent='✓ Jornada sincronizada';js.classList.remove('dirty');js.classList.add('ok')}alert(`✅ Jornada guardada.\n\n${round||weeks.find(w=>w.id===state.week).label}\n${fixtures().length} partido${fixtures().length===1?'':'s'}.`)}catch(e){fixtureEditorDirty=true;setOnline(true,'✏️ Sin guardar');alert('No se ha podido guardar la jornada online.\n\n'+e.message)}finally{btn.disabled=false;btn.textContent=oldTxt}};
+$('#clearFixtures').onclick=async()=>{if(!requireAdmin())return;if(confirm('¿Vaciar todos los enfrentamientos de esta categoría y jornada?')){delete data.fixtures[fixtureKey()];delete data.fixtureRounds[fixtureKey()];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderAll();try{await saveStateOnline();fixtureEditorDirty=false;setOnline(true,'☁️ Guardado')}catch(e){alert(e.message)}}};
+$('#copyPrevFixtures').onclick=()=>{if(!requireAdmin())return;const i=weeks.findIndex(w=>w.id===state.week);if(i<=0){alert('No hay una semana anterior para copiar.');return}const prevKey=`${weeks[i-1].id}|${state.category}|${state.gender}`;const prev=data.fixtures[prevKey]||[];if(!prev.length){alert('La semana anterior no tiene enfrentamientos en esta categoría.');return}if(fixtures().length&&!confirm('Ya hay enfrentamientos en esta jornada. ¿Sustituirlos por los de la semana anterior?'))return;data.fixtures[fixtureKey()]=prev.map(m=>makeFixture(m.a,m.b));data.fixtureRounds[fixtureKey()]=data.fixtureRounds?.[prevKey]||'';localStorage.setItem(STORAGE_KEY,JSON.stringify(data));markFixtureDirty();renderFixtureEditor();renderMatches()};
 if($('#courtsAddQuick'))$('#courtsAddQuick').onclick=()=>{if(!requireAdmin())return;const panel=$('#courtsCustomPanel');if(panel){panel.scrollIntoView({behavior:'smooth',block:'center'});const inp=$('#customDate');if(inp&&adminCourtsDay)inp.value=adminCourtsDay;setTimeout(()=>$('#customFrom')?.focus(),250)}};
 if($('#addCourtBtn'))$('#addCourtBtn').onclick=addNextCourtForCurrentDay;
 if($('#saveDraftSlots'))$('#saveDraftSlots').onclick=async()=>{
@@ -10328,7 +10403,7 @@ if($('#saveDraftSlots'))$('#saveDraftSlots').onclick=async()=>{
   try{
     if(!data.drafts)data.drafts={};
     data.drafts[weekKey()]=draftSlots.map(x=>({...x}));
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     await saveStateOnline();
     setOnline(true,'☁️ Borrador guardado');
     if(status)status.textContent=`✅ Borrador guardado online · ${draftSlots.length} franja${draftSlots.length===1?'':'s'} · todavía no visible para los jugadores.`;
@@ -10367,7 +10442,7 @@ $('#publishSlots').onclick=async()=>{
     if(!data.drafts)data.drafts={};
     data.drafts[weekKey()]=ss.map(x=>({...x}));
     data.published[weekKey()]=true;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     await saveStateOnline();
     setOnline(true,'☁️ Publicado');
@@ -10388,7 +10463,7 @@ $('#publishSlots').onclick=async()=>{
     if(!data.drafts)data.drafts={};
     if(prevDraft===undefined)delete data.drafts[weekKey()];else data.drafts[weekKey()]=prevDraft;
     data.published[weekKey()]=prevPublished;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     setOnline(false,'⚠️ No publicado');
     if(status)status.textContent='❌ No se pudo publicar. El borrador se conserva.';
@@ -10424,7 +10499,7 @@ $('#closeSlots').onclick=async()=>{
   const prev=data.published[weekKey()];
   try{
     data.published[weekKey()]=false;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     await saveStateOnline();
     setOnline(true,'☁️ Despublicado');
@@ -10432,7 +10507,7 @@ $('#closeSlots').onclick=async()=>{
     alert('📴 Disponibilidad despublicada.\n\nLas reservas están cerradas y el borrador sigue guardado para poder corregirlo y volver a publicarlo.');
   }catch(e){
     data.published[weekKey()]=prev;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderAll();
     setOnline(false,'⚠️ No despublicado');
     if(status)status.textContent='❌ No se pudo despublicar online.';
@@ -10563,7 +10638,7 @@ $('#saveTournamentName').onclick=async()=>{
   try{
     const r=await apiRequest({action:'saveTournamentName',tournamentName:name});
     data.tournamentName=String(r.tournamentName||name);
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderModernHeader();
     renderTournamentNameEditor();
     alert('✅ Nombre del torneo guardado y sincronizado.');
@@ -10578,7 +10653,7 @@ $('#resetTournamentName').onclick=async()=>{
     const r=await apiRequest({action:'saveTournamentName',tournamentName:'II Liga Federada'});
     data.tournamentName=String(r.tournamentName||'II Liga Federada');
     const input=$('#tournamentNameInput');if(input)input.value=data.tournamentName;
-    localStorage.setItem(STORAGE_KEY,v4SafeStateJSON(data));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
     renderModernHeader();
   }catch(e){alert('No se ha podido restablecer.\n\n'+e.message)}
 };
