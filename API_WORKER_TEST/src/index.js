@@ -233,49 +233,49 @@ var BookingCoordinator = class extends DurableObject {
     // Los comandos DO son internos. La API externa autentica cada acceso.
     if (action === "familyCreate") {
       const id=String(body.id||''),name=String(body.name||'').trim(),salt=String(body.salt||''),hash=String(body.hash||'');
-      if (!id||!name||!salt||!hash)return {ok:false,error:'Datos incompletos'};
+      if (!id||!name||!salt||!hash)return doJson({ok:false,error:'Datos incompletos'});
       try{this.sql.exec('INSERT INTO family_accounts(id,name,salt,pin_hash,created_at) VALUES(?,?,?,?,?)',id,name,salt,hash,new Date().toISOString());}
-      catch(e){return {ok:false,error:'Ya existe una cuenta familiar con ese nombre'};}
-      return {ok:true,id,name};
+      catch(e){return doJson({ok:false,error:'Ya existe una cuenta familiar con ese nombre'});}
+      return doJson({ok:true,id,name});
     }
     if (action === "familyGetByName") {
       const rows=[...this.sql.exec('SELECT * FROM family_accounts WHERE name=? COLLATE NOCASE AND active=1 LIMIT 1',String(body.name||''))];
-      return {ok:true,account:rows[0]||null};
+      return doJson({ok:true,account:rows[0]||null});
     }
     if (action === "familyGet") {
       const rows=[...this.sql.exec('SELECT id,name,active FROM family_accounts WHERE id=? LIMIT 1',String(body.id||''))];
-      return {ok:true,account:rows[0]||null};
+      return doJson({ok:true,account:rows[0]||null});
     }
     if (action === "familyLinks") {
       const rows=[...this.sql.exec('SELECT player_name AS playerName,status,requested_at AS requestedAt,decided_at AS decidedAt FROM family_links WHERE family_id=? ORDER BY requested_at',String(body.id||''))];
-      return {ok:true,links:rows};
+      return doJson({ok:true,links:rows});
     }
     if (action === "familyLinkRequest") {
       const id=String(body.id||''),player=String(body.player||'').trim();
-      if(!id||!player)return {ok:false,error:'Datos incompletos'};
+      if(!id||!player)return doJson({ok:false,error:'Datos incompletos'});
       const prior=[...this.sql.exec('SELECT status FROM family_links WHERE family_id=? AND player_name=?',id,player)];
-      if(prior[0]?.status==='approved')return {ok:true,status:'approved'};
+      if(prior[0]?.status==='approved')return doJson({ok:true,status:'approved'});
       this.sql.exec(`INSERT INTO family_links(family_id,player_name,status,requested_at,decided_at,decided_by)
         VALUES(?,?,'pending',?,NULL,NULL)
         ON CONFLICT(family_id,player_name) DO UPDATE SET status='pending',requested_at=excluded.requested_at,decided_at=NULL,decided_by=NULL`,id,player,new Date().toISOString());
-      return {ok:true,status:'pending'};
+      return doJson({ok:true,status:'pending'});
     }
     if (action === "familyAllowed") {
       const rows=[...this.sql.exec(`SELECT 1 AS yes FROM family_links l JOIN family_accounts a ON a.id=l.family_id
         WHERE l.family_id=? AND l.player_name=? COLLATE NOCASE AND l.status='approved' AND a.active=1 LIMIT 1`,String(body.id||''),String(body.player||''))];
-      return {ok:true,allowed:!!rows.length};
+      return doJson({ok:true,allowed:!!rows.length});
     }
     if (action === "familyRequests") {
       const rows=[...this.sql.exec(`SELECT l.family_id AS familyId,a.name AS familyName,l.player_name AS playerName,
         l.status,l.requested_at AS requestedAt FROM family_links l JOIN family_accounts a ON a.id=l.family_id
         WHERE a.active=1 ORDER BY CASE WHEN l.status='pending' THEN 0 ELSE 1 END,l.requested_at DESC LIMIT 250`)];
-      return {ok:true,requests:rows};
+      return doJson({ok:true,requests:rows});
     }
     if (action === "familyDecision") {
       const id=String(body.id||''),player=String(body.player||''),status=String(body.status||'');
-      if(!['approved','rejected','revoked'].includes(status))return {ok:false,error:'Estado inválido'};
+      if(!['approved','rejected','revoked'].includes(status))return doJson({ok:false,error:'Estado inválido'});
       this.sql.exec('UPDATE family_links SET status=?,decided_at=?,decided_by=? WHERE family_id=? AND player_name=?',status,new Date().toISOString(),String(body.who||''),id,player);
-      return {ok:true};
+      return doJson({ok:true});
     }
     if (action === "familyRecipients") {
       const names=Array.isArray(body.players)?body.players.map(v=>String(v||'').trim()).filter(Boolean).slice(0,250):[];
@@ -285,7 +285,7 @@ var BookingCoordinator = class extends DurableObject {
           WHERE l.player_name=? COLLATE NOCASE AND l.status='approved' AND a.active=1`,player)];
         for(const r of rows)recipients.push('FAMILIA:'+r.name);
       }
-      return {ok:true,recipients:[...new Set(recipients)]};
+      return doJson({ok:true,recipients:[...new Set(recipients)]});
     }
     if (action === "loginGate") {
       const key = String(body.key || "").slice(0, 180);
