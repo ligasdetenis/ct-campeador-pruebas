@@ -5143,8 +5143,16 @@ function familyMount(){
  #familyAccountPanel button.familySecondary{background:#fff;border-color:#e6d8dc;color:#ad001b}
  #familyAccountPanel button.familyPlayer{display:flex;align-items:center;text-align:left;gap:11px;width:100%;background:#fff;border:1px solid #e7e7ea;color:#24262b}
  #familyAccountPanel button.familyPlayer.approved{border:2px solid #29a367;background:#f0fbf4;color:#0d663d}
+ #familyAccountPanel .familyAvatar{width:42px;height:42px;min-width:42px;border-radius:50%;background:#f3e4e7 center/cover no-repeat;border:2px solid #e6d5d9;display:grid;place-items:center;color:#8d001b;font-size:13px;font-weight:900;letter-spacing:.02em;overflow:hidden}
+ #familyAccountPanel button.familyPlayer.approved .familyAvatar{border-color:#55ae82}
  #familyAccountPanel .familyRow{padding:12px 0;border-bottom:1px solid #ececef;color:#30343b;font-size:12px}
  #familyAccountPanel .familyRow:last-child{border-bottom:0}
+ .familyMessageActions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+ .familyInboxOpen,.familyInboxDelete{min-height:36px;padding:8px 12px;border-radius:10px;border:1px solid #e6d7da;background:#fff;color:#8b0019;font:800 12px Inter,system-ui,sans-serif;cursor:pointer}
+ .familyInboxOpen{background:#930019;color:white;border-color:#930019}
+ .familyInboxDelete{background:#fff5f5;color:#9f142d;border-color:#f0d4da;margin-top:8px}
+ .familyMessageActions .familyInboxDelete{margin-top:0}
+ .familyMessageActions .familyAvatar{width:27px!important;height:27px!important;min-width:27px!important;font-size:10px!important}
  #familyAccountPanel .familyChip{display:inline-block;background:#fff2d6;color:#936006;border:1px solid #f1dfad;padding:5px 8px;border-radius:99px;font-weight:800;font-size:10px}
  #familyAccountPanel .familyStat{background:#fff7e1;border:1px solid #f0dfae;border-radius:12px;padding:11px 13px;font-size:12px;color:#75531c}
  #familyAccountPanel #familyClose{position:sticky;z-index:4;float:right;top:12px;right:13px;margin:12px 13px -51px 0;width:37px;height:37px;min-height:37px;line-height:1;padding:0;border:1px solid #ffffff5c;background:#ffffff20;color:white;border-radius:50%;font-size:20px}
@@ -5181,11 +5189,16 @@ async function familySelect(player,{openPanel=true,refreshPending=true}={}){
  await refreshOnline({silent:true,force:true});routePlayerToOwnCategory(player);renderAll();if(openPanel)familyOpen();if(refreshPending)setTimeout(()=>ctPendingScan().catch(console.warn),120);
  try{const sub=await currentPushSubscription();if(sub)await apiRequest({action:'subscribePush',deviceId:getPushDeviceId(),subscription:sub.toJSON()});}catch(e){console.warn('Push familiar pendiente de sincronizar',e)}
 }
+function familyPlayerAvatar(name){
+ const photo=mappPhoto(name);
+ const style=photo?` style="background-image:url('${photo.replace(/'/g,'%27')}')"`:'';
+ return `<span class="familyAvatar"${style}>${photo?'':mappEsc(mappInitials(name))}</span>`;
+}
 function familyOpen(){
  const active=familyLinks.filter(l=>l.status==='approved'),pending=familyLinks.filter(l=>l.status!=='approved');
  const el=familyBox(`<div class="familyHead"><div class="familyEyebrow">CT Campeador · Mi familia</div><h3>${familyEsc(familyName)}</h3><p>Selecciona un jugador para gestionar sus partidos, pistas y resultados.</p></div>
  <div class="familyBody"><section class="familyCard"><button class="familyPrimary" style="width:100%;font-size:14px" id="familyAllMessages">✉️ Mensajes de todos los jugadores</button></section><section class="familyCard"><h4 class="familySection">🎾 Jugadores vinculados</h4>
- ${active.map(l=>`<button type="button" data-family-player="${familyEsc(l.playerName)}" class="familyPlayer ${l.playerName===familyActive?'approved':''}" style="margin-bottom:9px"><span style="font-size:21px">🎾</span><span style="flex:1">${familyEsc(l.playerName)}</span><span>${l.playerName===familyActive?'✓ Activo':'Cambiar'}</span></button>`).join('')||'<p class="familyHelp">Todavía no hay jugadores autorizados. Vincula el primero con su PIN.</p>'}
+ ${active.map(l=>`<button type="button" data-family-player="${familyEsc(l.playerName)}" class="familyPlayer ${l.playerName===familyActive?'approved':''}" style="margin-bottom:9px">${familyPlayerAvatar(l.playerName)}<span style="flex:1">${familyEsc(l.playerName)}</span><span>${l.playerName===familyActive?'✓ Activo':'Cambiar'}</span></button>`).join('')||'<p class="familyHelp">Todavía no hay jugadores autorizados. Vincula el primero con su PIN.</p>'}
  ${pending.map(l=>`<div class="familyRow"><span class="familyChip">${familyEsc(l.status==='pending'?'⏳ Pendiente':l.status==='revoked'?'Revocado':'No autorizado')}</span> &nbsp;${familyEsc(l.playerName)}</div>`).join('')}
  </section><section class="familyCard"><h4 class="familySection">➕ Vincular un jugador</h4><p class="familyHelp">Introduce únicamente su PIN personal. Identificaremos su nombre automáticamente y enviaremos la solicitud al administrador.</p>
  <label for="familyPlayerPin" class="familyField">PIN del jugador (4 o 6 cifras)</label><input id="familyPlayerPin" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="••••••" autocomplete="off">
@@ -9847,6 +9860,15 @@ async function familyFetchInbox(){
   familyInboxCache=Array.isArray(r.messages)?r.messages:[];
   return r;
 }
+async function familyHideMessage(m){
+ if(!m?.id||!m?.playerName)return;
+ if(!confirm(`¿Quitar este mensaje solo del buzón de ${m.playerName}?\n\nLos demás destinatarios y el administrador conservarán su copia.`))return;
+ await apiRequest({action:'hideOwnMessage',id:m.id,familyPlayer:m.playerName});
+ await loadCloudMessages({silent:true});
+ await familyShowInbox();
+ renderModernProfile({skipMessageLoad:true});
+ if(typeof ctPendingScan==='function')ctPendingScan().catch(console.warn);
+}
 async function familyShowInbox(){
   if(!familyMode)return openMessagesInbox();
   let inbox;
@@ -9856,14 +9878,17 @@ async function familyShowInbox(){
   const items=inbox.messages||[];
   const unread=items.filter(m=>!m.read).length;
   modal.innerHTML=`<div class="mapp-msg-sheet" style="max-width:570px"><div class="mapp-msg-head" style="background:linear-gradient(120deg,#57000c,#9f0018);color:white;padding:17px;border-radius:14px 14px 0 0"><div><small style="color:#f6cb58;font-weight:900;letter-spacing:.08em">CT CAMPEADOR · MI FAMILIA</small><h3 style="margin:4px 0">Mensajes familiares</h3><span style="font-size:12px">${unread} sin leer · ${items.length} comunicaciones</span></div><button class="mapp-msg-close" type="button" aria-label="Cerrar">×</button></div>
-   <div class="mapp-msg-list">${items.length?items.map((m,i)=>`<button type="button" data-family-msg="${i}" class="mapp-msg-card ${m.read?'':'unread'}" style="width:100%;display:block;text-align:left;border-radius:12px;margin:8px 0;padding:13px;cursor:pointer"><span style="display:inline-block;background:#fff0d9;color:#7b2738;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:900">🎾 ${familyEsc(m.playerName)}</span><div class="mapp-msg-title" style="margin-top:8px">${familyEsc(m.title||'Aviso')}</div><div class="mapp-msg-body">${familyEsc(m.body||'')}</div><div class="mapp-msg-date">${m.at?new Date(m.at).toLocaleString('es-ES'):'—'} · ${familyEsc(m.sentBy||'Club')}</div><small>${m.read?'✓ Leído':'● Sin leer'} · Tocar para abrir como ${familyEsc(m.playerName)}</small></button>`).join(''):'<div class="mapp-msg-empty">No hay mensajes para los jugadores autorizados.</div>'}</div></div>`;
+   <div class="mapp-msg-list">${items.length?items.map((m,i)=>`<div class="mapp-msg-card ${m.read?'':'unread'}" style="border-radius:12px;margin:8px 0;padding:13px"><div style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;align-items:center;gap:7px;background:#fff0d9;color:#7b2738;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:900">${familyPlayerAvatar(m.playerName)} ${familyEsc(m.playerName)}</span></div><div class="mapp-msg-title" style="margin-top:8px">${familyEsc(m.title||'Aviso')}</div><div class="mapp-msg-body">${familyEsc(m.body||'')}</div><div class="mapp-msg-date">${m.at?new Date(m.at).toLocaleString('es-ES'):'—'} · ${familyEsc(m.sentBy||'Club')}</div><div class="familyMessageActions"><button type="button" data-family-msg="${i}" class="familyInboxOpen">${m.read?'Ver como '+familyEsc(m.playerName):'● Abrir y marcar leído'}</button><button type="button" data-family-hide="${i}" class="familyInboxDelete" aria-label="Eliminar solo del buzón de ${familyEsc(m.playerName)}">Eliminar de mi buzón</button></div></div>`).join(''):'<div class="mapp-msg-empty">No hay mensajes para los jugadores autorizados.</div>'}</div></div>`;
   document.body.append(modal);
   const close=()=>{modal.remove();renderModernProfile({skipMessageLoad:true})};
   modal.querySelector('.mapp-msg-close').onclick=close;
   modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  modal.querySelectorAll('[data-family-hide]').forEach(b=>b.onclick=async()=>{
+    const m=items[Number(b.dataset.familyHide)];if(!m)return;b.disabled=true;
+    try{await familyHideMessage(m)}catch(e){alert('No se pudo eliminar: '+e.message);b.disabled=false}
+  });
   modal.querySelectorAll('[data-family-msg]').forEach(b=>b.onclick=async()=>{
-    const m=items[Number(b.dataset.familyMsg)];if(!m)return;
-    b.disabled=true;
+    const m=items[Number(b.dataset.familyMsg)];if(!m)return;b.disabled=true;
     try{
       await familySelect(m.playerName,{openPanel:false,refreshPending:false});
       if(!m.read){await apiRequest({action:'markMessagesRead',ids:[m.id],familyPlayer:m.playerName});m.read=true}
@@ -9889,10 +9914,11 @@ function renderOpenMessagesInboxFromCache(){
   if(!list)return;
   const messages=mappUserMessages();
   list.innerHTML=messages.length
-    ? messages.map(m=>`<div class="mapp-msg-card ${m.read?'':'unread'}">
+    ? messages.map((m,i)=>`<div class="mapp-msg-card ${m.read?'':'unread'}">
         <div class="mapp-msg-title">${mappEsc(m.title||'Aviso')}</div>
         <div class="mapp-msg-body">${mappEsc(m.body||'')}</div>
         <div class="mapp-msg-date">${m.at?new Date(m.at).toLocaleString('es-ES'):'—'} · ${mappEsc(m.sentBy||'Administrador')}</div>
+        ${!isAdmin()?`<button type="button" class="familyInboxDelete" data-own-hide="${i}">Eliminar de mi buzón</button>`:''}
       </div>`).join('')
     : '<div class="mapp-msg-empty">No tienes mensajes.</div>';
 }
@@ -9907,10 +9933,11 @@ async function openMessagesInbox({highlightId=''}={}){
     <div class="mapp-msg-head"><h3>Mensajes</h3><button class="mapp-msg-close" type="button" aria-label="Cerrar">×</button></div>
     <div class="mapp-msg-list">${
       messages.length
-        ? messages.map(m=>`<div class="mapp-msg-card ${m.read?'':'unread'}">
+        ? messages.map((m,i)=>`<div class="mapp-msg-card ${m.read?'':'unread'}">
             <div class="mapp-msg-title">${mappEsc(m.title||'Aviso')}</div>
             <div class="mapp-msg-body">${mappEsc(m.body||'')}</div>
             <div class="mapp-msg-date">${m.at?new Date(m.at).toLocaleString('es-ES'):'—'} · ${mappEsc(m.sentBy||'Administrador')}</div>
+            ${!isAdmin()?`<button type="button" class="familyInboxDelete" data-own-hide="${i}">Eliminar de mi buzón</button>`:''}
           </div>`).join('')
         : '<div class="mapp-msg-empty">No tienes mensajes.</div>'
     }</div>
@@ -9919,6 +9946,18 @@ async function openMessagesInbox({highlightId=''}={}){
   const close=()=>{modal.remove();renderModernProfile()};
   modal.querySelector('.mapp-msg-close')?.addEventListener('click',close);
   modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  modal.querySelectorAll('[data-own-hide]').forEach(btn=>btn.addEventListener('click',async()=>{
+    const m=messages[Number(btn.dataset.ownHide)];if(!m)return;
+    if(!confirm('¿Quitar este mensaje únicamente de tu buzón?\n\nLos demás destinatarios conservarán su copia.'))return;
+    btn.disabled=true;
+    try{
+      await apiRequest({action:'hideOwnMessage',id:m.id});
+      await loadCloudMessages({silent:false});
+      await openMessagesInbox({highlightId:m.id});
+      renderModernProfile({skipMessageLoad:true});
+      if(typeof ctPendingScan==='function')ctPendingScan().catch(console.warn);
+    }catch(e){alert('No se pudo eliminar: '+e.message);btn.disabled=false}
+  }));
 
   const unread=messages.filter(m=>!m.read).map(m=>m.id).filter(Boolean);
   if(unread.length){
