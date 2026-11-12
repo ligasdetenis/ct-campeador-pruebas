@@ -5116,7 +5116,7 @@ const PUSH_RESYNC_MS=7*24*60*60*1000;  // revalidación push como máximo una ve
 let lastRefreshAt=0;
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));if(isAdmin()&&apiToken){clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveStateOnline().catch(console.warn),350)}}
 function publicState(){return {tournamentName:data.tournamentName||'II Liga Federada',playerLists:data.playerLists,fixtures:data.fixtures,fixtureRounds:data.fixtureRounds,slots:data.slots,drafts:data.drafts,published:data.published,bookings:data.bookings,reservations:data.bookings,results:data.results,staff:data.staff,accessExcluded:data.accessExcluded||[],adminRoles:Object.fromEntries(Object.entries(data.roles||{}).filter(([,r])=>r==='admin')),weekRanges:data.weekRanges||{},postponed:data.postponed||{},fixtureVisibilityOverrides:data.fixtureVisibilityOverrides||{},weeks:Object.fromEntries(weeks.map(w=>[w.id,w])),updatedAt:new Date().toISOString()}}
-async function apiRequest(payload,{auth=true}={}){const headers={'Content-Type':'application/json'};if(auth&&apiToken)headers.Authorization='Bearer '+apiToken;const safePayload=auth&&familyMode&&familyActive?{...payload,familyPlayer:familyActive}:payload;const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),9000);let r;try{r=await fetch(API_URL,{method:'POST',headers,body:JSON.stringify(safePayload),signal:controller.signal});}catch(e){throw new Error(e?.name==='AbortError'?'La API de TEST no responde en 9 segundos. Comprueba ct-campeador-api-test.':(e?.message||'No se puede conectar con la API de TEST.'));}finally{clearTimeout(timeout);}let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));return j}
+async function apiRequest(payload,{auth=true}={}){const headers={'Content-Type':'application/json'};if(auth&&apiToken)headers.Authorization='Bearer '+apiToken;const safePayload=auth&&familyMode&&familyActive?{...payload,familyPlayer:payload.familyPlayer||familyActive}:payload;const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),9000);let r;try{r=await fetch(API_URL,{method:'POST',headers,body:JSON.stringify(safePayload),signal:controller.signal});}catch(e){throw new Error(e?.name==='AbortError'?'La API de TEST no responde en 9 segundos. Comprueba ct-campeador-api-test.':(e?.message||'No se puede conectar con la API de TEST.'));}finally{clearTimeout(timeout);}let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||('HTTP '+r.status));return j}
 // FAMILY V1 — Sólo la cuenta familiar puede iniciar la vinculación. El servidor autoriza operaciones.
 const familyEsc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function familyMount(){
@@ -5177,16 +5177,16 @@ async function familyRefresh(){
  }
  const toggle=document.querySelector('#familyPanelToggle');if(toggle)toggle.hidden=false;
 }
-async function familySelect(player){
+async function familySelect(player,{openPanel=true,refreshPending=true}={}){
  if(!familyLinks.some(l=>l.status==='approved'&&l.playerName===player))throw new Error('Jugador no autorizado');
  familyActive=player;localStorage.setItem(FAMILY_SELECTION_KEY,player);state.player=player;state.authenticated=true;data.roles[player]='jugador';
- await refreshOnline({silent:true,force:true});routePlayerToOwnCategory(player);renderAll();familyOpen();
+ await refreshOnline({silent:true,force:true});routePlayerToOwnCategory(player);renderAll();if(openPanel)familyOpen();if(refreshPending)setTimeout(()=>ctPendingScan().catch(console.warn),120);
  try{const sub=await currentPushSubscription();if(sub)await apiRequest({action:'subscribePush',deviceId:getPushDeviceId(),subscription:sub.toJSON()});}catch(e){console.warn('Push familiar pendiente de sincronizar',e)}
 }
 function familyOpen(){
  const active=familyLinks.filter(l=>l.status==='approved'),pending=familyLinks.filter(l=>l.status!=='approved');
  const el=familyBox(`<div class="familyHead"><div class="familyEyebrow">CT Campeador · Mi familia</div><h3>${familyEsc(familyName)}</h3><p>Selecciona un jugador para gestionar sus partidos, pistas y resultados.</p></div>
- <div class="familyBody"><section class="familyCard"><h4 class="familySection">🎾 Jugadores vinculados</h4>
+ <div class="familyBody"><section class="familyCard"><button class="familyPrimary" style="width:100%;font-size:14px" id="familyAllMessages">✉️ Mensajes de todos los jugadores</button></section><section class="familyCard"><h4 class="familySection">🎾 Jugadores vinculados</h4>
  ${active.map(l=>`<button type="button" data-family-player="${familyEsc(l.playerName)}" class="familyPlayer ${l.playerName===familyActive?'approved':''}" style="margin-bottom:9px"><span style="font-size:21px">🎾</span><span style="flex:1">${familyEsc(l.playerName)}</span><span>${l.playerName===familyActive?'✓ Activo':'Cambiar'}</span></button>`).join('')||'<p class="familyHelp">Todavía no hay jugadores autorizados. Vincula el primero con su PIN.</p>'}
  ${pending.map(l=>`<div class="familyRow"><span class="familyChip">${familyEsc(l.status==='pending'?'⏳ Pendiente':l.status==='revoked'?'Revocado':'No autorizado')}</span> &nbsp;${familyEsc(l.playerName)}</div>`).join('')}
  </section><section class="familyCard"><h4 class="familySection">➕ Vincular un jugador</h4><p class="familyHelp">Introduce únicamente su PIN personal. Identificaremos su nombre automáticamente y enviaremos la solicitud al administrador.</p>
@@ -5194,6 +5194,7 @@ function familyOpen(){
  <button class="familyPrimary" style="width:100%;margin-top:11px" id="familyRequest">Solicitar vinculación</button>
  <p class="familyHelp" style="margin:10px 0 0">🔒 Nunca guardamos el PIN personal en la cuenta familiar.</p></section>
  <div class="familyGrid"><button class="familySecondary" id="familyRefresh">↻ Actualizar autorizaciones</button><button id="familyLogout">Cerrar sesión</button></div></div>`);
+ el.querySelector('#familyAllMessages').onclick=()=>{el.hidden=true;familyShowInbox().catch(e=>alert(e.message))};
  el.querySelectorAll('[data-family-player]').forEach(b=>b.onclick=()=>familySelect(b.dataset.familyPlayer).catch(e=>alert(e.message)));
  el.querySelector('#familyRequest').onclick=async()=>{const pinInput=el.querySelector('#familyPlayerPin'),pin=pinInput.value.trim(),btn=el.querySelector('#familyRequest');if(!/^(?:\d{4}|\d{6})$/.test(pin)){alert('Introduce el PIN del jugador (4 o 6 cifras).');return;}btn.disabled=true;try{const r=await apiRequest({action:'familyRequestLink',pin});pinInput.value='';await familyRefresh();familyOpen();alert('Jugador identificado: '+r.player+'\n'+(r.status==='approved'?'Ya está vinculado.':'Solicitud enviada. Falta la autorización del administrador.'))}catch(e){alert(e.message)}finally{btn.disabled=false}};
  el.querySelector('#familyRefresh').onclick=async()=>{try{await familyRefresh();familyOpen()}catch(e){alert(e.message)}};
@@ -9193,7 +9194,7 @@ function renderResultsTicker(){
 }
 
 
-const PUSH_DEEP_LINK_KEYS=['open','matchId','week','category','gender'];
+const PUSH_DEEP_LINK_KEYS=['open','matchId','week','category','gender','player','messageId'];
 let pendingPushDeepLink=null;
 let pushDeepLinkRunning=false;
 
@@ -9204,7 +9205,8 @@ function readPushDeepLink(){
     if(!open)return null;
     return {
       open,
-      matchId:String(u.searchParams.get('matchId')||'').trim(),
+      player:String(u.searchParams.get('player')||'').trim(),
+      messageId:String(u.searchParams.get('messageId')||'').trim(),
       week:String(u.searchParams.get('week')||'').trim(),
       category:String(u.searchParams.get('category')||'').trim(),
       gender:String(u.searchParams.get('gender')||'').trim()
@@ -9234,6 +9236,20 @@ async function processPushDeepLink({force=false}={}){
   if(!state.authenticated||!apiToken){return false}
   pushDeepLinkRunning=true;
   try{
+    if(familyMode && link.player){
+      try{await familyRefresh()}catch(e){console.warn('No se pudieron revisar las autorizaciones familiares',e);return false}
+      const target=familyLinks.find(l=>l.status==='approved'&&normalizeName(l.playerName)===normalizeName(link.player));
+      if(!target){
+        clearPushDeepLinkFromUrl();pendingPushDeepLink=null;
+        familyOpen();alert('Este aviso corresponde a un jugador que ya no está autorizado en esta cuenta familiar.');return false;
+      }
+      if(normalizeName(familyActive)!==normalizeName(target.playerName)){
+        await familySelect(target.playerName,{openPanel:false,refreshPending:false});
+      }
+    }else if(familyMode && link.open==='messages' && !link.player){
+      clearPushDeepLinkFromUrl();pendingPushDeepLink=null;
+      await familyShowInbox();return true;
+    }
     if(link.week && weeks.some(w=>w.id===link.week))state.week=link.week;
     if(link.category && CATEGORIES.includes(link.category))state.category=link.category;
     if(link.gender && ['Masculino','Femenino'].includes(link.gender))state.gender=link.gender;
@@ -9283,7 +9299,7 @@ async function processPushDeepLink({force=false}={}){
       }
     }else if(link.open==='messages'){
       mappShow('profile');
-      setTimeout(()=>openMessagesInbox(),120);
+      setTimeout(()=>openMessagesInbox({highlightId:link.messageId||''}),120);
     }else if(link.open==='results'){
       mappShow('results');
     }else if(link.open==='profile'){
@@ -9826,6 +9842,38 @@ async function loadCloudMessages({silent=true}={}){
     return cloudMessages;
   }
 }
+// V1.6 TEST: Bandeja familiar autorizada y lectura por jugador.
+let familyInboxCache=[];
+async function familyFetchInbox(){
+  if(!familyMode)return {players:[],messages:[]};
+  const r=await apiRequest({action:'familyInbox'});
+  familyInboxCache=Array.isArray(r.messages)?r.messages:[];
+  return r;
+}
+async function familyShowInbox(){
+  if(!familyMode)return openMessagesInbox();
+  let inbox;
+  try{inbox=await familyFetchInbox()}catch(e){alert('No se pudo cargar la bandeja familiar: '+e.message);return}
+  document.querySelector('.mapp-msg-modal')?.remove();
+  const modal=document.createElement('div');modal.className='mapp-msg-modal';
+  const items=inbox.messages||[];
+  const unread=items.filter(m=>!m.read).length;
+  modal.innerHTML=`<div class="mapp-msg-sheet" style="max-width:570px"><div class="mapp-msg-head" style="background:linear-gradient(120deg,#57000c,#9f0018);color:white;padding:17px;border-radius:14px 14px 0 0"><div><small style="color:#f6cb58;font-weight:900;letter-spacing:.08em">CT CAMPEADOR · MI FAMILIA</small><h3 style="margin:4px 0">Mensajes familiares</h3><span style="font-size:12px">${unread} sin leer · ${items.length} comunicaciones</span></div><button class="mapp-msg-close" type="button" aria-label="Cerrar">×</button></div>
+   <div class="mapp-msg-list">${items.length?items.map((m,i)=>`<button type="button" data-family-msg="${i}" class="mapp-msg-card ${m.read?'':'unread'}" style="width:100%;display:block;text-align:left;border-radius:12px;margin:8px 0;padding:13px;cursor:pointer"><span style="display:inline-block;background:#fff0d9;color:#7b2738;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:900">🎾 ${familyEsc(m.playerName)}</span><div class="mapp-msg-title" style="margin-top:8px">${familyEsc(m.title||'Aviso')}</div><div class="mapp-msg-body">${familyEsc(m.body||'')}</div><div class="mapp-msg-date">${m.at?new Date(m.at).toLocaleString('es-ES'):'—'} · ${familyEsc(m.sentBy||'Club')}</div><small>${m.read?'✓ Leído':'● Sin leer'} · Tocar para abrir como ${familyEsc(m.playerName)}</small></button>`).join(''):'<div class="mapp-msg-empty">No hay mensajes para los jugadores autorizados.</div>'}</div></div>`;
+  document.body.append(modal);
+  const close=()=>{modal.remove();renderModernProfile({skipMessageLoad:true})};
+  modal.querySelector('.mapp-msg-close').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  modal.querySelectorAll('[data-family-msg]').forEach(b=>b.onclick=async()=>{
+    const m=items[Number(b.dataset.familyMsg)];if(!m)return;
+    b.disabled=true;
+    try{
+      await familySelect(m.playerName,{openPanel:false,refreshPending:false});
+      if(!m.read){await apiRequest({action:'markMessagesRead',ids:[m.id],familyPlayer:m.playerName});m.read=true}
+      close();mappShow('profile');await openMessagesInbox({highlightId:m.id});
+    }catch(e){alert('No se pudo abrir el mensaje: '+e.message);b.disabled=false}
+  });
+}
 function mappUserMessages(){
   if(!state.player)return [];
   if(isAdmin()){
@@ -9851,8 +9899,9 @@ function renderOpenMessagesInboxFromCache(){
       </div>`).join('')
     : '<div class="mapp-msg-empty">No tienes mensajes.</div>';
 }
-async function openMessagesInbox(){
+async function openMessagesInbox({highlightId=''}={}){
   document.querySelector('.mapp-msg-modal')?.remove();
+  if(familyMode && !highlightId)return familyShowInbox();
   await loadCloudMessages({silent:false});
   const messages=mappUserMessages();
   const modal=document.createElement('div');
@@ -10696,8 +10745,8 @@ let ctPendingItems=[], ctPendingLoading=false, ctPendingOpened=false, ctPendingE
 let ctPendingUser='',ctPendingDeferredKey='';
 function ctPendingNorm(s){return String(s||'').trim().toLocaleLowerCase('es')}
 function ctPendingHasPush(){return !!(pendingPushDeepLink||readPushDeepLink())}
-function ctPendingAllOwnMatches(){
- const me=ctPendingNorm(state.player),found=new Map();
+function ctPendingAllOwnMatches(player=state.player){
+ const me=ctPendingNorm(player),found=new Map();
  Object.values(data.fixtures||{}).forEach(arr=>{
   if(!Array.isArray(arr))return;
   arr.forEach(m=>{
@@ -10706,14 +10755,14 @@ function ctPendingAllOwnMatches(){
  });
  return [...found.values()];
 }
-function ctPendingReadResults(){
- return ctPendingAllOwnMatches().flatMap(m=>{
+function ctPendingReadResults(player=state.player){
+ return ctPendingAllOwnMatches(player).flatMap(m=>{
    const r=resultFor(m.id);
-   if(!r||r.status!=='pending'||ctPendingNorm(r.submittedBy)===ctPendingNorm(state.player))return [];
-   return [{id:'result:'+m.id,kind:'result',mid:String(m.id),title:'Resultado por confirmar',desc:`${m.a} vs ${m.b} · ${resultLabel(r)}`,at:Date.parse(r.updatedAt||r.submittedAt||r.createdAt||'')||0}];
+   if(!r||r.status!=='pending'||ctPendingNorm(r.submittedBy)===ctPendingNorm(player))return [];
+   return [{playerName:player,id:'result:'+m.id,kind:'result',mid:String(m.id),title:'Resultado por confirmar',desc:`${m.a} vs ${m.b} · ${resultLabel(r)}`,at:Date.parse(r.updatedAt||r.submittedAt||r.createdAt||'')||0}];
  });
 }
-async function ctPendingFetchProposals(matches){
+async function ctPendingFetchProposals(matches,player=state.player){
  const eligible=matches.filter(m=>!bookingFor(m.id)&&resultFor(m.id)?.status!=='confirmed');
  const output=[];let index=0;
  // Cuatro consultas simultáneas como máximo; todas se autentican en API producción.
@@ -10721,12 +10770,11 @@ async function ctPendingFetchProposals(matches){
   while(index<eligible.length){
    const m=eligible[index++];
    try{
-    const r=await apiRequest({action:'getMatchProposal',matchId:m.id});
+    const r=await apiRequest({action:'getMatchProposal',matchId:m.id,familyPlayer:player});
     const p=r.proposal||null;
-    ctProposalCache.set(String(m.id),p);
-    ctPaintSmartProposal(String(m.id));
-    if(p?.status==='pending'&&ctPendingNorm(p.to)===ctPendingNorm(state.player)){
-     output.push({id:'proposal:'+m.id,kind:'proposal',mid:String(m.id),title:'Propuesta de pista pendiente',desc:`${m.a} vs ${m.b} · ${p.date||''} ${p.time||''} ${p.court||''}`,at:Date.parse(p.updatedAt||p.createdAt||'')||0});
+    if(ctPendingNorm(player)===ctPendingNorm(state.player)){ctProposalCache.set(String(m.id),p);ctPaintSmartProposal(String(m.id));}
+    if(p?.status==='pending'&&ctPendingNorm(p.to)===ctPendingNorm(player)){
+     output.push({playerName:player,id:'proposal:'+m.id,kind:'proposal',mid:String(m.id),title:'Propuesta de pista pendiente',desc:`${m.a} vs ${m.b} · ${p.date||''} ${p.time||''} ${p.court||''}`,at:Date.parse(p.updatedAt||p.createdAt||'')||0});
     }
    }catch(e){ /* Fallo aislado: mostrar el resto de los asuntos disponibles. */ }
   }
@@ -10747,10 +10795,10 @@ function ctPendingRender(){
   const p=document.createElement('p');p.className='ctp-empty';p.textContent=ctPendingLoading?'Comprobando asuntos pendientes…':'¡Todo al día! No tienes acciones pendientes.';list.append(p);
  }else ctPendingItems.forEach(item=>{
   const row=document.createElement('article');row.className='ctp-item';
-  const symbol=document.createElement('span');symbol.className='ctp-icon';symbol.textContent=item.kind==='result'?'🏆':'📅';
+  const symbol=document.createElement('span');symbol.className='ctp-icon';symbol.textContent=item.kind==='result'?'🏆':item.kind==='message'?'✉️':'📅';
   const content=document.createElement('div');const title=document.createElement('strong');title.textContent=item.title;
-  const desc=document.createElement('small');desc.textContent=item.desc;content.append(title,desc);
-  const button=document.createElement('button');button.type='button';button.className='ctp-action';button.textContent=item.kind==='result'?'Revisar':'Responder';button.addEventListener('click',()=>ctPendingGo(item));
+  const desc=document.createElement('small');desc.textContent=item.desc;content.append(title,desc);if(familyMode&&item.playerName){const tag=document.createElement('span');tag.className='ctp-player';tag.textContent='🎾 '+item.playerName;content.prepend(tag)}
+  const button=document.createElement('button');button.type='button';button.className='ctp-action';button.textContent=item.kind==='message'?'Leer':item.kind==='result'?'Revisar':'Responder';button.addEventListener('click',()=>ctPendingGo(item));
   row.append(symbol,content,button);list.append(row);
  });
  document.getElementById('ctPendingCount').textContent=ctPendingItems.length===1?'1 asunto pendiente':`${ctPendingItems.length} asuntos pendientes`;
@@ -10763,29 +10811,55 @@ function ctPendingOpen(){
  if(!state.authenticated)return;
  ctPendingOpened=true;ctPendingRender();const {modal}=ctPendingElements();modal.classList.add('show');modal.setAttribute('aria-hidden','false');
 }
-function ctPendingGo(item){
- ctPendingClose();const m=findFixtureById(item.mid);if(!m)return;
- routeContextFromMatch(item.mid);renderAll();mappShow('match');
- if(item.kind==='result')openResultModal(item.mid);
- else viewMatchProposal(item.mid).catch(e=>alert(e.message||'No se ha podido abrir la propuesta'));
+async function ctPendingGo(item){
+ ctPendingClose();
+ try{
+  if(familyMode&&item.playerName&&normalizeName(item.playerName)!==normalizeName(familyActive)){
+   await familyRefresh();
+   await familySelect(item.playerName,{openPanel:false,refreshPending:false});
+  }
+  if(item.kind==='message'){
+   mappShow('profile');await openMessagesInbox({highlightId:item.messageId||''});
+   await ctPendingScan();return;
+  }
+  const m=findFixtureById(item.mid);if(!m)return;
+  routeContextFromMatch(item.mid);renderAll();mappShow('match');
+  if(item.kind==='result')openResultModal(item.mid);
+  else await viewMatchProposal(item.mid);
+ }catch(e){alert('No se pudo abrir el asunto: '+(e?.message||e))}
 }
 async function ctPendingScan({showWelcome=false}={}){
  if(ctPendingLoading||!state.authenticated||!apiToken)return;
- const identity=ctPendingNorm(state.player);
+ const players=familyMode?familyLinks.filter(l=>l.status==='approved').map(l=>l.playerName):[state.player];
+ const identity=familyMode?'family:'+familyName+':'+players.map(ctPendingNorm).join('|'):ctPendingNorm(state.player);
  if(identity!==ctPendingUser){ctPendingUser=identity;ctPendingEntryChecked=false;ctPendingItems=[]}
- ctPendingDeferredKey='ct_pending_dismissed_v1_'+identity;
+ ctPendingDeferredKey='ct_pending_dismissed_v16_'+identity;
  ctPendingLoading=true;ctPendingRender();
  try{
-  // Se hace tras refreshOnline de inicio; no se guardan propuestas ni resultados en otro almacén.
-  const matches=ctPendingAllOwnMatches();
-  const resultItems=ctPendingReadResults();
-  const proposals=await ctPendingFetchProposals(matches);
-  if(!state.authenticated||ctPendingNorm(state.player)!==identity)return;
-  ctPendingItems=[...resultItems,...proposals].sort((a,b)=>a.kind===b.kind?a.at-b.at:(a.kind==='result'?-1:1));
+  const output=[];
+  for(const player of players){
+   if(!player)continue;
+   const matches=ctPendingAllOwnMatches(player);
+   output.push(...ctPendingReadResults(player));
+   output.push(...await ctPendingFetchProposals(matches,player));
+  }
+  if(familyMode){
+   // Mensajes no leídos de TODOS los hijos. La lectura sigue siendo por destinatario.
+   let inbox={messages:[]};try{inbox=await familyFetchInbox()}catch(e){console.warn('No se pudo consultar mensajes familiares',e)}
+   for(const m of inbox.messages||[]){
+    if(m.read)continue;
+    output.push({id:'message:'+m.id+':'+m.playerName,kind:'message',playerName:m.playerName,
+      messageId:m.id,title:m.title||'Nuevo mensaje',desc:m.body||'Tienes una comunicación sin leer',
+      at:Date.parse(m.at||'')||0});
+   }
+  }
+  if(!state.authenticated)return;
+  ctPendingItems=output.sort((a,b)=>b.at-a.at);
   const signature=ctPendingItems.map(x=>x.id).sort().join('|');
   let dismissed='';try{dismissed=sessionStorage.getItem(ctPendingDeferredKey)||''}catch(_){}
   if(showWelcome&&!ctPendingHasPush()&&ctPendingItems.length&&signature!==dismissed)ctPendingOpen();
- }finally{ctPendingLoading=false;ctPendingRender()}
+ }catch(e){console.warn('Pendientes familiares: consulta parcial',e)}
+ finally{ctPendingLoading=false;ctPendingRender()}
 }
 async function ctPendingEntry(){
  if(ctPendingEntryChecked||ctPendingHasPush()||!state.authenticated)return;
@@ -10807,6 +10881,7 @@ function ctPendingInstallUI(){
  .ctp-box{width:min(100%,480px);max-height:calc(100dvh - 32px);overflow:auto;background:#fffaf3;color:#421928;border:2px solid #d7aa57;border-radius:22px;box-shadow:0 24px 75px #090408aa;padding:19px;box-sizing:border-box}
  .ctp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.ctp-top h2{margin:3px 0 6px;font-size:23px}.ctp-kicker{color:#966826;font-weight:900;font-size:11px;letter-spacing:.11em}.ctp-sub{font-size:13px;color:#856674;margin:0 0 17px}.ctp-close{border:0;background:transparent;color:#641e30;font-size:25px;cursor:pointer;padding:6px}
  .ctp-list{display:grid;gap:10px}.ctp-item{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;background:#fff;border:1px solid #e6d6c0;border-radius:13px;padding:13px;align-items:center}.ctp-icon{font-size:24px}.ctp-item strong{display:block;font-size:13px;color:#502034}.ctp-item small{display:block;margin-top:4px;font-size:12px;color:#866b74;line-height:1.4;overflow-wrap:anywhere}.ctp-action{grid-column:2;background:#672138;color:white;font-size:13px;font-weight:800;border:0;border-radius:9px;padding:10px 14px;cursor:pointer;justify-self:start}.ctp-empty{padding:18px;text-align:center;color:#77616d}
+ .ctp-player{display:inline-block;margin:0 0 5px;padding:4px 8px;border-radius:99px;background:#fff0d4;color:#732332;font-size:11px;font-weight:900}
  .ctp-footer{display:flex;justify-content:space-between;gap:9px;margin-top:18px;flex-wrap:wrap}.ctp-footer button{border:1px solid #d0b6a5;background:#eee4d9;color:#512738;border-radius:10px;padding:11px;font-weight:800;cursor:pointer}.ctp-footer button.ctp-refresh{background:#d6a953;color:#2b1520}
  `;
  document.head.append(style);
@@ -10857,6 +10932,7 @@ async function bootstrapApp(){
         connectRealtime();
         // Los mensajes son ligeros: al volver a primer plano refrescamos el buzón
         // aunque la actualización general todavía no toque.
+        if(familyMode)ctPendingScan().catch(console.warn);
         loadCloudMessages({silent:true}).then(()=>{
           renderOpenMessagesInboxFromCache();
           renderModernProfile({skipMessageLoad:true});
@@ -10888,6 +10964,8 @@ if('serviceWorker' in navigator){
       // que iOS/PWA lo pierda durante focus/navigation.
       pendingPushDeepLink={
         open:String(u.searchParams.get('open')||'').trim(),
+        player:String(u.searchParams.get('player')||'').trim(),
+        messageId:String(u.searchParams.get('messageId')||'').trim(),
         matchId:String(u.searchParams.get('matchId')||'').trim(),
         week:String(u.searchParams.get('week')||'').trim(),
         category:String(u.searchParams.get('category')||'').trim(),
