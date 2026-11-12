@@ -1428,6 +1428,30 @@ var index_default = {
         return json({ ok: true, updated }, 200, corsHeaders);
       }
 
+      // V1.6.2 TEST: eliminar solo del buzón del destinatario autenticado.
+      // Nunca elimina el envío global ni las copias de los demás jugadores.
+      if (action === "hideOwnMessage") {
+        const auth = await requireUser(request, body, env);
+        if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
+        if (auth.session.role === "admin") return json({ ok: false, error: "Usa la gestión de mensajes del administrador." }, 403, corsHeaders);
+        const id = String(body.id || "").trim().slice(0, 120);
+        if (!id) return json({ ok: false, error: "Falta el ID del mensaje." }, 400, corsHeaders);
+        const messages = await getMessages(env);
+        const message = messages.find((m) => String(m.id || "") === id);
+        if (!message || !Array.isArray(message.recipientNames) ||
+            !message.recipientNames.some((n) => normalize(n) === normalize(auth.session.name))) {
+          return json({ ok: false, error: "Mensaje no disponible para este jugador." }, 404, corsHeaders);
+        }
+        const hiddenBy = Array.isArray(message.hiddenBy) ? message.hiddenBy : [];
+        const alreadyHidden = hiddenBy.some((n) => normalize(n) === normalize(auth.session.name));
+        if (!alreadyHidden) {
+          message.hiddenBy = [...hiddenBy, auth.session.name];
+          await putMessages(env, messages);
+          await broadcastRealtime(env, {type:"messageChanged",reason:"hidden"},
+            {recipients:[auth.session.name],includeAdmins:false});
+        }
+        return json({ok:true,hidden:!alreadyHidden,player:auth.session.name},200,corsHeaders);
+      }
       if (action === "deleteMessage") {
         const admin = await requireAdmin(request, body, env);
         if (!admin.ok) return json({ ok: false, error: admin.error }, admin.status, corsHeaders);
@@ -2186,6 +2210,7 @@ __name(putMessages, "putMessages");
 function messageVisibleToUser(message, session) {
   if (session.role === "admin") return true;
   const me = normalize(session.name);
+  if (Array.isArray(message?.hiddenBy) && message.hiddenBy.some((name) => normalize(name) === me)) return false;
   return Array.isArray(message?.recipientNames) &&
     message.recipientNames.some((name) => normalize(name) === me);
 }
