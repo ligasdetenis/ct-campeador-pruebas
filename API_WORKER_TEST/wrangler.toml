@@ -17,3 +17,7 @@ storage = "sqlite"
 [[services]]
 binding = "PUSH_SERVICE"
 service = "campeador-push-test"
+
+[vars]
+AUTORESULTS_ENABLED = "false"
+AUTORESULTS_NOT_BEFORE = "2099-01-01T00:00:00Z"

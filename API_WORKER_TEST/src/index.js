@@ -45,6 +45,19 @@ var BookingCoordinator = class extends DurableObject {
       updated_at TEXT NOT NULL
     )`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS idx_court_history_match ON court_booking_history(match_id)`);
+    // FAMILY V1: nunca se guarda un PIN familiar en texto plano.
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS family_accounts (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, salt TEXT NOT NULL,
+      pin_hash TEXT NOT NULL, created_at TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1
+    )`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS family_links (
+      family_id TEXT NOT NULL, player_name TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending',
+      requested_at TEXT NOT NULL, decided_at TEXT, decided_by TEXT,
+      PRIMARY KEY(family_id, player_name)
+    )`);
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS idx_family_links_player ON family_links(player_name, status)`);
+    this.sql.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_family_name_casefold ON family_accounts(lower(name))`);
+
 
 
     this.sql.exec(`
@@ -99,6 +112,11 @@ var BookingCoordinator = class extends DurableObject {
             const mode = String(body.mode||"");
             if (mode === "general") {
               if (!body.state || typeof body.state!=="object") return {ok:false,status:400,error:"Estado ausente"};
+              // Serializar también los cambios generales y detectar una lectura previa obsoleta.
+              // No sustituir nunca resultados desde un guardado general.
+              const expectedUpdatedAt = String(body.expectedUpdatedAt || "");
+              if (expectedUpdatedAt && String(state.updatedAt || "") !== expectedUpdatedAt)
+                return {ok:false,status:409,error:"La liga ha cambiado mientras editabas. Actualiza la página y vuelve a intentarlo."};
               const next = {...body.state, results: state.results || {}};
               this.sql.exec("UPDATE league_snapshot SET payload=? WHERE id=1", JSON.stringify(next));
               await this.env.DATA.put(STATE_KEY,JSON.stringify(next)).catch(e=>console.error("Espejo KV pendiente",e));
@@ -211,6 +229,63 @@ var BookingCoordinator = class extends DurableObject {
         } catch (_) {}
       }
       return doJson({ ok: true, sent });
+    }
+    // Los comandos DO son internos. La API externa autentica cada acceso.
+    if (action === "familyCreate") {
+      const id=String(body.id||''),name=String(body.name||'').trim(),salt=String(body.salt||''),hash=String(body.hash||'');
+      if (!id||!name||!salt||!hash)return {ok:false,error:'Datos incompletos'};
+      try{this.sql.exec('INSERT INTO family_accounts(id,name,salt,pin_hash,created_at) VALUES(?,?,?,?,?)',id,name,salt,hash,new Date().toISOString());}
+      catch(e){return {ok:false,error:'Ya existe una cuenta familiar con ese nombre'};}
+      return {ok:true,id,name};
+    }
+    if (action === "familyGetByName") {
+      const rows=[...this.sql.exec('SELECT * FROM family_accounts WHERE name=? COLLATE NOCASE AND active=1 LIMIT 1',String(body.name||''))];
+      return {ok:true,account:rows[0]||null};
+    }
+    if (action === "familyGet") {
+      const rows=[...this.sql.exec('SELECT id,name,active FROM family_accounts WHERE id=? LIMIT 1',String(body.id||''))];
+      return {ok:true,account:rows[0]||null};
+    }
+    if (action === "familyLinks") {
+      const rows=[...this.sql.exec('SELECT player_name AS playerName,status,requested_at AS requestedAt,decided_at AS decidedAt FROM family_links WHERE family_id=? ORDER BY requested_at',String(body.id||''))];
+      return {ok:true,links:rows};
+    }
+    if (action === "familyLinkRequest") {
+      const id=String(body.id||''),player=String(body.player||'').trim();
+      if(!id||!player)return {ok:false,error:'Datos incompletos'};
+      const prior=[...this.sql.exec('SELECT status FROM family_links WHERE family_id=? AND player_name=?',id,player)];
+      if(prior[0]?.status==='approved')return {ok:true,status:'approved'};
+      this.sql.exec(`INSERT INTO family_links(family_id,player_name,status,requested_at,decided_at,decided_by)
+        VALUES(?,?,'pending',?,NULL,NULL)
+        ON CONFLICT(family_id,player_name) DO UPDATE SET status='pending',requested_at=excluded.requested_at,decided_at=NULL,decided_by=NULL`,id,player,new Date().toISOString());
+      return {ok:true,status:'pending'};
+    }
+    if (action === "familyAllowed") {
+      const rows=[...this.sql.exec(`SELECT 1 AS yes FROM family_links l JOIN family_accounts a ON a.id=l.family_id
+        WHERE l.family_id=? AND l.player_name=? COLLATE NOCASE AND l.status='approved' AND a.active=1 LIMIT 1`,String(body.id||''),String(body.player||''))];
+      return {ok:true,allowed:!!rows.length};
+    }
+    if (action === "familyRequests") {
+      const rows=[...this.sql.exec(`SELECT l.family_id AS familyId,a.name AS familyName,l.player_name AS playerName,
+        l.status,l.requested_at AS requestedAt FROM family_links l JOIN family_accounts a ON a.id=l.family_id
+        WHERE a.active=1 ORDER BY CASE WHEN l.status='pending' THEN 0 ELSE 1 END,l.requested_at DESC LIMIT 250`)];
+      return {ok:true,requests:rows};
+    }
+    if (action === "familyDecision") {
+      const id=String(body.id||''),player=String(body.player||''),status=String(body.status||'');
+      if(!['approved','rejected','revoked'].includes(status))return {ok:false,error:'Estado inválido'};
+      this.sql.exec('UPDATE family_links SET status=?,decided_at=?,decided_by=? WHERE family_id=? AND player_name=?',status,new Date().toISOString(),String(body.who||''),id,player);
+      return {ok:true};
+    }
+    if (action === "familyRecipients") {
+      const names=Array.isArray(body.players)?body.players.map(v=>String(v||'').trim()).filter(Boolean).slice(0,250):[];
+      const recipients=[];
+      for(const player of names){
+        const rows=[...this.sql.exec(`SELECT DISTINCT a.name AS name FROM family_links l JOIN family_accounts a ON a.id=l.family_id
+          WHERE l.player_name=? COLLATE NOCASE AND l.status='approved' AND a.active=1`,player)];
+        for(const r of rows)recipients.push('FAMILIA:'+r.name);
+      }
+      return {ok:true,recipients:[...new Set(recipients)]};
     }
     if (action === "loginGate") {
       const key = String(body.key || "").slice(0, 180);
@@ -565,8 +640,8 @@ async function confirmExpiredResults(env) {
 var index_default = {
   async scheduled(event, env, ctx) {
     ctx.waitUntil(confirmExpiredResults(env).then(
-      summary => console.log("PROD autoresultados 24h", JSON.stringify(summary)),
-      error => console.error("PROD autoresultados 24h", error)
+      summary => console.log("PROD V3 autoresultados 24h", JSON.stringify(summary)),
+      error => console.error("PROD V3 autoresultados 24h", error)
     ));
   },
   async fetch(request, env) {
@@ -624,6 +699,72 @@ var index_default = {
         const ping = await bookingCall(env, { action: "ping" });
         return json({ ok: true, message: "CT Campeador conectado", durableObject: ping.durableObject, version: "2.6.10-finaliza-libera-pista" }, 200, corsHeaders);
       }
+      // MODO FAMILIA: acceso independiente. Vinculación solo tras aprobación admin.
+      if (action === 'familyRegister') {
+        const name=String(body.name||'').trim().replace(/\s+/g,' ');
+        const pin=String(body.pin||'').trim();
+        const gateKey=loginGuardKey(request);
+        const registerKey=loginAttemptKey(request,'family-registration');
+        const gate=await checkLoginGates(env,[gateKey,registerKey]);
+        if(!gate.allowed)return json({ok:false,error:'Demasiados intentos.'},429,corsHeaders);
+        if(name.length<4||name.length>70||!/^[\p{L}\p{N} .'-]+$/u.test(name)||!/^[0-9]{6}$/.test(pin))
+          return json({ok:false,error:'Introduce un nombre de 4 a 70 caracteres y un PIN familiar de 6 cifras.'},400,corsHeaders);
+        if((await getUsers(env)).some(u=>normalize(u.name)===normalize(name)))return json({ok:false,error:'Nombre reservado: elige otro nombre para la familia.'},409,corsHeaders);
+        const salt=crypto.randomUUID()+crypto.randomUUID();
+        const hash=await familyPinHash(pin,salt);
+        const r=await bookingCall(env,{action:'familyCreate',id:crypto.randomUUID(),name,salt,hash});
+        if(!r.ok)return json({ok:false,error:r.error},409,corsHeaders);
+        await registerLoginFailure(env,registerKey,gateKey); // Limita altas masivas por IP.
+        const token=await createSession(env,{name:'FAMILIA:'+name,role:'family',familyId:r.id});
+        return json({ok:true,token,user:{name:'FAMILIA:'+name,role:'family'},familyName:name},200,corsHeaders);
+      }
+      if (action === 'familyLogin') {
+        const name=String(body.name||'').trim(),pin=String(body.pin||'').trim();
+        const gateKey=loginGuardKey(request),specific=loginAttemptKey(request,name);
+        const gate=await checkLoginGates(env,[gateKey,specific]);
+        if(!gate.allowed)return json({ok:false,error:'Demasiados intentos. Inténtalo más tarde.'},429,corsHeaders);
+        if(!name||!/^[0-9]{6}$/.test(pin))return json({ok:false,error:'Nombre y PIN familiar de 6 cifras obligatorios.'},400,corsHeaders);
+        const r=await bookingCall(env,{action:'familyGetByName',name});
+        const good=r.account?.pin_hash ? secureEqualString(await familyPinHash(pin,r.account.salt),r.account.pin_hash) : false;
+        if(!good){await registerLoginFailure(env,gateKey,specific);return json({ok:false,error:'Credenciales incorrectas'},401,corsHeaders)}
+        await clearLoginGates(env,[gateKey,specific]);
+        const token=await createSession(env,{name:'FAMILIA:'+r.account.name,role:'family',familyId:r.account.id});
+        return json({ok:true,token,user:{name:'FAMILIA:'+r.account.name,role:'family'},familyName:r.account.name},200,corsHeaders);
+      }
+      if (action === 'familyInfo') {
+        const session=await getSession(request,body,env);
+        if(!session||session.role!=='family')return json({ok:false,error:'Acceso familiar requerido'},403,corsHeaders);
+        const r=await bookingCall(env,{action:'familyLinks',id:session.familyId});
+        return json({ok:true,name:session.name.replace(/^FAMILIA:/,''),links:r.links||[]},200,corsHeaders);
+      }
+      if (action === 'familyRequestLink') {
+        const session=await getSession(request,body,env);
+        if(!session||session.role!=='family')return json({ok:false,error:'Acceso familiar requerido'},403,corsHeaders);
+        const player=String(body.player||'').trim(),pin=String(body.pin||'').trim();
+        const gateKey=loginGuardKey(request),specific=loginAttemptKey(request,player);
+        const gate=await checkLoginGates(env,[gateKey,specific]);
+        if(!gate.allowed)return json({ok:false,error:'Demasiados intentos'},429,corsHeaders);
+        if(!player||!/^(?:\d{4}|\d{6})$/.test(pin))return json({ok:false,error:'Jugador o PIN incorrecto'},400,corsHeaders);
+        const users=await getUsers(env);
+        const match=users.find(u=>normalize(u.name)===normalize(player)&&String(u.pin)===pin&&u.active!==false&&u.role!=='admin');
+        if(!match){await registerLoginFailure(env,gateKey,specific);return json({ok:false,error:'Jugador o PIN incorrecto'},401,corsHeaders)}
+        await clearLoginGates(env,[gateKey,specific]);
+        const r=await bookingCall(env,{action:'familyLinkRequest',id:session.familyId,player:match.name});
+        return json({ok:true,status:r.status,player:match.name},200,corsHeaders);
+      }
+      if (action === 'familyAdminList') {
+        const admin=await requireAdmin(request,body,env);
+        if(!admin.ok)return json({ok:false,error:admin.error},admin.status,corsHeaders);
+        const r=await bookingCall(env,{action:'familyRequests'});
+        return json({ok:true,requests:r.requests||[]},200,corsHeaders);
+      }
+      if (action === 'familyAdminDecision') {
+        const admin=await requireAdmin(request,body,env);
+        if(!admin.ok)return json({ok:false,error:admin.error},admin.status,corsHeaders);
+        const id=String(body.familyId||''),player=String(body.player||''),status=String(body.status||'');
+        const r=await bookingCall(env,{action:'familyDecision',id,player,status,who:admin.session.name});
+        return json(r,r.ok?200:400,corsHeaders);
+      }
       if (action === "login") {
         const gateKey = loginGuardKey(request);
         const name = String(body.name || "").trim();
@@ -669,6 +810,8 @@ var index_default = {
         return json({ ok: true, token, user: { name: user.name, role: user.role || "player" } }, 200, corsHeaders);
       }
       if (action === "getOwnPin") {
+        const rawSession=await getSession(request,body,env);
+        if(rawSession?.role==='family')return json({ok:false,error:'El PIN personal no se muestra en cuentas familiares.'},403,corsHeaders);
         const auth = await requireUser(request, body, env);
         if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
 
@@ -724,8 +867,8 @@ var index_default = {
           updatedBy: admin.session.name
         };
 
-        const saved = await bookingCall(env, {action:"leagueWrite", mode:"general", state:nextState});
-        if(!saved.ok)throw new Error(saved.error||"No se pudo guardar estado");
+        const saved = await bookingCall(env, {action:"leagueWrite", mode:"general", state:nextState, expectedUpdatedAt:state.updatedAt || ""});
+        if(!saved.ok)return json({ok:false,error:saved.error||"No se pudo guardar estado"},saved.status||409,corsHeaders);
 
         return json({
           ok: true,
@@ -868,12 +1011,17 @@ var index_default = {
         return json({ ok: true, vapidPublicKey: String(j.vapidPublicKey), vapidConfigured: !!j.vapidConfigured }, 200, corsHeaders);
       }
       if (action === "subscribePush") {
-        const auth = await requireUser(request, body, env);
-        if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, corsHeaders);
+        // Identidad del destinatario resuelta EXCLUSIVAMENTE en servidor.
+        const familySession=await getSession(request,body,env);
+        const auth=familySession?.role==='family'?null:await requireUser(request,body,env);
+        if(familySession?.role!=='family' && !auth?.ok)
+          return json({ok:false,error:auth?.error||'Sesión requerida'},auth?.status||401,corsHeaders);
         if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
           return json({ ok: false, error: "El servicio Push no est\xE1 configurado." }, 500, corsHeaders);
         }
         const subscription = body.subscription || {};
+        const deviceId=String(body.deviceId||'').trim();
+        if(!/^[a-zA-Z0-9_.:-]{8,128}$/.test(deviceId)) return json({ok:false,error:'Identificador del dispositivo no válido'},400,corsHeaders);
         if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
           return json({ ok: false, error: "Suscripci\xF3n Push incompleta." }, 400, corsHeaders);
         }
@@ -884,8 +1032,9 @@ var index_default = {
             "Authorization": `Bearer ${env.PUSH_SERVICE_TOKEN}`
           },
           body: JSON.stringify({
+            deviceId: String(body.deviceId || '').trim(),
             subscription,
-            userName: auth.session.name
+            userName: familySession?.role==='family' ? familySession.name : auth.session.name
           })
         });
         const txt = await r.text();
@@ -958,8 +1107,8 @@ var index_default = {
           updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
           updatedBy: admin.session.name
         };
-        const saved = await bookingCall(env, {action:"leagueWrite", mode:"general", state:safeState});
-        if(!saved.ok)throw new Error(saved.error||"No se pudo guardar estado");
+        const saved = await bookingCall(env, {action:"leagueWrite", mode:"general", state:safeState, expectedUpdatedAt:currentState.updatedAt || ""});
+        if(!saved.ok)return json({ok:false,error:saved.error||"No se pudo guardar estado"},saved.status||409,corsHeaders);
         await broadcastRealtime(env, { type: "stateChanged", updatedAt: safeState.updatedAt });
         return json({ ok: true, state: safeState }, 200, corsHeaders);
       }
@@ -1338,7 +1487,9 @@ var index_default = {
           { recipients: [], includeAdmins: true }
         );
 
-        // 3) Push de fondo. Ya no bloquea la aparición del mensaje en la app.
+        // 3) Push de fondo. Ampliar destinatarios con las familias autorizadas.
+        const familyRecipients=await bookingCall(env,{action:'familyRecipients',players:safeRecipients});
+        const pushRecipients=[...new Set([...safeRecipients,...(familyRecipients.recipients||[])])];
         let pushResult = { ok: true, sent: 0, matchedUsers: 0, total: 0, removed: 0, failed: [] };
         let pushWarning = "";
         if (!env.PUSH_SERVICE || !env.PUSH_SERVICE_TOKEN) {
@@ -1352,7 +1503,7 @@ var index_default = {
                 "Authorization": `Bearer ${env.PUSH_SERVICE_TOKEN}`
               },
               body: JSON.stringify({
-                recipients: safeRecipients,
+                recipients: pushRecipients,
                 title,
                 body: message,
                 url: launchUrl,
@@ -1490,22 +1641,19 @@ var index_default = {
         delete safeState.sessions;
         const backup = {
           format: "ct-campeador-backup",
-          schemaVersion: 2,
-          credentialsOmitted: true,
+          schemaVersion: 1,
           generatedAt: new Date().toISOString(),
           apiVersion: "2.6.10-finaliza-libera-pista",
           tournamentName: String(state?.tournamentName || "CT Campeador"),
           contents: {
-            state: safeState,
-            users: safeUsers,
+            state,
+            users,
             profiles,
             messages,
             adminPreferences,
-            reservations,
-            courtPaymentHistory: courtPaymentsResult.records
+            reservations
           },
           excluded: [
-            "PIN de usuarios (V4A: excluidos de las copias)",
             "sesiones y tokens de autenticación",
             "secretos de Cloudflare",
             "claves VAPID privadas",
@@ -1716,7 +1864,7 @@ var index_default = {
           updatedBy: admin.session.name
         };
         const saved = await bookingCall(env, {action:"leagueWrite", mode:"reset", state:blankState});
-        if(!saved.ok)throw new Error(saved.error||"No se pudo guardar estado");
+        if(!saved.ok)return json({ok:false,error:saved.error||"No se pudo guardar estado"},saved.status||409,corsHeaders);
         return json({ ok: true, state: blankState }, 200, corsHeaders);
       }
       return json({ ok: false, error: `Acci\xF3n desconocida: ${action}` }, 400, corsHeaders);
@@ -1748,7 +1896,7 @@ async function broadcastRealtime(env, event, options = {}) {
 }
 __name(broadcastRealtime, "broadcastRealtime");
 
-const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-liga/";
+const APP_BASE_URL = "https://ligasdetenis.github.io/ct-campeador-pruebas/";
 
 // Convierte YYYY-MM-DD + HH:mm de Europe/Madrid a UTC, respetando horario de verano.
 function spanishSlotTimeToUTC(dateValue, timeValue) {
@@ -1789,6 +1937,9 @@ async function sendTargetedPush(env, recipients, title, body, deepLink = {}) {
   const safeRecipients = [...new Set((recipients || []).map((x) => String(x || "").trim()).filter(Boolean))];
   if (!safeRecipients.length) return;
   try {
+    const family=await bookingCall(env,{action:'familyRecipients',players:safeRecipients});
+    for(const item of family.recipients||[])safeRecipients.push(item);
+    const allRecipients=[...new Set(safeRecipients)];
     await env.PUSH_SERVICE.fetch("https://push.internal/admin/send", {
       method: "POST",
       headers: {
@@ -1796,7 +1947,7 @@ async function sendTargetedPush(env, recipients, title, body, deepLink = {}) {
         "Authorization": `Bearer ${env.PUSH_SERVICE_TOKEN}`
       },
       body: JSON.stringify({
-        recipients: safeRecipients,
+        recipients: allRecipients,
         title: String(title || "CT Campeador").slice(0, 80),
         body: String(body || "").slice(0, 220),
         url: makeAppDeepLink(deepLink),
@@ -1903,6 +2054,17 @@ function normalize(text) {
   return String(text || "").trim().toLocaleLowerCase("es");
 }
 __name(normalize, "normalize");
+async function familyPinHash(pin,salt){
+  const enc=new TextEncoder();
+  const key=await crypto.subtle.importKey('raw',enc.encode(pin),'PBKDF2',false,['deriveBits']);
+  const derived=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:160000},key,256);
+  return Array.from(new Uint8Array(derived),v=>v.toString(16).padStart(2,'0')).join('');
+}
+function secureEqualString(a,b){
+  if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;
+  let diff=0;for(let i=0;i<a.length;i++)diff|=a.charCodeAt(i)^b.charCodeAt(i);return diff===0;
+}
+
 async function getState(env) {
   const r=await bookingCall(env,{action:"leagueRead"});
   if(!r.ok)throw new Error(r.error||"No se pudo leer la liga desde el coordinador");
@@ -2055,6 +2217,10 @@ async function getSession(request, body, env) {
   try {
     const session = JSON.parse(raw);
     if (session.securityVersion !== SESSION_SECURITY_VERSION) return null;
+    if(session.role==='family'){
+      const r=await bookingCall(env,{action:'familyGet',id:session.familyId});
+      if(!r.account||r.account.active!==1)return null;
+    }
     return session;
   } catch {
     return null;
@@ -2063,7 +2229,7 @@ async function getSession(request, body, env) {
 __name(getSession, "getSession");
 async function createSession(env, user) {
   const token = crypto.randomUUID();
-  const session = { name: user.name, role: user.role || "player", createdAt: (/* @__PURE__ */ new Date()).toISOString(), securityVersion: SESSION_SECURITY_VERSION };
+  const session = { name: user.name, role: user.role || "player", createdAt: (/* @__PURE__ */ new Date()).toISOString(), securityVersion: SESSION_SECURITY_VERSION, ...(user.familyId?{familyId:user.familyId}:{}) };
   await env.DATA.put(`session:${token}`, JSON.stringify(session), { expirationTtl: SESSION_TTL_SECONDS });
   const key = `sessionsByUser:${encodeURIComponent(normalize(user.name))}`;
   let tokens = [];
@@ -2195,6 +2361,16 @@ __name(stateForSession, "stateForSession");
 async function requireUser(request, body, env) {
   const session = await getSession(request, body, env);
   if (!session) return { ok: false, status: 401, error: "Debes iniciar sesi\xF3n." };
+  if(session.role==='family'){
+    const player=String(body?.familyPlayer||'').trim();
+    if(!player)return {ok:false,status:400,error:'Selecciona un jugador vinculado en Modo Familia.'};
+    const allowed=await bookingCall(env,{action:'familyAllowed',id:session.familyId,player});
+    if(!allowed.allowed)return {ok:false,status:403,error:'Jugador no vinculado o pendiente de autorización.'};
+    const users=await getUsers(env);
+    const target=users.find(u=>normalize(u.name)===normalize(player)&&u.active!==false&&u.role!=='admin');
+    if(!target)return {ok:false,status:403,error:'El jugador ya no está activo o no puede delegarse.'};
+    return {ok:true,session:{...session,name:target.name,role:'player',familyActor:session.name}};
+  }
   return { ok: true, session };
 }
 __name(requireUser, "requireUser");
