@@ -2057,7 +2057,7 @@ __name(normalize, "normalize");
 async function familyPinHash(pin,salt){
   const enc=new TextEncoder();
   const key=await crypto.subtle.importKey('raw',enc.encode(pin),'PBKDF2',false,['deriveBits']);
-  const derived=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:160000},key,256);
+  const derived=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:100000},key,256);
   return Array.from(new Uint8Array(derived),v=>v.toString(16).padStart(2,'0')).join('');
 }
 function secureEqualString(a,b){
