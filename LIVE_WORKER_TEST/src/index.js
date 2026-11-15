@@ -15,12 +15,14 @@ export default {
       const bearer = (req.headers.get('Authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
       if (!bearer) return json({error:'Entra en la liga TEST con tu PIN para controlar el marcador.'},401);
       if (!env.API_TEST) return json({error:'Falta Service Binding API_TEST en LIVE Worker.'},503);
+      let requestBody;
+      try {requestBody=await req.clone().json()}catch{return json({error:'JSON inválido'},400)}
       let permission;
       try {
         const resp = await env.API_TEST.fetch('https://api.internal/', {
           method:'POST',
           headers:{'content-type':'application/json','authorization':'Bearer '+bearer},
-          body:JSON.stringify({action:'liveAuthorization',matchKey:m[1]})
+          body:JSON.stringify({action:'liveAuthorization',matchKey:m[1],familyPlayer:requestBody.familyPlayer})
         });
         permission = await resp.json();
         if (!resp.ok || !permission.ok) return json({error:permission.error||'Sesión no válida'},resp.status===401?401:403);
